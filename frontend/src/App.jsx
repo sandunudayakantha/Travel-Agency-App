@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext.jsx';
 import { ClerkAuthProvider } from './contexts/ClerkAuthContext.jsx';
 import { PackageProvider } from './contexts/PackageContext.jsx';
 import { BookingProvider } from './contexts/BookingContext.jsx';
+import { VehicleProvider } from './contexts/VehicleContext.jsx';
 
 // Components
 import Navbar from './components/layout/Navbar.jsx';
@@ -29,6 +30,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminPackages from './pages/admin/Packages';
 import AdminBookings from './pages/admin/Bookings';
 import AdminUsers from './pages/admin/Users';
+import AdminVehicles from './pages/admin/Vehicles';
 import NotFound from './pages/NotFound';
 import AdminLogin from './pages/auth/AdminLogin';
 
@@ -38,6 +40,7 @@ function App() {
       <AuthProvider>
         <PackageProvider>
           <BookingProvider>
+            <VehicleProvider>
             <Router>
               <div className="min-h-screen bg-gray-50 flex flex-col">
                 <Navbar />
@@ -90,11 +93,16 @@ function App() {
                         <AdminBookings />
                       </AdminRoute>
                     } />
-                    <Route path="/admin/users" element={
-                      <AdminRoute>
-                        <AdminUsers />
-                      </AdminRoute>
-                    } />
+                                      <Route path="/admin/users" element={
+                    <AdminRoute>
+                      <AdminUsers />
+                    </AdminRoute>
+                  } />
+                  <Route path="/admin/vehicles" element={
+                    <AdminRoute>
+                      <AdminVehicles />
+                    </AdminRoute>
+                  } />
                     
                     {/* 404 Route */}
                     <Route path="*" element={<NotFound />} />
@@ -129,6 +137,7 @@ function App() {
                 }}
               />
             </Router>
+            </VehicleProvider>
           </BookingProvider>
         </PackageProvider>
       </AuthProvider>

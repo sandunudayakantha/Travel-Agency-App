@@ -42,6 +42,7 @@ const Navbar = () => {
     { name: 'Manage Packages', href: '/admin/packages' },
     { name: 'Manage Bookings', href: '/admin/bookings' },
     { name: 'Manage Users', href: '/admin/users' },
+    { name: 'Manage Vehicles', href: '/admin/vehicles' },
   ];
 
   return (

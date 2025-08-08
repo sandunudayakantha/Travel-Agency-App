@@ -11,6 +11,7 @@ const packageRoutes = require('./routes/packages');
 const bookingRoutes = require('./routes/bookings');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
+const vehicleRoutes = require('./routes/vehicles');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -54,6 +55,7 @@ app.use('/api/packages', packageRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/vehicles', vehicleRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
