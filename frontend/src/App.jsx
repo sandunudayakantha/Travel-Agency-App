@@ -17,6 +17,7 @@ import Packages from './pages/Packages';
 import PackageDetail from './pages/PackageDetail';
 import CustomPackage from './pages/CustomPackage';
 import AboutUs from './pages/AboutUs.jsx';
+import FAQ from './pages/FAQ.jsx';
 import Contact from './pages/Contact.jsx';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -46,6 +47,7 @@ function App() {
                   <Route path="/packages/:id" element={<PackageDetail />} />
                   <Route path="/custom-package" element={<CustomPackage />} />
                   <Route path="/about" element={<AboutUs />} />
+                  <Route path="/faq" element={<FAQ />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/admin/login" element={<AdminLogin />} />
