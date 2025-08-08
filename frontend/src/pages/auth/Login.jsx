@@ -20,12 +20,64 @@ const Login = () => {
   const [localError, setLocalError] = useState('');
   const [currentBgIndex, setCurrentBgIndex] = useState(() => Math.floor(Math.random() * scenicPhotos.length));
   const [tiltStyle, setTiltStyle] = useState({ transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)' });
+  const [typedText, setTypedText] = useState('');
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showCursor, setShowCursor] = useState(true);
+
+  const phrases = [
+    'Discover hidden beaches',
+    'Explore ancient temples',
+    'Taste local cuisines',
+    'Capture sunset moments',
+    'Meet fellow travelers'
+  ];
+
+  const currentPhrase = phrases[currentPhraseIndex];
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/profile');
     }
   }, [isAuthenticated, navigate]);
+
+  // Typing animation effect
+  useEffect(() => {
+    const typingSpeed = 100;
+    const deletingSpeed = 50;
+    const pauseTime = 2000;
+
+    if (!isDeleting && typedText === currentPhrase) {
+      // Pause at end of phrase
+      const timeout = setTimeout(() => setIsDeleting(true), pauseTime);
+      return () => clearTimeout(timeout);
+    }
+
+    if (isDeleting && typedText === '') {
+      // Move to next phrase
+      setIsDeleting(false);
+      setCurrentPhraseIndex((prev) => (prev + 1) % phrases.length);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      if (isDeleting) {
+        setTypedText(currentPhrase.slice(0, typedText.length - 1));
+      } else {
+        setTypedText(currentPhrase.slice(0, typedText.length + 1));
+      }
+    }, isDeleting ? deletingSpeed : typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [typedText, isDeleting, currentPhrase]);
+
+  // Cursor blink effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowCursor(prev => !prev);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
 
   // Rotate background image every 7 seconds with smooth crossfade
   useEffect(() => {
@@ -94,7 +146,7 @@ const Login = () => {
           />
         ))}
       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-white/90" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0c1c2e]/40 via-[#0c1c2e]/20 to-white/90" />
 
       {/* Floating travel icons for subtle motion */}
       <div className="pointer-events-none absolute inset-0">
@@ -111,7 +163,11 @@ const Login = () => {
               <span className="mr-2">✈️</span> Welcome back, explorer
             </p>
             <h1 className="mt-6 text-4xl font-semibold leading-tight sm:text-5xl">
-              Find your next escape
+              Find your next
+              <span className="block text-2xl font-normal mt-2">
+                <span className="text-white/90">{typedText}</span>
+                <span className={`ml-1 inline-block w-0.5 h-6 bg-white ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-150`}></span>
+              </span>
             </h1>
             <p className="mt-4 max-w-md text-white/90">
               Sign in to track bookings, manage preferences, and unlock exclusive
@@ -122,19 +178,19 @@ const Login = () => {
           <div className="md:ml-auto relative">
             {/* Aurora glow behind card */}
             <div className="absolute -inset-6 -z-10 blur-2xl opacity-50" aria-hidden>
-              <div className="h-full w-full rounded-3xl bg-gradient-to-r from-teal-400/60 via-cyan-400/60 to-indigo-400/60" />
+              <div className="h-full w-full rounded-3xl bg-gradient-to-r from-[#0c1c2e]/30 via-[#0c1c2e]/20 to-white/10" />
             </div>
 
             {/* Gradient border wrapper */}
             <div
-              className="rounded-2xl p-[1.2px] animate-gradient bg-gradient-to-r from-teal-400 via-cyan-400 to-indigo-400"
+              className="rounded-2xl p-[1.2px] animate-gradient bg-gradient-to-r from-[#0c1c2e] via-[#0c1c2e] to-[#0c1c2e]"
               onMouseMove={handleTiltMove}
               onMouseLeave={handleTiltLeave}
               style={tiltStyle}
             >
               <div className="rounded-2xl bg-white/90 p-6 shadow-2xl backdrop-blur sm:p-8">
               <div className="mb-6 text-center">
-                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-teal-500 text-white shadow">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#0c1c2e] text-white shadow">
                   🌍
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">Sign in</h2>
@@ -160,7 +216,7 @@ const Login = () => {
                         autoComplete="email"
                         value={email}
                         onChange={handleFieldChange(setEmail)}
-                        className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 py-2.5 text-gray-900 shadow-sm outline-none ring-teal-500/20 focus:border-teal-500 focus:ring-4"
+                        className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4"
                         placeholder="you@traveler.com"
                       />
                     </div>
@@ -178,7 +234,7 @@ const Login = () => {
                         autoComplete="current-password"
                         value={password}
                         onChange={handleFieldChange(setPassword)}
-                        className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-10 py-2.5 text-gray-900 shadow-sm outline-none ring-teal-500/20 focus:border-teal-500 focus:ring-4"
+                        className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-10 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4"
                         placeholder="••••••••"
                       />
                       <button
@@ -194,10 +250,10 @@ const Login = () => {
 
                 <div className="flex items-center justify-between">
                   <label className="inline-flex items-center gap-2 text-sm text-gray-600">
-                    <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500" />
+                    <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-[#0c1c2e] focus:ring-[#0c1c2e]" />
                     Remember me
                   </label>
-                  <span className="text-sm text-teal-700 hover:text-teal-800">
+                  <span className="text-sm text-[#0c1c2e] hover:opacity-80">
                     {/* Future route */}
                     <span className="cursor-not-allowed opacity-60">Forgot password?</span>
                   </span>
@@ -206,7 +262,7 @@ const Login = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-teal-600 to-cyan-600 px-4 py-2.5 font-medium text-white shadow hover:from-teal-700 hover:to-cyan-700 focus:outline-none focus:ring-4 focus:ring-teal-500/30 disabled:cursor-not-allowed disabled:opacity-80"
+                    className="group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0c1c2e] px-4 py-2.5 font-medium text-white shadow hover:bg-[#0a1626] focus:outline-none focus:ring-4 focus:ring-[#0c1c2e]/30 disabled:cursor-not-allowed disabled:opacity-80"
                   >
                     <span className="text-lg transition-transform group-hover:translate-x-1">✈️</span>
                     {loading ? (
@@ -222,7 +278,7 @@ const Login = () => {
 
               <div className="mt-6 text-center text-sm text-gray-700">
                 New here?{' '}
-                <Link to="/register" className="font-medium text-teal-700 hover:text-teal-800">
+                <Link to="/register" className="font-medium text-[#0c1c2e] hover:opacity-80">
                   Create an account
                 </Link>
               </div>
