@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext.jsx';
 import { ClerkAuthProvider } from './contexts/ClerkAuthContext.jsx';
 import { PackageProvider } from './contexts/PackageContext.jsx';
 import { BookingProvider } from './contexts/BookingContext.jsx';
+import { VehicleProvider } from './contexts/VehicleContext.jsx';
 
 // Components
 import Navbar from './components/layout/Navbar.jsx';
@@ -29,6 +30,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminPackages from './pages/admin/Packages';
 import AdminBookings from './pages/admin/Bookings';
 import AdminUsers from './pages/admin/Users';
+import AdminVehicles from './pages/admin/Vehicles';
 import NotFound from './pages/NotFound';
 import AdminLogin from './pages/auth/AdminLogin';
 
@@ -136,6 +138,110 @@ function App() {
         <PackageProvider>
           <BookingProvider>
             <RouterProvider router={router} />
+function App() {
+  return (
+    <ClerkAuthProvider>
+      <AuthProvider>
+        <PackageProvider>
+          <BookingProvider>
+            <VehicleProvider>
+            <Router>
+              <div className="min-h-screen bg-gray-50 flex flex-col">
+                <Navbar />
+                <main className="flex-grow">
+                  <Routes>
+                    {/* Public Routes */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/packages" element={<Packages />} />
+                    <Route path="/packages/:id" element={<PackageDetail />} />
+                    <Route path="/custom-package" element={<CustomPackage />} />
+                    <Route path="/about" element={<AboutUs />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/contact" element={<Contact />} />
+                                      <Route path="/login" element={<Login />} />
+                  <Route path="/admin/login" element={<AdminLogin />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/sign-in" element={<Login />} />
+                  <Route path="/sign-up" element={<Register />} />
+                    
+                    {/* Protected Routes */}
+                    <Route path="/profile" element={
+                      <PrivateRoute>
+                        <Profile />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/bookings" element={
+                      <PrivateRoute>
+                        <Bookings />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/bookings/:id" element={
+                      <PrivateRoute>
+                        <BookingDetail />
+                      </PrivateRoute>
+                    } />
+                    
+                    {/* Admin Routes */}
+                    <Route path="/admin" element={
+                      <AdminRoute>
+                        <AdminDashboard />
+                      </AdminRoute>
+                    } />
+                    <Route path="/admin/packages" element={
+                      <AdminRoute>
+                        <AdminPackages />
+                      </AdminRoute>
+                    } />
+                    <Route path="/admin/bookings" element={
+                      <AdminRoute>
+                        <AdminBookings />
+                      </AdminRoute>
+                    } />
+                                      <Route path="/admin/users" element={
+                    <AdminRoute>
+                      <AdminUsers />
+                    </AdminRoute>
+                  } />
+                  <Route path="/admin/vehicles" element={
+                    <AdminRoute>
+                      <AdminVehicles />
+                    </AdminRoute>
+                  } />
+                    
+                    {/* 404 Route */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+                <Footer />
+              </div>
+              
+              {/* Toast Notifications */}
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#363636',
+                    color: '#fff',
+                  },
+                  success: {
+                    duration: 3000,
+                    iconTheme: {
+                      primary: '#22c55e',
+                      secondary: '#fff',
+                    },
+                  },
+                  error: {
+                    duration: 5000,
+                    iconTheme: {
+                      primary: '#ef4444',
+                      secondary: '#fff',
+                    },
+                  },
+                }}
+              />
+            </Router>
+            </VehicleProvider>
           </BookingProvider>
         </PackageProvider>
       </AuthProvider>
