@@ -178,6 +178,109 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Popular Destinations Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            variants={heroVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Popular Destinations
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Explore our most sought-after destinations and find your perfect getaway
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Adventure Tours",
+                description: "Thrilling experiences for adrenaline seekers",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+                count: "15+ Tours",
+                link: "/packages?category=adventure"
+              },
+              {
+                title: "Beach Getaways",
+                description: "Relaxing beach destinations worldwide",
+                image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=800",
+                count: "20+ Destinations",
+                link: "/packages?category=beach"
+              },
+              {
+                title: "Cultural Experiences",
+                description: "Immerse yourself in local traditions",
+                image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800",
+                count: "12+ Experiences",
+                link: "/packages?category=cultural"
+              },
+              {
+                title: "City Breaks",
+                description: "Urban adventures in vibrant cities",
+                image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800",
+                count: "18+ Cities",
+                link: "/packages?category=city"
+              },
+              {
+                title: "Nature Retreats",
+                description: "Connect with nature in pristine environments",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+                count: "10+ Retreats",
+                link: "/packages?category=nature"
+              },
+              {
+                title: "Luxury Escapes",
+                description: "Premium experiences for discerning travelers",
+                image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800",
+                count: "8+ Escapes",
+                link: "/packages?category=luxury"
+              }
+            ].map((destination, index) => (
+              <motion.div
+                key={destination.title}
+                className="group relative overflow-hidden rounded-xl shadow-soft hover:shadow-large transition-all duration-300"
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    src={destination.image}
+                    alt={destination.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="text-xl font-bold text-white mb-1">
+                      {destination.title}
+                    </h3>
+                    <p className="text-white/90 text-sm mb-2">
+                      {destination.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/80 text-sm font-medium">
+                        {destination.count}
+                      </span>
+                      <Link
+                        to={destination.link}
+                        className="text-white hover:text-secondary-300 transition-colors text-sm font-medium"
+                      >
+                        Explore →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Featured Packages Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -201,12 +304,12 @@ const Home = () => {
                 <div key={i} className="bg-gray-200 rounded-xl h-80 animate-pulse"></div>
               ))}
             </div>
-          ) : (
+          ) : featuredPackages.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredPackages.slice(0, 6).map((pkg, index) => (
                 <motion.div
                   key={pkg._id}
-                  className="card overflow-hidden group"
+                  className="card overflow-hidden group hover:shadow-large transition-all duration-300"
                   variants={cardVariants}
                   initial="hidden"
                   animate="visible"
@@ -226,6 +329,9 @@ const Home = () => {
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-sm font-medium text-gray-900">
                       ${pkg.price.amount}
                     </div>
+                    <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full text-xs text-white">
+                      {pkg.category}
+                    </div>
                   </div>
                   
                   <div className="p-6">
@@ -236,7 +342,7 @@ const Home = () => {
                       <div className="flex items-center">
                         <StarIcon className="h-5 w-5 text-yellow-400 fill-current" />
                         <span className="ml-1 text-sm text-gray-600">
-                          {pkg.ratings.average.toFixed(1)}
+                          {pkg.ratings?.average?.toFixed(1) || '4.5'}
                         </span>
                       </div>
                     </div>
@@ -257,13 +363,30 @@ const Home = () => {
                     
                     <Link
                       to={`/packages/${pkg._id}`}
-                      className="btn-primary w-full text-center"
+                      className="btn-primary w-full text-center group-hover:bg-primary-700 transition-colors"
                     >
                       View Details
                     </Link>
                   </div>
                 </motion.div>
               ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🌍</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No Featured Packages Available
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Check back soon for our latest featured travel packages!
+              </p>
+              <Link
+                to="/packages"
+                className="btn-primary inline-flex items-center"
+              >
+                Browse All Packages
+                <ArrowRightIcon className="ml-2 h-5 w-5" />
+              </Link>
             </div>
           )}
 
@@ -275,7 +398,7 @@ const Home = () => {
           >
             <Link
               to="/packages"
-              className="btn-outline text-lg px-8 py-4 inline-flex items-center"
+              className="btn-outline text-lg px-8 py-4 inline-flex items-center hover:bg-primary-600 hover:text-white transition-colors"
             >
               View All Packages
               <ArrowRightIcon className="ml-2 h-5 w-5" />
