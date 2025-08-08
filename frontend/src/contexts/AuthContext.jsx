@@ -136,6 +136,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Admin login (ensures admin role)
+  const adminLogin = async (credentials) => {
+    dispatch({ type: 'AUTH_START' });
+    try {
+      const res = await axios.post('/api/auth/login', credentials);
+      const { user, token } = res.data.data || {};
+      if (user?.role !== 'admin') {
+        // Ensure we don't persist non-admin sessions via admin login
+        localStorage.removeItem('token');
+        dispatch({ type: 'AUTH_FAIL', payload: 'Admin access required' });
+        toast.error('Admin access required');
+        return { success: false, error: 'Admin access required' };
+      }
+      localStorage.setItem('token', token);
+      dispatch({ type: 'AUTH_SUCCESS', payload: { user, token } });
+      toast.success('Admin login successful!');
+      return { success: true };
+    } catch (error) {
+      const message = error.response?.data?.message || 'Login failed';
+      dispatch({ type: 'AUTH_FAIL', payload: message });
+      toast.error(message);
+      return { success: false, error: message };
+    }
+  };
+
   // Logout user
   const logout = () => {
     localStorage.removeItem('token');
@@ -186,6 +211,7 @@ export const AuthProvider = ({ children }) => {
     error: state.error,
     register,
     login,
+    adminLogin,
     logout,
     updateProfile,
     changePassword,

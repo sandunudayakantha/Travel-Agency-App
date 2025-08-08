@@ -26,6 +26,7 @@ import AdminPackages from './pages/admin/Packages';
 import AdminBookings from './pages/admin/Bookings';
 import AdminUsers from './pages/admin/Users';
 import NotFound from './pages/NotFound';
+import AdminLogin from './pages/auth/AdminLogin';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
                   <Route path="/packages/:id" element={<PackageDetail />} />
                   <Route path="/custom-package" element={<CustomPackage />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/admin/login" element={<AdminLogin />} />
                   <Route path="/register" element={<Register />} />
                   
                   {/* Protected Routes */}
