@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
+import { useClerkAuthContext } from '../../contexts/ClerkAuthContext.jsx';
+import SocialAuth from '../../components/auth/SocialAuth.jsx';
 
 const scenicPhotos = [
   'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop',
@@ -13,6 +15,7 @@ const scenicPhotos = [
 const Register = () => {
   const navigate = useNavigate();
   const { register, isAuthenticated, loading, error, clearError } = useAuth();
+  const { isSignedIn: isClerkSignedIn } = useClerkAuthContext();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -39,10 +42,10 @@ const Register = () => {
   const currentPhrase = phrases[currentPhraseIndex];
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated || isClerkSignedIn) {
       navigate('/profile');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isClerkSignedIn, navigate]);
 
   // Typing animation effect
   useEffect(() => {
@@ -214,6 +217,21 @@ const Register = () => {
                     {localError || error}
                   </div>
                 )}
+
+                {/* Google Sign Up */}
+                <div className="mb-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300" />
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <SocialAuth mode="signup" />
+                  </div>
+                </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
