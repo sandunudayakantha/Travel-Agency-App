@@ -72,7 +72,7 @@ const Home = () => {
         <div className="absolute inset-0 bg-black opacity-20"></div>
         <div className="absolute inset-0 bg-hero-pattern opacity-10"></div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
           <motion.div 
             className="text-center"
             variants={heroVariants}
@@ -85,23 +85,9 @@ const Home = () => {
             </h1>
             <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
               Experience the world's most amazing destinations with our curated travel packages. 
-              From luxury getaways to adventure expeditions, we've got your perfect journey covered.
+             
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/packages"
-                className="btn-secondary text-lg px-8 py-4 inline-flex items-center justify-center"
-              >
-                Explore Packages
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
-              </Link>
-              <Link
-                to="/custom-package"
-                className="btn-outline text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-primary-600"
-              >
-                Create Custom Trip
-              </Link>
-            </div>
+            
           </motion.div>
         </div>
 
@@ -110,6 +96,138 @@ const Home = () => {
           <button className="bg-white/20 backdrop-blur-sm rounded-full p-4 hover:bg-white/30 transition-all duration-300">
             <PlayIcon className="h-8 w-8 text-white" />
           </button>
+        </div>
+      </section>
+
+      {/* Popular Destinations Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-12"
+            variants={heroVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Our Popular Packages
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Discover our most popular travel packages that travelers love to book
+            </p>
+          </motion.div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-gray-200 rounded-xl h-64 animate-pulse"></div>
+              ))}
+            </div>
+          ) : featuredPackages.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredPackages.slice(0, 6).map((pkg, index) => (
+                <motion.div
+                  key={pkg._id}
+                  className="group relative overflow-hidden rounded-xl shadow-soft hover:shadow-large transition-all duration-300 bg-white"
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={pkg.images[0]?.url || 'https://via.placeholder.com/400x300'}
+                      alt={pkg.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    {pkg.featured && (
+                      <div className="absolute top-4 left-4 bg-accent-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Featured
+                      </div>
+                    )}
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-sm font-medium text-gray-900">
+                      ${pkg.price.amount}
+                    </div>
+                    <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full text-xs text-white">
+                      {pkg.category}
+                    </div>
+                  </div>
+                  
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-xl font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                        {pkg.title}
+                      </h3>
+                      <div className="flex items-center">
+                        <StarIcon className="h-5 w-5 text-yellow-400 fill-current" />
+                        <span className="ml-1 text-sm text-gray-600">
+                          {pkg.ratings?.average?.toFixed(1) || '4.5'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center text-gray-600 mb-3">
+                      <MapPinIcon className="h-4 w-4 mr-1" />
+                      <span className="text-sm">{pkg.destination}, {pkg.country}</span>
+                    </div>
+                    
+                    <div className="flex items-center text-gray-600 mb-4">
+                      <CalendarIcon className="h-4 w-4 mr-1" />
+                      <span className="text-sm">{pkg.duration.days} days, {pkg.duration.nights} nights</span>
+                    </div>
+                    
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      {pkg.shortDescription}
+                    </p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="text-lg font-bold text-primary-600">
+                        ${pkg.price.amount}
+                        <span className="text-sm text-gray-500 font-normal"> per person</span>
+                      </div>
+                      <Link
+                        to={`/packages/${pkg._id}`}
+                        className="btn-primary px-6 py-2 text-sm group-hover:bg-primary-700 transition-colors"
+                      >
+                        Book Now
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🌍</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No Packages Available
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Check back soon for our latest travel packages!
+              </p>
+              <Link
+                to="/packages"
+                className="btn-primary inline-flex items-center"
+              >
+                Browse All Packages
+                <ArrowRightIcon className="ml-2 h-5 w-5" />
+              </Link>
+            </div>
+          )}
+
+          <motion.div 
+            className="text-center mt-12"
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Link
+              to="/packages"
+              className="btn-outline text-lg px-8 py-4 inline-flex items-center hover:bg-primary-600 hover:text-white transition-colors"
+            >
+              View All Packages
+              <ArrowRightIcon className="ml-2 h-5 w-5" />
+            </Link>
+          </motion.div>
         </div>
       </section>
 
@@ -131,6 +249,95 @@ const Home = () => {
                 </div>
                 <div className="text-gray-600 font-medium">
                   {stat.label}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Travel Experience Cards Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            variants={heroVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Discover Different Ways to Travel
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              From solo adventures to family getaways, find the perfect travel style for you
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                title: "Solo Adventures",
+                description: "Explore the world on your own terms with our solo travel packages",
+                icon: "🧳",
+                color: "from-blue-500 to-blue-600",
+                features: ["Flexible itineraries", "Solo-friendly accommodations", "Group activities available"]
+              },
+              {
+                title: "Family Vacations",
+                description: "Create lasting memories with family-friendly destinations and activities",
+                icon: "👨‍👩‍👧‍👦",
+                color: "from-green-500 to-green-600",
+                features: ["Kid-friendly activities", "Family accommodations", "Educational experiences"]
+              },
+              {
+                title: "Couples Retreats",
+                description: "Romantic getaways designed for two with intimate experiences",
+                icon: "💕",
+                color: "from-pink-500 to-pink-600",
+                features: ["Private experiences", "Romantic settings", "Couple activities"]
+              },
+              {
+                title: "Group Tours",
+                description: "Travel with like-minded people and make new friends along the way",
+                icon: "👥",
+                color: "from-purple-500 to-purple-600",
+                features: ["Guided tours", "Group discounts", "Social activities"]
+              }
+            ].map((experience, index) => (
+              <motion.div
+                key={experience.title}
+                className="group relative bg-white rounded-xl shadow-soft hover:shadow-large transition-all duration-300 overflow-hidden"
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className={`absolute top-0 left-0 right-0 h-2 bg-gradient-to-r ${experience.color}`}></div>
+                <div className="p-6">
+                  <div className="text-4xl mb-4">{experience.icon}</div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
+                    {experience.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    {experience.description}
+                  </p>
+                  <ul className="space-y-2">
+                    {experience.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-center text-sm text-gray-600">
+                        <div className="w-1.5 h-1.5 bg-primary-500 rounded-full mr-2"></div>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-6">
+                    <Link
+                      to="/packages"
+                      className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium text-sm group-hover:underline"
+                    >
+                      Explore Packages
+                      <ArrowRightIcon className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -172,109 +379,6 @@ const Home = () => {
                 <p className="text-gray-600">
                   {feature.description}
                 </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Destinations Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-16"
-            variants={heroVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Popular Destinations
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Explore our most sought-after destinations and find your perfect getaway
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Adventure Tours",
-                description: "Thrilling experiences for adrenaline seekers",
-                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
-                count: "15+ Tours",
-                link: "/packages?category=adventure"
-              },
-              {
-                title: "Beach Getaways",
-                description: "Relaxing beach destinations worldwide",
-                image: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=800",
-                count: "20+ Destinations",
-                link: "/packages?category=beach"
-              },
-              {
-                title: "Cultural Experiences",
-                description: "Immerse yourself in local traditions",
-                image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800",
-                count: "12+ Experiences",
-                link: "/packages?category=cultural"
-              },
-              {
-                title: "City Breaks",
-                description: "Urban adventures in vibrant cities",
-                image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800",
-                count: "18+ Cities",
-                link: "/packages?category=city"
-              },
-              {
-                title: "Nature Retreats",
-                description: "Connect with nature in pristine environments",
-                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
-                count: "10+ Retreats",
-                link: "/packages?category=nature"
-              },
-              {
-                title: "Luxury Escapes",
-                description: "Premium experiences for discerning travelers",
-                image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800",
-                count: "8+ Escapes",
-                link: "/packages?category=luxury"
-              }
-            ].map((destination, index) => (
-              <motion.div
-                key={destination.title}
-                className="group relative overflow-hidden rounded-xl shadow-soft hover:shadow-large transition-all duration-300"
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: index * 0.1 }}
-              >
-                <div className="relative h-64 overflow-hidden">
-                  <img
-                    src={destination.image}
-                    alt={destination.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-xl font-bold text-white mb-1">
-                      {destination.title}
-                    </h3>
-                    <p className="text-white/90 text-sm mb-2">
-                      {destination.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/80 text-sm font-medium">
-                        {destination.count}
-                      </span>
-                      <Link
-                        to={destination.link}
-                        className="text-white hover:text-secondary-300 transition-colors text-sm font-medium"
-                      >
-                        Explore →
-                      </Link>
-                    </div>
-                  </div>
-                </div>
               </motion.div>
             ))}
           </div>
