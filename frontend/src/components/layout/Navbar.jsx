@@ -22,6 +22,8 @@ const Navbar = () => {
     { name: 'Home', href: '/' },
     { name: 'Packages', href: '/packages' },
     { name: 'Custom Package', href: '/custom-package' },
+    { name: 'About Us', href: '/about' },
+    { name: 'Contact Us', href: '/contact' },
   ];
 
   const userMenu = [
