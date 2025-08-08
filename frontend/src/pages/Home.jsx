@@ -67,10 +67,53 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-600 overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-20"></div>
-        <div className="absolute inset-0 bg-hero-pattern opacity-10"></div>
+                    {/* Hero Section */}
+       <section className="relative bg-gradient-to-br from-slate-800 via-slate-900 to-black overflow-hidden">
+         {/* Mountain Background */}
+         <div className="absolute inset-0">
+           <img 
+             src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
+             alt="Mountain Landscape" 
+             className="w-full h-full object-cover"
+           />
+         </div>
+         
+         {/* Animated Mist Layers */}
+         <div className="absolute inset-0">
+           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30"></div>
+           
+           {/* Mist Layer 1 */}
+           <div className="absolute inset-0 opacity-30">
+             <div className="absolute top-1/4 left-0 w-full h-32 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-mist"></div>
+             <div className="absolute top-1/2 right-0 w-full h-24 bg-gradient-to-l from-transparent via-white/15 to-transparent animate-mist-reverse" style={{animationDelay: '2s'}}></div>
+             <div className="absolute top-3/4 left-0 w-full h-28 bg-gradient-to-r from-transparent via-white/25 to-transparent animate-mist" style={{animationDelay: '4s'}}></div>
+           </div>
+           
+           {/* Mist Layer 2 */}
+           <div className="absolute inset-0 opacity-20">
+             <div className="absolute top-1/3 left-1/4 w-1/2 h-20 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-mist-reverse" style={{animationDelay: '1s'}}></div>
+             <div className="absolute top-2/3 right-1/4 w-1/2 h-16 bg-gradient-to-l from-transparent via-white/25 to-transparent animate-mist" style={{animationDelay: '3s'}}></div>
+           </div>
+           
+           {/* Floating Mist Particles */}
+           <div className="absolute inset-0 overflow-hidden">
+             {[...Array(8)].map((_, i) => (
+               <div
+                 key={i}
+                 className="absolute w-2 h-2 bg-white/40 rounded-full animate-float"
+                 style={{
+                   left: `${Math.random() * 100}%`,
+                   top: `${Math.random() * 100}%`,
+                   animationDelay: `${Math.random() * 3}s`,
+                   animationDuration: `${3 + Math.random() * 2}s`
+                 }}
+               ></div>
+             ))}
+           </div>
+         </div>
+         
+         <div className="absolute inset-0 bg-black opacity-20"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
           <motion.div 
