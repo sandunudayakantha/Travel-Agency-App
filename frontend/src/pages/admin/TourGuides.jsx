@@ -8,6 +8,7 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon
 } from '@heroicons/react/24/outline';
+import axios from 'axios'; // Added for authentication state logging
 
 const TourGuides = () => {
   const { 
@@ -52,8 +53,11 @@ const TourGuides = () => {
   };
 
   const handleAdd = () => {
+    console.log('=== ADD TOUR GUIDE BUTTON CLICKED ===');
+    console.log('Current user authentication state needed for admin actions');
     setEditingTourGuide(null);
     setShowModal(true);
+    console.log('Modal should now be visible');
   };
 
   const tourGuideLevels = [
@@ -376,6 +380,12 @@ const TourGuideModal = ({ tourGuide, onClose, onSuccess }) => {
     console.log('Is editing tour guide:', !!tourGuide);
     console.log('Tour Guide ID if editing:', tourGuide?._id);
     
+    // Check authentication state
+    console.log('=== AUTHENTICATION CHECK ===');
+    const authHeader = localStorage.getItem('token') || sessionStorage.getItem('token');
+    console.log('Auth token exists:', !!authHeader);
+    console.log('Axios default headers:', JSON.stringify(axios.defaults.headers.common, null, 2));
+    
     // Client-side validation
     const errors = [];
     
@@ -411,6 +421,7 @@ const TourGuideModal = ({ tourGuide, onClose, onSuccess }) => {
     };
 
     console.log('Final tour guide data to send:', JSON.stringify(tourGuideData, null, 2));
+    console.log('=== CALLING API ===');
 
     const result = tourGuide 
       ? await updateTourGuide(tourGuide._id, tourGuideData)
@@ -423,6 +434,8 @@ const TourGuideModal = ({ tourGuide, onClose, onSuccess }) => {
       onSuccess();
     } else {
       console.log('Operation failed:', result.error);
+      // Show a more user-friendly error message
+      alert(`Failed to ${tourGuide ? 'update' : 'create'} tour guide: ${result.error}`);
     }
     console.log('=== FORM SUBMISSION END ===');
   };

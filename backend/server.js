@@ -13,6 +13,7 @@ const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
 const vehicleRoutes = require('./routes/vehicles');
 const tourGuideRoutes = require('./routes/tourGuides');
+const placeRoutes = require('./routes/places');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -58,6 +59,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/tour-guides', tourGuideRoutes);
+app.use('/api/places', placeRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

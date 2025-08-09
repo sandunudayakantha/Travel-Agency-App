@@ -7,6 +7,7 @@ import { PackageProvider } from './contexts/PackageContext.jsx';
 import { BookingProvider } from './contexts/BookingContext.jsx';
 import { VehicleProvider } from './contexts/VehicleContext.jsx';
 import { TourGuideProvider } from './contexts/TourGuideContext.jsx';
+import { PlaceProvider } from './contexts/PlaceContext.jsx';
 
 // Components
 import Navbar from './components/layout/Navbar.jsx';
@@ -33,6 +34,8 @@ import AdminBookings from './pages/admin/Bookings';
 import AdminUsers from './pages/admin/Users';
 import AdminVehicles from './pages/admin/Vehicles';
 import AdminTourGuides from './pages/admin/TourGuides';
+import AdminPlaces from './pages/admin/Places';
+import AdminPlaceDetail from './pages/admin/PlaceDetail';
 import NotFound from './pages/NotFound';
 import AdminLogin from './pages/auth/AdminLogin';
 
@@ -45,6 +48,7 @@ function App() {
             <BookingProvider>
               <VehicleProvider>
                 <TourGuideProvider>
+                  <PlaceProvider>
                   <div className="min-h-screen flex flex-col">
                     <Navbar />
                     <main className="flex-grow">
@@ -111,6 +115,16 @@ function App() {
                             <AdminTourGuides />
                           </AdminRoute>
                         } />
+                        <Route path="/admin/places" element={
+                          <AdminRoute>
+                            <AdminPlaces />
+                          </AdminRoute>
+                        } />
+                        <Route path="/admin/places/:id" element={
+                          <AdminRoute>
+                            <AdminPlaceDetail />
+                          </AdminRoute>
+                        } />
                         
                         {/* 404 Route */}
                         <Route path="*" element={<NotFound />} />
@@ -119,6 +133,7 @@ function App() {
                     <Footer />
                   </div>
                   <Toaster position="top-right" />
+                  </PlaceProvider>
                 </TourGuideProvider>
               </VehicleProvider>
             </BookingProvider>

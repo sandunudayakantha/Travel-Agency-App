@@ -6,7 +6,8 @@ import {
   UsersIcon, 
   TruckIcon,
   UserGroupIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  MapPinIcon
 } from '@heroicons/react/24/outline';
 
 const Dashboard = () => {
@@ -45,6 +46,13 @@ const Dashboard = () => {
       icon: UserGroupIcon,
       href: '/admin/tour-guides',
       color: 'bg-indigo-500'
+    },
+    {
+      title: 'Places',
+      description: 'Manage destinations and locations',
+      icon: MapPinIcon,
+      href: '/admin/places',
+      color: 'bg-emerald-500'
     },
     {
       title: 'Analytics',

@@ -161,7 +161,41 @@ router.get('/:id', async (req, res) => {
 // @route   POST /api/tour-guides
 // @desc    Create new tour guide (Admin only)
 // @access  Private/Admin
-router.post('/', protect, authorize('admin'), upload.single('avatar'), [
+// Middleware to preprocess JSON strings in FormData
+const preprocessFormData = (req, res, next) => {
+  try {
+    // Parse languages if it's a string
+    if (req.body.languages && typeof req.body.languages === 'string') {
+      console.log('Preprocessing languages string:', req.body.languages);
+      try {
+        req.body.languages = JSON.parse(req.body.languages);
+        console.log('Preprocessed languages:', req.body.languages);
+      } catch (parseError) {
+        console.error('Error preprocessing languages:', parseError);
+        req.body.languages = [];
+      }
+    }
+    
+    // Parse specializations if it's a string
+    if (req.body.specializations && typeof req.body.specializations === 'string') {
+      console.log('Preprocessing specializations string:', req.body.specializations);
+      try {
+        req.body.specializations = JSON.parse(req.body.specializations);
+        console.log('Preprocessed specializations:', req.body.specializations);
+      } catch (parseError) {
+        console.error('Error preprocessing specializations:', parseError);
+        req.body.specializations = [];
+      }
+    }
+    
+    next();
+  } catch (error) {
+    console.error('Error in preprocessFormData middleware:', error);
+    next();
+  }
+};
+
+router.post('/', protect, authorize('admin'), upload.single('avatar'), preprocessFormData, [
   body('name')
     .trim()
     .isLength({ min: 2, max: 100 })
@@ -306,7 +340,7 @@ router.post('/', protect, authorize('admin'), upload.single('avatar'), [
 // @route   PUT /api/tour-guides/:id
 // @desc    Update tour guide (Admin only)
 // @access  Private/Admin
-router.put('/:id', protect, authorize('admin'), upload.single('avatar'), async (req, res) => {
+router.put('/:id', protect, authorize('admin'), upload.single('avatar'), preprocessFormData, async (req, res) => {
   try {
     console.log('=== TOUR GUIDE UPDATE START ===');
     console.log('Tour Guide ID:', req.params.id);
