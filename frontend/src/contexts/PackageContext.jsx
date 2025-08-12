@@ -11,6 +11,10 @@ const initialState = {
   categories: [],
   destinations: [],
   countries: [],
+  tourTypes: [],
+  vehicles: [],
+  guides: [],
+  places: [],
   loading: false,
   error: null,
   filters: {
@@ -79,6 +83,46 @@ const packageReducer = (state, action) => {
         destinations: action.payload.destinations,
         countries: action.payload.countries
       };
+    case 'SET_TOUR_TYPES':
+      return {
+        ...state,
+        tourTypes: action.payload
+      };
+    case 'ADD_TOUR_TYPE':
+      return {
+        ...state,
+        tourTypes: [action.payload, ...state.tourTypes]
+      };
+    case 'UPDATE_TOUR_TYPE':
+      return {
+        ...state,
+                tourTypes: state.tourTypes.map(type =>
+          type._id === action.payload._id ? action.payload : type
+        )
+      };
+    case 'DELETE_TOUR_TYPE':
+      return {
+        ...state,
+        tourTypes: state.tourTypes.filter(type => type._id !== action.payload)
+      };
+    case 'SET_VEHICLES':
+      console.log('Setting vehicles in reducer:', action.payload);
+      return {
+        ...state,
+        vehicles: action.payload
+      };
+    case 'SET_GUIDES':
+      console.log('Setting guides in reducer:', action.payload);
+      return {
+        ...state,
+        guides: action.payload
+      };
+    case 'SET_PLACES':
+      console.log('Setting places in reducer:', action.payload);
+      return {
+        ...state,
+        places: action.payload
+      };
     case 'SET_FILTERS':
       return {
         ...state,
@@ -119,11 +163,14 @@ const packageReducer = (state, action) => {
 
 export const PackageProvider = ({ children }) => {
   const [state, dispatch] = useReducer(packageReducer, initialState);
+  
+  console.log('PackageProvider initial state:', initialState);
+  console.log('PackageProvider current state:', state);
 
-  // Load categories and destinations on mount
+  // Load only tour types on mount (for package page)
   useEffect(() => {
-    loadCategories();
-    loadDestinations();
+    console.log('PackageProvider useEffect running - loading tour types only...');
+    loadTourTypes();
   }, []);
 
   // Load categories
@@ -146,6 +193,206 @@ export const PackageProvider = ({ children }) => {
       });
     } catch (error) {
       console.error('Error loading destinations:', error);
+    }
+  };
+
+  // Load tour types
+  const loadTourTypes = async () => {
+    try {
+      console.log('Loading tour types...');
+      const res = await axios.get('/api/tour-types');
+      console.log('Tour types response:', res.data);
+      dispatch({ type: 'SET_TOUR_TYPES', payload: res.data.tourTypes });
+    } catch (error) {
+      console.error('Error loading tour types:', error);
+      console.error('Error details:', error.response?.data);
+      // Set empty array on error to prevent undefined state
+      dispatch({ type: 'SET_TOUR_TYPES', payload: [] });
+    }
+  };
+
+  // Load packages (Admin)
+  const loadPackages = async () => {
+    try {
+      console.log('Loading packages...');
+      const res = await axios.get('/api/packages');
+      console.log('Packages response:', res.data);
+      dispatch({ 
+        type: 'SET_PACKAGES', 
+        payload: {
+          packages: res.data.data.packages,
+          pagination: res.data.data.pagination
+        }
+      });
+    } catch (error) {
+      console.error('Error loading packages:', error);
+      console.error('Error details:', error.response?.data);
+      // Set empty array on error to prevent undefined state
+      dispatch({ type: 'SET_PACKAGES', payload: { packages: [], pagination: initialState.pagination } });
+    }
+  };
+
+  const loadVehicles = async () => {
+    try {
+      console.log('Loading vehicles...');
+      const res = await axios.get('/api/vehicles');
+      console.log('Vehicles response:', res.data);
+      dispatch({ type: 'SET_VEHICLES', payload: res.data.vehicles });
+    } catch (error) {
+      console.error('Error loading vehicles:', error);
+      console.error('Error details:', error.response?.data);
+      // Set empty array on error to prevent undefined state
+      dispatch({ type: 'SET_VEHICLES', payload: [] });
+    }
+  };
+
+  const loadGuides = async () => {
+    try {
+      console.log('Loading guides...');
+      const res = await axios.get('/api/tour-guides');
+      console.log('Guides response:', res.data);
+      dispatch({ type: 'SET_GUIDES', payload: res.data.tourGuides });
+    } catch (error) {
+      console.error('Error loading guides:', error);
+      console.error('Error details:', error.response?.data);
+      // Set empty array on error to prevent undefined state
+      dispatch({ type: 'SET_GUIDES', payload: [] });
+    }
+  };
+
+  const loadPlaces = async () => {
+    try {
+      console.log('Loading places...');
+      const res = await axios.get('/api/places');
+      console.log('Places response:', res.data);
+      dispatch({ type: 'SET_PLACES', payload: res.data.places });
+    } catch (error) {
+      console.error('Error loading places:', error);
+      console.error('Error details:', error.response?.data);
+      // Set empty array on error to prevent undefined state
+      dispatch({ type: 'SET_PLACES', payload: [] });
+    }
+  };
+
+  // Create tour type
+  const createTourType = async (tourTypeData) => {
+    try {
+      console.log('Creating tour type with data:', tourTypeData);
+      
+      const formData = new FormData();
+      formData.append('name', tourTypeData.name);
+      if (tourTypeData.description) {
+        formData.append('description', tourTypeData.description);
+      }
+      if (tourTypeData.image) {
+        formData.append('image', tourTypeData.image);
+      }
+
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        toast.error('Please log in to create tour types');
+        return { success: false, error: 'Authentication required' };
+      }
+
+      console.log('Sending request to create tour type...');
+      const res = await axios.post('/api/tour-types', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      console.log('Tour type created successfully:', res.data);
+      dispatch({
+        type: 'ADD_TOUR_TYPE',
+        payload: res.data.tourType
+      });
+      toast.success('Tour type created successfully!');
+      return { success: true, tourType: res.data.tourType };
+    } catch (error) {
+      console.error('Error creating tour type:', error);
+      console.error('Error response:', error.response?.data);
+      const message = error.response?.data?.message || 'Error creating tour type';
+      toast.error(message);
+      return { success: false, error: message };
+    }
+  };
+
+  // Update tour type
+  const updateTourType = async (id, tourTypeData) => {
+    try {
+      console.log('Updating tour type with data:', tourTypeData);
+      
+      const formData = new FormData();
+      formData.append('name', tourTypeData.name);
+      if (tourTypeData.description) {
+        formData.append('description', tourTypeData.description);
+      }
+      if (tourTypeData.image) {
+        formData.append('image', tourTypeData.image);
+      }
+
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        toast.error('Please log in to update tour types');
+        return { success: false, error: 'Authentication required' };
+      }
+
+      const res = await axios.put(`/api/tour-types/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      dispatch({
+        type: 'UPDATE_TOUR_TYPE',
+        payload: res.data.tourType
+      });
+      toast.success('Tour type updated successfully!');
+      return { success: true, tourType: res.data.tourType };
+    } catch (error) {
+      console.error('Error updating tour type:', error);
+      console.error('Error response:', error.response?.data);
+      const message = error.response?.data?.message || 'Error updating tour type';
+      toast.error(message);
+      return { success: false, error: message };
+    }
+  };
+
+  // Delete tour type
+  const deleteTourType = async (id) => {
+    try {
+      console.log('Deleting tour type with ID:', id);
+      
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        toast.error('Please log in to delete tour types');
+        return { success: false, error: 'Authentication required' };
+      }
+
+      await axios.delete(`/api/tour-types/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      dispatch({
+        type: 'DELETE_TOUR_TYPE',
+        payload: id
+      });
+      toast.success('Tour type deleted successfully!');
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting tour type:', error);
+      console.error('Error response:', error.response?.data);
+      const message = error.response?.data?.message || 'Error deleting tour type';
+      toast.error(message);
+      return { success: false, error: message };
     }
   };
 
@@ -206,7 +453,24 @@ export const PackageProvider = ({ children }) => {
   // Create package (Admin only)
   const createPackage = async (packageData) => {
     try {
-      const res = await axios.post('/api/packages', packageData);
+      console.log('Creating package with data:', packageData);
+      
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        toast.error('Please log in to create packages');
+        return { success: false, error: 'Authentication required' };
+      }
+
+      const res = await axios.post('/api/packages', packageData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      console.log('Package created successfully:', res.data);
       dispatch({
         type: 'ADD_PACKAGE',
         payload: res.data.data.package
@@ -214,6 +478,17 @@ export const PackageProvider = ({ children }) => {
       toast.success('Package created successfully!');
       return { success: true, package: res.data.data.package };
     } catch (error) {
+      console.error('Error creating package:', error);
+      console.error('Error response:', error.response?.data);
+      
+      // Log detailed validation errors if they exist
+      if (error.response?.data?.errors) {
+        console.error('Validation errors:');
+        error.response.data.errors.forEach((err, index) => {
+          console.error(`${index + 1}. ${err.msg} (field: ${err.path})`);
+        });
+      }
+      
       const message = error.response?.data?.message || 'Error creating package';
       toast.error(message);
       return { success: false, error: message };
@@ -223,7 +498,24 @@ export const PackageProvider = ({ children }) => {
   // Update package (Admin only)
   const updatePackage = async (id, packageData) => {
     try {
-      const res = await axios.put(`/api/packages/${id}`, packageData);
+      console.log('Updating package with data:', packageData);
+      
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        toast.error('Please log in to update packages');
+        return { success: false, error: 'Authentication required' };
+      }
+
+      const res = await axios.put(`/api/packages/${id}`, packageData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      console.log('Package updated successfully:', res.data);
       dispatch({
         type: 'UPDATE_PACKAGE',
         payload: res.data.data.package
@@ -231,6 +523,8 @@ export const PackageProvider = ({ children }) => {
       toast.success('Package updated successfully!');
       return { success: true, package: res.data.data.package };
     } catch (error) {
+      console.error('Error updating package:', error);
+      console.error('Error response:', error.response?.data);
       const message = error.response?.data?.message || 'Error updating package';
       toast.error(message);
       return { success: false, error: message };
@@ -240,7 +534,23 @@ export const PackageProvider = ({ children }) => {
   // Delete package (Admin only)
   const deletePackage = async (id) => {
     try {
-      await axios.delete(`/api/packages/${id}`);
+      console.log('Deleting package with ID:', id);
+      
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        toast.error('Please log in to delete packages');
+        return { success: false, error: 'Authentication required' };
+      }
+
+      await axios.delete(`/api/packages/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      console.log('Package deleted successfully');
       dispatch({
         type: 'DELETE_PACKAGE',
         payload: id
@@ -248,6 +558,8 @@ export const PackageProvider = ({ children }) => {
       toast.success('Package deleted successfully!');
       return { success: true };
     } catch (error) {
+      console.error('Error deleting package:', error);
+      console.error('Error response:', error.response?.data);
       const message = error.response?.data?.message || 'Error deleting package';
       toast.error(message);
       return { success: false, error: message };
@@ -293,6 +605,10 @@ export const PackageProvider = ({ children }) => {
     categories: state.categories,
     destinations: state.destinations,
     countries: state.countries,
+    tourTypes: state.tourTypes,
+    vehicles: state.vehicles,
+    guides: state.guides,
+    places: state.places,
     loading: state.loading,
     error: state.error,
     filters: state.filters,
@@ -306,7 +622,15 @@ export const PackageProvider = ({ children }) => {
     addReview,
     setFilters,
     clearFilters,
-    clearError
+    clearError,
+    loadPackages,
+    loadTourTypes,
+    loadVehicles,
+    loadGuides,
+    loadPlaces,
+    createTourType,
+    updateTourType,
+    deleteTourType
   };
 
   return (

@@ -1,9 +1,40 @@
 const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
 const { body, validationResult, query } = require('express-validator');
 const Package = require('../models/Package');
 const { protect, authorize, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configure multer for memory storage (for Cloudinary)
+const storage = multer.memoryStorage();
+
+const fileFilter = (req, file, cb) => {
+  // Accept image and video files
+  if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image and video files are allowed!'), false);
+  }
+};
+
+const upload = multer({ 
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 50 * 1024 * 1024 // 50MB limit for videos
+  }
+});
 
 // @route   GET /api/packages
 // @desc    Get all packages with filtering and pagination
@@ -11,20 +42,16 @@ const router = express.Router();
 router.get('/', optionalAuth, [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
   query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('Limit must be between 1 and 50'),
-  query('category').optional().isIn(['adventure', 'beach', 'cultural', 'city', 'nature', 'luxury', 'budget', 'family']),
-  query('destination').optional().isString(),
-  query('country').optional().isString(),
-  query('minPrice').optional().isFloat({ min: 0 }),
-  query('maxPrice').optional().isFloat({ min: 0 }),
-  query('duration').optional().isInt({ min: 1 }),
-  query('difficulty').optional().isIn(['easy', 'moderate', 'challenging', 'expert']),
   query('featured').optional().isBoolean(),
   query('search').optional().isString()
 ], async (req, res) => {
   try {
+    console.log('GET /api/packages - Query params:', req.query);
+    
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         errors: errors.array()
@@ -34,37 +61,14 @@ router.get('/', optionalAuth, [
     const {
       page = 1,
       limit = 12,
-      category,
-      destination,
-      country,
-      minPrice,
-      maxPrice,
-      duration,
-      difficulty,
       featured,
       search
     } = req.query;
 
     // Build filter object
-    const filter = { status: 'active' };
+    const filter = {};
 
-    if (category) filter.category = category;
-    if (destination) filter.destination = { $regex: destination, $options: 'i' };
-    if (country) filter.country = { $regex: country, $options: 'i' };
-    if (difficulty) filter.difficulty = difficulty;
     if (featured !== undefined) filter.featured = featured === 'true';
-
-    // Price filter
-    if (minPrice || maxPrice) {
-      filter['price.amount'] = {};
-      if (minPrice) filter['price.amount'].$gte = parseFloat(minPrice);
-      if (maxPrice) filter['price.amount'].$lte = parseFloat(maxPrice);
-    }
-
-    // Duration filter
-    if (duration) {
-      filter['duration.days'] = { $gte: parseInt(duration) };
-    }
 
     // Search filter
     if (search) {
@@ -74,12 +78,20 @@ router.get('/', optionalAuth, [
     // Calculate pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    console.log('Package filter:', filter);
+
     // Execute query
     const packages = await Package.find(filter)
       .populate('createdBy', 'name')
+      .populate('tourType', 'name description')
+      .populate('vehicle', 'name model type')
+      .populate('guide', 'name languages level')
+      .populate('itinerary.places', 'name location')
       .sort({ featured: -1, createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
+
+    console.log(`Found ${packages.length} packages`);
 
     // Get total count for pagination
     const total = await Package.countDocuments(filter);
@@ -117,13 +129,18 @@ router.get('/', optionalAuth, [
 // @access  Public
 router.get('/featured', async (req, res) => {
   try {
-    const packages = await Package.find({ 
-      status: 'active', 
-      featured: true 
-    })
+    console.log('GET /api/packages/featured');
+    
+    const packages = await Package.find({ featured: true })
     .populate('createdBy', 'name')
+    .populate('tourType', 'name description')
+    .populate('vehicle', 'name model type')
+    .populate('guide', 'name languages level')
+    .populate('itinerary.places', 'name location')
     .sort({ createdAt: -1 })
     .limit(6);
+
+    console.log(`Found ${packages.length} featured packages`);
 
     res.json({
       success: true,
@@ -143,16 +160,24 @@ router.get('/featured', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
+    console.log('GET /api/packages/:id - ID:', req.params.id);
+    
     const package = await Package.findById(req.params.id)
       .populate('createdBy', 'name')
-      .populate('reviews.user', 'name avatar');
+      .populate('tourType', 'name description')
+      .populate('vehicle', 'name model type')
+      .populate('guide', 'name languages level')
+      .populate('itinerary.places', 'name location');
 
     if (!package) {
+      console.log('Package not found');
       return res.status(404).json({
         success: false,
         message: 'Package not found'
       });
     }
+
+    console.log('Package found:', package.title);
 
     res.json({
       success: true,
@@ -170,7 +195,7 @@ router.get('/:id', async (req, res) => {
 // @route   POST /api/packages
 // @desc    Create new package (Admin only)
 // @access  Private/Admin
-router.post('/', protect, authorize('admin'), [
+router.post('/', protect, authorize('admin'), upload.any(), [
   body('title')
     .trim()
     .isLength({ min: 5, max: 100 })
@@ -178,50 +203,129 @@ router.post('/', protect, authorize('admin'), [
   body('description')
     .isLength({ min: 20, max: 2000 })
     .withMessage('Description must be between 20 and 2000 characters'),
-  body('shortDescription')
-    .isLength({ min: 10, max: 200 })
-    .withMessage('Short description must be between 10 and 200 characters'),
-  body('destination')
-    .trim()
+  body('tourType')
     .notEmpty()
-    .withMessage('Destination is required'),
-  body('country')
-    .trim()
-    .notEmpty()
-    .withMessage('Country is required'),
-  body('category')
-    .isIn(['adventure', 'beach', 'cultural', 'city', 'nature', 'luxury', 'budget', 'family'])
-    .withMessage('Invalid category'),
-  body('duration.days')
+    .withMessage('Tour type is required'),
+  body('days')
     .isInt({ min: 1 })
-    .withMessage('Duration days must be at least 1'),
-  body('duration.nights')
+    .withMessage('Days must be at least 1'),
+  body('nights')
     .isInt({ min: 0 })
-    .withMessage('Duration nights cannot be negative'),
-  body('price.amount')
+    .withMessage('Nights cannot be negative'),
+  body('vehicle')
+    .notEmpty()
+    .withMessage('Vehicle is required'),
+  body('guide')
+    .notEmpty()
+    .withMessage('Guide is required'),
+  body('price')
     .isFloat({ min: 0 })
     .withMessage('Price must be a positive number'),
-  body('price.currency')
-    .optional()
-    .isIn(['USD', 'EUR', 'GBP', 'CAD', 'AUD'])
-    .withMessage('Invalid currency')
+  body('itinerary')
+    .notEmpty()
+    .withMessage('Itinerary is required')
+    .custom((value) => {
+      try {
+        const parsed = JSON.parse(value);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          throw new Error('Itinerary must be a non-empty array');
+        }
+        return true;
+      } catch (error) {
+        throw new Error('Invalid itinerary format');
+      }
+    })
 ], async (req, res) => {
   try {
+    console.log('POST /api/packages - Creating new package');
+    console.log('Request body:', req.body);
+    console.log('Files:', req.files ? req.files.length : 0);
+
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         errors: errors.array()
       });
     }
 
+    // Parse JSON fields
+    const itinerary = JSON.parse(req.body.itinerary || '[]');
+
+    // Handle day video uploads
+    const dayVideos = [];
+    if (req.files && req.files.length > 0) {
+      console.log('Processing video uploads...');
+      
+      for (const file of req.files) {
+        if (file.fieldname.startsWith('dayVideo_')) {
+          const dayIndex = parseInt(file.fieldname.split('_')[1]);
+          console.log(`Processing video for day ${dayIndex}`);
+          
+          try {
+            const result = await new Promise((resolve, reject) => {
+              const stream = cloudinary.uploader.upload_stream(
+                {
+                  resource_type: 'video',
+                  folder: 'package-videos',
+                  transformation: [
+                    { width: 1280, height: 720, crop: 'fill' },
+                    { quality: 'auto' }
+                  ]
+                },
+                (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+                }
+              );
+              stream.end(file.buffer);
+            });
+
+            console.log(`Video uploaded for day ${dayIndex}:`, result.secure_url);
+            dayVideos.push({
+              dayIndex,
+              video: {
+                public_id: result.public_id,
+                url: result.secure_url
+              }
+            });
+          } catch (uploadError) {
+            console.error('Error uploading day video:', uploadError);
+          }
+        }
+      }
+    }
+
+    // Update itinerary with video data
+    const updatedItinerary = itinerary.map((day, index) => {
+      const videoData = dayVideos.find(v => v.dayIndex === index);
+      return {
+        ...day,
+        video: videoData ? videoData.video : null
+      };
+    });
+
     const packageData = {
-      ...req.body,
+      title: req.body.title,
+      description: req.body.description,
+      tourType: req.body.tourType,
+      days: parseInt(req.body.days),
+      nights: parseInt(req.body.nights),
+      vehicle: req.body.vehicle,
+      guide: req.body.guide,
+      price: parseFloat(req.body.price),
+      featured: req.body.featured === 'true',
+      itinerary: updatedItinerary,
       createdBy: req.user.id
     };
 
+    console.log('Package data to create:', packageData);
+
     const newPackage = await Package.create(packageData);
+
+    console.log('Package created successfully:', newPackage._id);
 
     res.status(201).json({
       success: true,
@@ -240,23 +344,141 @@ router.post('/', protect, authorize('admin'), [
 // @route   PUT /api/packages/:id
 // @desc    Update package (Admin only)
 // @access  Private/Admin
-router.put('/:id', protect, authorize('admin'), async (req, res) => {
+router.put('/:id', protect, authorize('admin'), upload.any(), [
+  body('title')
+    .trim()
+    .isLength({ min: 5, max: 100 })
+    .withMessage('Title must be between 5 and 100 characters'),
+  body('description')
+    .isLength({ min: 20, max: 2000 })
+    .withMessage('Description must be between 20 and 2000 characters'),
+  body('tourType')
+    .notEmpty()
+    .withMessage('Tour type is required'),
+  body('days')
+    .isInt({ min: 1 })
+    .withMessage('Days must be at least 1'),
+  body('nights')
+    .isInt({ min: 0 })
+    .withMessage('Nights cannot be negative'),
+  body('vehicle')
+    .notEmpty()
+    .withMessage('Vehicle is required'),
+  body('guide')
+    .notEmpty()
+    .withMessage('Guide is required'),
+  body('price')
+    .isFloat({ min: 0 })
+    .withMessage('Price must be a positive number')
+], async (req, res) => {
   try {
+    console.log('PUT /api/packages/:id - Updating package:', req.params.id);
+    console.log('Request body:', req.body);
+
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
     const package = await Package.findById(req.params.id);
 
     if (!package) {
+      console.log('Package not found for update');
       return res.status(404).json({
         success: false,
         message: 'Package not found'
       });
     }
 
+    // Handle video uploads if any
+    let updatedItinerary = package.itinerary;
+    if (req.files && req.files.length > 0) {
+      console.log('Processing video uploads for update...');
+      
+      for (const file of req.files) {
+        if (file.fieldname.startsWith('dayVideo_')) {
+          const dayIndex = parseInt(file.fieldname.split('_')[1]);
+          console.log(`Processing video for day ${dayIndex}`);
+          
+          try {
+            const result = await new Promise((resolve, reject) => {
+              const stream = cloudinary.uploader.upload_stream(
+                {
+                  resource_type: 'video',
+                  folder: 'package-videos',
+                  transformation: [
+                    { width: 1280, height: 720, crop: 'fill' },
+                    { quality: 'auto' }
+                  ]
+                },
+                (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+                }
+              );
+              stream.end(file.buffer);
+            });
+
+            console.log(`Video uploaded for day ${dayIndex}:`, result.secure_url);
+            
+            // Update the specific day's video
+            if (updatedItinerary[dayIndex]) {
+              updatedItinerary[dayIndex].video = {
+                public_id: result.public_id,
+                url: result.secure_url
+              };
+            }
+          } catch (uploadError) {
+            console.error('Error uploading day video:', uploadError);
+          }
+        }
+      }
+    }
+
+    // Parse itinerary if provided
+    if (req.body.itinerary) {
+      const itinerary = JSON.parse(req.body.itinerary);
+      updatedItinerary = itinerary.map((day, index) => {
+        // Preserve existing video if not being updated
+        const existingVideo = package.itinerary[index]?.video;
+        return {
+          ...day,
+          video: day.video || existingVideo
+        };
+      });
+    }
+
+    const updateData = {
+      title: req.body.title,
+      description: req.body.description,
+      tourType: req.body.tourType,
+      days: parseInt(req.body.days),
+      nights: parseInt(req.body.nights),
+      vehicle: req.body.vehicle,
+      guide: req.body.guide,
+      price: parseFloat(req.body.price),
+      featured: req.body.featured === 'true',
+      itinerary: updatedItinerary
+    };
+
+    console.log('Update data:', updateData);
+
     // Update package
     const updatedPackage = await Package.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
-    );
+    ).populate('tourType', 'name description')
+     .populate('vehicle', 'name model type')
+     .populate('guide', 'name languages level')
+     .populate('itinerary.places', 'name location');
+
+    console.log('Package updated successfully');
 
     res.json({
       success: true,
@@ -277,16 +499,35 @@ router.put('/:id', protect, authorize('admin'), async (req, res) => {
 // @access  Private/Admin
 router.delete('/:id', protect, authorize('admin'), async (req, res) => {
   try {
+    console.log('DELETE /api/packages/:id - Deleting package:', req.params.id);
+
     const package = await Package.findById(req.params.id);
 
     if (!package) {
+      console.log('Package not found for deletion');
       return res.status(404).json({
         success: false,
         message: 'Package not found'
       });
     }
 
+    // Delete videos from Cloudinary if they exist
+    if (package.itinerary && package.itinerary.length > 0) {
+      for (const day of package.itinerary) {
+        if (day.video && day.video.public_id) {
+          try {
+            await cloudinary.uploader.destroy(day.video.public_id, { resource_type: 'video' });
+            console.log('Deleted video from Cloudinary:', day.video.public_id);
+          } catch (cloudinaryError) {
+            console.error('Error deleting video from Cloudinary:', cloudinaryError);
+          }
+        }
+      }
+    }
+
     await Package.findByIdAndDelete(req.params.id);
+
+    console.log('Package deleted successfully');
 
     res.json({
       success: true,
@@ -297,119 +538,6 @@ router.delete('/:id', protect, authorize('admin'), async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server error while deleting package'
-    });
-  }
-});
-
-// @route   POST /api/packages/:id/reviews
-// @desc    Add review to package
-// @access  Private
-router.post('/:id/reviews', protect, [
-  body('rating')
-    .isInt({ min: 1, max: 5 })
-    .withMessage('Rating must be between 1 and 5'),
-  body('comment')
-    .optional()
-    .isLength({ max: 500 })
-    .withMessage('Comment cannot exceed 500 characters')
-], async (req, res) => {
-  try {
-    // Check for validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        errors: errors.array()
-      });
-    }
-
-    const package = await Package.findById(req.params.id);
-
-    if (!package) {
-      return res.status(404).json({
-        success: false,
-        message: 'Package not found'
-      });
-    }
-
-    // Check if user already reviewed this package
-    const existingReview = package.reviews.find(
-      review => review.user.toString() === req.user.id
-    );
-
-    if (existingReview) {
-      return res.status(400).json({
-        success: false,
-        message: 'You have already reviewed this package'
-      });
-    }
-
-    // Add review
-    const review = {
-      user: req.user.id,
-      rating: req.body.rating,
-      comment: req.body.comment,
-      date: new Date()
-    };
-
-    package.reviews.push(review);
-    package.updateAverageRating();
-    await package.save();
-
-    // Populate user info for the new review
-    await package.populate('reviews.user', 'name avatar');
-
-    res.status(201).json({
-      success: true,
-      message: 'Review added successfully',
-      data: { package }
-    });
-  } catch (error) {
-    console.error('Add review error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while adding review'
-    });
-  }
-});
-
-// @route   GET /api/packages/categories
-// @desc    Get all available categories
-// @access  Public
-router.get('/categories', async (req, res) => {
-  try {
-    const categories = await Package.distinct('category');
-    
-    res.json({
-      success: true,
-      data: { categories }
-    });
-  } catch (error) {
-    console.error('Get categories error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while fetching categories'
-    });
-  }
-});
-
-// @route   GET /api/packages/destinations
-// @desc    Get all available destinations
-// @access  Public
-router.get('/destinations', async (req, res) => {
-  try {
-    const destinations = await Package.distinct('destination');
-    const countries = await Package.distinct('country');
-    
-    res.json({
-      success: true,
-      data: { destinations, countries }
-    });
-  } catch (error) {
-    console.error('Get destinations error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while fetching destinations'
     });
   }
 });

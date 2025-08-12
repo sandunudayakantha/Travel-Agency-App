@@ -12,103 +12,40 @@ const packageSchema = new mongoose.Schema({
     required: [true, 'Package description is required'],
     maxlength: [2000, 'Description cannot exceed 2000 characters']
   },
-  shortDescription: {
-    type: String,
-    required: [true, 'Short description is required'],
-    maxlength: [200, 'Short description cannot exceed 200 characters']
+  tourType: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TourType',
+    required: [true, 'Tour type is required']
   },
-  destination: {
-    type: String,
-    required: [true, 'Destination is required']
+  days: {
+    type: Number,
+    required: [true, 'Duration in days is required'],
+    min: [1, 'Duration must be at least 1 day']
   },
-  country: {
-    type: String,
-    required: [true, 'Country is required']
+  nights: {
+    type: Number,
+    required: [true, 'Duration in nights is required'],
+    min: [0, 'Nights cannot be negative']
   },
-  category: {
-    type: String,
-    enum: ['adventure', 'beach', 'cultural', 'city', 'nature', 'luxury', 'budget', 'family'],
-    required: [true, 'Category is required']
+  vehicle: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Vehicle',
+    required: [true, 'Vehicle is required']
   },
-  duration: {
-    days: {
-      type: Number,
-      required: [true, 'Duration in days is required'],
-      min: [1, 'Duration must be at least 1 day']
-    },
-    nights: {
-      type: Number,
-      required: [true, 'Duration in nights is required'],
-      min: [0, 'Nights cannot be negative']
-    }
-  },
-  groupSize: {
-    min: {
-      type: Number,
-      default: 1,
-      min: [1, 'Minimum group size must be at least 1']
-    },
-    max: {
-      type: Number,
-      default: 20,
-      min: [1, 'Maximum group size must be at least 1']
-    }
-  },
-  difficulty: {
-    type: String,
-    enum: ['easy', 'moderate', 'challenging', 'expert'],
-    default: 'moderate'
+  guide: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TourGuide',
+    required: [true, 'Guide is required']
   },
   price: {
-    amount: {
-      type: Number,
-      required: [true, 'Price is required'],
-      min: [0, 'Price cannot be negative']
-    },
-    currency: {
-      type: String,
-      default: 'USD',
-      enum: ['USD', 'EUR', 'GBP', 'CAD', 'AUD']
-    },
-    perPerson: {
-      type: Boolean,
-      default: true
-    },
-    includesTaxes: {
-      type: Boolean,
-      default: true
-    }
+    type: Number,
+    required: [true, 'Price is required'],
+    min: [0, 'Price cannot be negative']
   },
-  discount: {
-    percentage: {
-      type: Number,
-      min: [0, 'Discount percentage cannot be negative'],
-      max: [100, 'Discount percentage cannot exceed 100']
-    },
-    validUntil: Date
+  featured: {
+    type: Boolean,
+    default: false
   },
-  images: [{
-    public_id: String,
-    url: {
-      type: String,
-      required: true
-    },
-    caption: String,
-    isPrimary: {
-      type: Boolean,
-      default: false
-    }
-  }],
-  videos: [{
-    public_id: String,
-    url: String,
-    caption: String,
-    duration: Number // in seconds
-  }],
-  highlights: [{
-    type: String,
-    maxlength: [100, 'Highlight cannot exceed 100 characters']
-  }],
   itinerary: [{
     day: {
       type: Number,
@@ -119,107 +56,16 @@ const packageSchema = new mongoose.Schema({
       required: true
     },
     description: String,
-    activities: [String],
-    accommodation: String,
-    meals: {
-      breakfast: { type: Boolean, default: false },
-      lunch: { type: Boolean, default: false },
-      dinner: { type: Boolean, default: false }
-    }
-  }],
-  included: [String], // What's included in the package
-  excluded: [String], // What's not included
-  requirements: [String], // Requirements for travelers
-  accommodation: {
-    type: {
-      type: String,
-      enum: ['hotel', 'hostel', 'resort', 'camping', 'homestay', 'luxury'],
-      default: 'hotel'
-    },
-    rating: {
-      type: Number,
-      min: [1, 'Rating must be at least 1'],
-      max: [5, 'Rating cannot exceed 5']
-    },
-    description: String
-  },
-  transportation: {
-    type: {
-      type: String,
-      enum: ['flight', 'train', 'bus', 'car', 'boat', 'mixed'],
-      default: 'mixed'
-    },
-    description: String
-  },
-  guide: {
-    included: {
-      type: Boolean,
-      default: true
-    },
-    type: {
-      type: String,
-      enum: ['local', 'professional', 'specialist'],
-      default: 'local'
-    },
-    languages: [String]
-  },
-  seasonality: {
-    bestTime: {
-      start: {
-        type: String,
-        enum: ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
-      },
-      end: {
-        type: String,
-        enum: ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
-      }
-    },
-    weather: String
-  },
-  ratings: {
-    average: {
-      type: Number,
-      default: 0,
-      min: [0, 'Rating cannot be negative'],
-      max: [5, 'Rating cannot exceed 5']
-    },
-    count: {
-      type: Number,
-      default: 0,
-      min: [0, 'Rating count cannot be negative']
-    }
-  },
-  reviews: [{
-    user: {
+    places: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Place',
       required: true
-    },
-    rating: {
-      type: Number,
-      required: true,
-      min: [1, 'Rating must be at least 1'],
-      max: [5, 'Rating cannot exceed 5']
-    },
-    comment: {
-      type: String,
-      maxlength: [500, 'Review comment cannot exceed 500 characters']
-    },
-    date: {
-      type: Date,
-      default: Date.now
+    }],
+    video: {
+      public_id: String,
+      url: String
     }
   }],
-  status: {
-    type: String,
-    enum: ['active', 'inactive', 'draft', 'sold-out'],
-    default: 'active'
-  },
-  featured: {
-    type: Boolean,
-    default: false
-  },
-  tags: [String],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -232,31 +78,43 @@ const packageSchema = new mongoose.Schema({
 // Index for search functionality
 packageSchema.index({ 
   title: 'text', 
-  description: 'text', 
-  destination: 'text', 
-  country: 'text',
-  category: 'text',
-  tags: 'text'
+  description: 'text'
 });
 
-// Virtual for discounted price
-packageSchema.virtual('discountedPrice').get(function() {
-  if (this.discount && this.discount.percentage && this.discount.validUntil > new Date()) {
-    return this.price.amount * (1 - this.discount.percentage / 100);
-  }
-  return this.price.amount;
+// Pre-save middleware to add console logs for debugging
+packageSchema.pre('save', function(next) {
+  console.log('Saving package:', {
+    title: this.title,
+    tourType: this.tourType,
+    days: this.days,
+    nights: this.nights,
+    vehicle: this.vehicle,
+    guide: this.guide,
+    price: this.price,
+    featured: this.featured,
+    itineraryLength: this.itinerary ? this.itinerary.length : 0
+  });
+  next();
 });
 
-// Method to update average rating
-packageSchema.methods.updateAverageRating = function() {
-  if (this.reviews.length === 0) {
-    this.ratings.average = 0;
-    this.ratings.count = 0;
+// Pre-find middleware to add console logs for debugging
+packageSchema.pre('find', function() {
+  console.log('Finding packages with query:', this.getQuery());
+});
+
+packageSchema.pre('findOne', function() {
+  console.log('Finding one package with query:', this.getQuery());
+});
+
+// Error handling middleware
+packageSchema.post('save', function(error, doc, next) {
+  if (error) {
+    console.error('Error saving package:', error.message);
+    console.error('Validation errors:', error.errors);
   } else {
-    const totalRating = this.reviews.reduce((sum, review) => sum + review.rating, 0);
-    this.ratings.average = totalRating / this.reviews.length;
-    this.ratings.count = this.reviews.length;
+    console.log('Package saved successfully:', doc._id);
   }
-};
+  next();
+});
 
 module.exports = mongoose.model('Package', packageSchema); 
