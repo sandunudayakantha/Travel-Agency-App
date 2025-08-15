@@ -13,6 +13,7 @@ const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
 const vehicleRoutes = require('./routes/vehicles');
 const tourGuideRoutes = require('./routes/tourGuides');
+const driverRoutes = require('./routes/drivers');
 const placeRoutes = require('./routes/places');
 const tourTypeRoutes = require('./routes/tourTypes');
 
@@ -63,6 +64,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/tour-guides', tourGuideRoutes);
+app.use('/api/drivers', driverRoutes);
 app.use('/api/places', placeRoutes);
 app.use('/api/tour-types', tourTypeRoutes);
 

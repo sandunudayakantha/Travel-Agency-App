@@ -184,18 +184,21 @@ PlaceSchema.index({ tags: 1 });
 
 // Virtual for primary image
 PlaceSchema.virtual('primaryImage').get(function() {
+  if (!this.images || !Array.isArray(this.images)) {
+    return null;
+  }
   const primaryImg = this.images.find(img => img.isPrimary);
   return primaryImg || (this.images.length > 0 ? this.images[0] : null);
 });
 
 // Virtual for image count
 PlaceSchema.virtual('imageCount').get(function() {
-  return this.images.length;
+  return this.images && Array.isArray(this.images) ? this.images.length : 0;
 });
 
 // Virtual for video count
 PlaceSchema.virtual('videoCount').get(function() {
-  return this.videos.length;
+  return this.videos && Array.isArray(this.videos) ? this.videos.length : 0;
 });
 
 // Method to get public profile (excluding sensitive data)

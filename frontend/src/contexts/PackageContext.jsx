@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -163,9 +163,6 @@ const packageReducer = (state, action) => {
 
 export const PackageProvider = ({ children }) => {
   const [state, dispatch] = useReducer(packageReducer, initialState);
-  
-  console.log('PackageProvider initial state:', initialState);
-  console.log('PackageProvider current state:', state);
 
   // Load only tour types on mount (for package page)
   useEffect(() => {
@@ -397,7 +394,7 @@ export const PackageProvider = ({ children }) => {
   };
 
   // Get all packages with filters
-  const getPackages = async (filters = {}, page = 1) => {
+  const getPackages = useCallback(async (filters = {}, page = 1) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const params = new URLSearchParams({
@@ -416,10 +413,10 @@ export const PackageProvider = ({ children }) => {
       dispatch({ type: 'SET_ERROR', payload: message });
       toast.error(message);
     }
-  };
+  }, []);
 
   // Get featured packages
-  const getFeaturedPackages = async () => {
+  const getFeaturedPackages = useCallback(async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const res = await axios.get('/api/packages/featured');
@@ -432,7 +429,7 @@ export const PackageProvider = ({ children }) => {
       dispatch({ type: 'SET_ERROR', payload: message });
       toast.error(message);
     }
-  };
+  }, []);
 
   // Get single package
   const getPackage = async (id) => {
@@ -632,6 +629,8 @@ export const PackageProvider = ({ children }) => {
     updateTourType,
     deleteTourType
   };
+
+
 
   return (
     <PackageContext.Provider value={value}>

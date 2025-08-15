@@ -11,11 +11,18 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Home = () => {
-  const { featuredPackages, getFeaturedPackages, loading } = usePackage();
+  const { featuredPackages = [], getFeaturedPackages, loading, error } = usePackage();
 
   useEffect(() => {
-    getFeaturedPackages();
-  }, []);
+    // Only fetch if we don't have featured packages and we're not loading
+    if (featuredPackages.length === 0 && !loading && getFeaturedPackages) {
+      console.log('Fetching featured packages...');
+      getFeaturedPackages();
+    }
+  }, []); // Empty dependency array - only run once on mount
+
+  // Debug log to see what we have
+  console.log('Home component - featuredPackages:', featuredPackages.length, 'loading:', loading);
 
   const heroVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -160,12 +167,11 @@ const Home = () => {
           </motion.div>
 
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="bg-gray-200 rounded-xl h-64 animate-pulse"></div>
-              ))}
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              <p className="mt-4 text-gray-600">Loading featured packages...</p>
             </div>
-          ) : featuredPackages.length > 0 ? (
+          ) : featuredPackages && Array.isArray(featuredPackages) && featuredPackages.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredPackages.slice(0, 6).map((pkg, index) => (
                 <motion.div
@@ -178,7 +184,7 @@ const Home = () => {
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img
-                      src={pkg.images[0]?.url || 'https://via.placeholder.com/400x300'}
+                      src={pkg.image?.url || "https://via.placeholder.com/400x300"}
                       alt={pkg.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -188,10 +194,10 @@ const Home = () => {
                       </div>
                     )}
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-sm font-medium text-gray-900">
-                      ${pkg.price.amount}
+                      ${pkg.price}
                     </div>
                     <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full text-xs text-white">
-                      {pkg.category}
+                      {pkg.tourType?.name || 'Tour'}
                     </div>
                   </div>
                   
@@ -203,40 +209,77 @@ const Home = () => {
                       <div className="flex items-center">
                         <StarIcon className="h-5 w-5 text-yellow-400 fill-current" />
                         <span className="ml-1 text-sm text-gray-600">
-                          {pkg.ratings?.average?.toFixed(1) || '4.5'}
+                          4.5
                         </span>
                       </div>
                     </div>
                     
                     <div className="flex items-center text-gray-600 mb-3">
                       <MapPinIcon className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{pkg.destination}, {pkg.country}</span>
+                      <span className="text-sm">{pkg.itinerary?.[0]?.places?.[0]?.name || 'Multiple destinations'}</span>
                     </div>
                     
                     <div className="flex items-center text-gray-600 mb-4">
                       <CalendarIcon className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{pkg.duration.days} days, {pkg.duration.nights} nights</span>
+                      <span className="text-sm">{pkg.days} days, {pkg.nights} nights</span>
+                    </div>
+                    
+                    {/* Guide and Driver Information */}
+                    <div className="mb-4 space-y-2">
+                      {pkg.guide && (
+                        <div className="flex items-center text-gray-600">
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full mr-2">
+                            Guide
+                          </span>
+                          <span className="text-sm">{pkg.guide.name}</span>
+                        </div>
+                      )}
+                      {pkg.driver && (
+                        <div className="flex items-center text-gray-600">
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full mr-2">
+                            Driver
+                          </span>
+                          <span className="text-sm">{pkg.driver.name}</span>
+                        </div>
+                      )}
                     </div>
                     
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {pkg.shortDescription}
+                      {pkg.description}
                     </p>
                     
                     <div className="flex items-center justify-between">
                       <div className="text-lg font-bold text-primary-600">
-                        ${pkg.price.amount}
+                        ${pkg.price}
                         <span className="text-sm text-gray-500 font-normal"> per person</span>
                       </div>
                       <Link
                         to={`/packages/${pkg._id}`}
                         className="btn-primary px-6 py-2 text-sm group-hover:bg-primary-700 transition-colors"
                       >
-                        Book Now
+                        Explore
                       </Link>
                     </div>
                   </div>
                 </motion.div>
               ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">⚠️</div>
+              <h3 className="text-xl font-semibold text-red-600 mb-2">
+                Error Loading Packages
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {error}
+              </p>
+              <button
+                onClick={() => getFeaturedPackages()}
+                className="btn-primary inline-flex items-center"
+              >
+                Try Again
+                <ArrowRightIcon className="ml-2 h-5 w-5" />
+              </button>
             </div>
           ) : (
             <div className="text-center py-12">
@@ -446,12 +489,11 @@ const Home = () => {
           </motion.div>
 
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-gray-200 rounded-xl h-80 animate-pulse"></div>
-              ))}
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              <p className="mt-4 text-gray-600">Loading featured packages...</p>
             </div>
-          ) : featuredPackages.length > 0 ? (
+          ) : featuredPackages && Array.isArray(featuredPackages) && featuredPackages.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredPackages.slice(0, 6).map((pkg, index) => (
                 <motion.div
@@ -464,7 +506,7 @@ const Home = () => {
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img
-                      src={pkg.images[0]?.url || 'https://via.placeholder.com/400x300'}
+                      src={pkg.image?.url || "https://via.placeholder.com/400x300"}
                       alt={pkg.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
@@ -474,10 +516,10 @@ const Home = () => {
                       </div>
                     )}
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-sm font-medium text-gray-900">
-                      ${pkg.price.amount}
+                      ${pkg.price}
                     </div>
                     <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full text-xs text-white">
-                      {pkg.category}
+                      {pkg.tourType?.name || 'Tour'}
                     </div>
                   </div>
                   
@@ -489,34 +531,71 @@ const Home = () => {
                       <div className="flex items-center">
                         <StarIcon className="h-5 w-5 text-yellow-400 fill-current" />
                         <span className="ml-1 text-sm text-gray-600">
-                          {pkg.ratings?.average?.toFixed(1) || '4.5'}
+                          4.5
                         </span>
                       </div>
                     </div>
                     
                     <div className="flex items-center text-gray-600 mb-3">
                       <MapPinIcon className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{pkg.destination}, {pkg.country}</span>
+                      <span className="text-sm">{pkg.itinerary?.[0]?.places?.[0]?.name || 'Multiple destinations'}</span>
                     </div>
                     
                     <div className="flex items-center text-gray-600 mb-4">
                       <CalendarIcon className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{pkg.duration.days} days, {pkg.duration.nights} nights</span>
+                      <span className="text-sm">{pkg.days} days, {pkg.nights} nights</span>
+                    </div>
+                    
+                    {/* Guide and Driver Information */}
+                    <div className="mb-4 space-y-2">
+                      {pkg.guide && (
+                        <div className="flex items-center text-gray-600">
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full mr-2">
+                            Guide
+                          </span>
+                          <span className="text-sm">{pkg.guide.name}</span>
+                        </div>
+                      )}
+                      {pkg.driver && (
+                        <div className="flex items-center text-gray-600">
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full mr-2">
+                            Driver
+                          </span>
+                          <span className="text-sm">{pkg.driver.name}</span>
+                        </div>
+                      )}
                     </div>
                     
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {pkg.shortDescription}
+                      {pkg.description}
                     </p>
                     
                     <Link
                       to={`/packages/${pkg._id}`}
                       className="btn-primary w-full text-center group-hover:bg-primary-700 transition-colors"
                     >
-                      View Details
+                      Explore
                     </Link>
                   </div>
                 </motion.div>
               ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">⚠️</div>
+              <h3 className="text-xl font-semibold text-red-600 mb-2">
+                Error Loading Featured Packages
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {error}
+              </p>
+              <button
+                onClick={() => getFeaturedPackages()}
+                className="btn-primary inline-flex items-center"
+              >
+                Try Again
+                <ArrowRightIcon className="ml-2 h-5 w-5" />
+              </button>
             </div>
           ) : (
             <div className="text-center py-12">

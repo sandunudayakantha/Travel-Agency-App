@@ -48,6 +48,13 @@ const Dashboard = () => {
       color: 'bg-indigo-500'
     },
     {
+      title: 'Drivers',
+      description: 'Manage drivers and transportation staff',
+      icon: TruckIcon,
+      href: '/admin/drivers',
+      color: 'bg-teal-500'
+    },
+    {
       title: 'Places',
       description: 'Manage destinations and locations',
       icon: MapPinIcon,

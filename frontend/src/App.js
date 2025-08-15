@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { PackageProvider } from './contexts/PackageContext';
 import { BookingProvider } from './contexts/BookingContext';
+import { DriverProvider } from './contexts/DriverContext';
 
 // Components
 import Navbar from './components/layout/Navbar';
@@ -25,6 +26,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminPackages from './pages/admin/Packages';
 import AdminBookings from './pages/admin/Bookings';
 import AdminUsers from './pages/admin/Users';
+import AdminDrivers from './pages/admin/Drivers';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -32,7 +34,8 @@ function App() {
     <AuthProvider>
       <PackageProvider>
         <BookingProvider>
-          <Router>
+          <DriverProvider>
+            <Router>
             <div className="min-h-screen bg-gray-50 flex flex-col">
               <Navbar />
               <main className="flex-grow">
@@ -83,6 +86,11 @@ function App() {
                       <AdminUsers />
                     </AdminRoute>
                   } />
+                  <Route path="/admin/drivers" element={
+                    <AdminRoute>
+                      <AdminDrivers />
+                    </AdminRoute>
+                  } />
                   
                   {/* 404 Route */}
                   <Route path="*" element={<NotFound />} />
@@ -90,6 +98,7 @@ function App() {
               </main>
               <Footer />
             </div>
+            </Router>
             
             {/* Toast Notifications */}
             <Toaster
@@ -116,7 +125,7 @@ function App() {
                 },
               }}
             />
-          </Router>
+          </DriverProvider>
         </BookingProvider>
       </PackageProvider>
     </AuthProvider>

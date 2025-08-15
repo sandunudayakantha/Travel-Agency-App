@@ -37,6 +37,11 @@ const packageSchema = new mongoose.Schema({
     ref: 'TourGuide',
     required: [true, 'Guide is required']
   },
+  driver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Driver',
+    required: [true, 'Driver is required']
+  },
   price: {
     type: Number,
     required: [true, 'Price is required'],
@@ -45,6 +50,10 @@ const packageSchema = new mongoose.Schema({
   featured: {
     type: Boolean,
     default: false
+  },
+  image: {
+    public_id: String,
+    url: String
   },
   itinerary: [{
     day: {
@@ -90,6 +99,7 @@ packageSchema.pre('save', function(next) {
     nights: this.nights,
     vehicle: this.vehicle,
     guide: this.guide,
+    driver: this.driver,
     price: this.price,
     featured: this.featured,
     itineraryLength: this.itinerary ? this.itinerary.length : 0

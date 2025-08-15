@@ -5,6 +5,7 @@ const fs = require('fs');
 const cloudinary = require('cloudinary').v2;
 const { body, validationResult, query } = require('express-validator');
 const Package = require('../models/Package');
+const Driver = require('../models/Driver');
 const { protect, authorize, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -86,6 +87,7 @@ router.get('/', optionalAuth, [
       .populate('tourType', 'name description')
       .populate('vehicle', 'name model type')
       .populate('guide', 'name languages level')
+      .populate('driver', 'name licenseNumber level')
       .populate('itinerary.places', 'name location')
       .sort({ featured: -1, createdAt: -1 })
       .skip(skip)
@@ -136,6 +138,7 @@ router.get('/featured', async (req, res) => {
     .populate('tourType', 'name description')
     .populate('vehicle', 'name model type')
     .populate('guide', 'name languages level')
+    .populate('driver', 'name licenseNumber level')
     .populate('itinerary.places', 'name location')
     .sort({ createdAt: -1 })
     .limit(6);
@@ -162,12 +165,32 @@ router.get('/:id', async (req, res) => {
   try {
     console.log('GET /api/packages/:id - ID:', req.params.id);
     
-    const package = await Package.findById(req.params.id)
+    console.log('Finding package with ID:', req.params.id);
+    
+    let package = await Package.findById(req.params.id)
       .populate('createdBy', 'name')
       .populate('tourType', 'name description')
       .populate('vehicle', 'name model type')
       .populate('guide', 'name languages level')
       .populate('itinerary.places', 'name location');
+    
+    console.log('Package found:', package ? 'yes' : 'no');
+    if (package) {
+      console.log('Driver field before populate:', package.driver);
+      console.log('Driver type:', typeof package.driver);
+      
+      // Manually populate driver if it's not populated
+      if (typeof package.driver === 'string') {
+        console.log('Driver is string, attempting manual populate with ID:', package.driver);
+        const driver = await Driver.findById(package.driver).select('name licenseNumber level experience');
+        if (driver) {
+          package.driver = driver;
+          console.log('Driver populated manually:', driver);
+        } else {
+          console.log('Driver not found with ID:', package.driver);
+        }
+      }
+    }
 
     if (!package) {
       console.log('Package not found');
@@ -218,6 +241,9 @@ router.post('/', protect, authorize('admin'), upload.any(), [
   body('guide')
     .notEmpty()
     .withMessage('Guide is required'),
+  body('driver')
+    .notEmpty()
+    .withMessage('Driver is required'),
   body('price')
     .isFloat({ min: 0 })
     .withMessage('Price must be a positive number'),
@@ -253,6 +279,42 @@ router.post('/', protect, authorize('admin'), upload.any(), [
 
     // Parse JSON fields
     const itinerary = JSON.parse(req.body.itinerary || '[]');
+
+    // Handle package image upload
+    let packageImage = null;
+    if (req.files && req.files.length > 0) {
+      const imageFile = req.files.find(file => file.fieldname === 'image');
+      if (imageFile) {
+        console.log('Processing package image upload...');
+        
+        try {
+          const result = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              {
+                folder: 'package-images',
+                transformation: [
+                  { width: 800, height: 600, crop: 'fill' },
+                  { quality: 'auto' }
+                ]
+              },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              }
+            );
+            stream.end(imageFile.buffer);
+          });
+
+          console.log('Package image uploaded:', result.secure_url);
+          packageImage = {
+            public_id: result.public_id,
+            url: result.secure_url
+          };
+        } catch (uploadError) {
+          console.error('Error uploading package image:', uploadError);
+        }
+      }
+    }
 
     // Handle day video uploads
     const dayVideos = [];
@@ -315,8 +377,10 @@ router.post('/', protect, authorize('admin'), upload.any(), [
       nights: parseInt(req.body.nights),
       vehicle: req.body.vehicle,
       guide: req.body.guide,
+      driver: req.body.driver,
       price: parseFloat(req.body.price),
       featured: req.body.featured === 'true',
+      image: packageImage,
       itinerary: updatedItinerary,
       createdBy: req.user.id
     };
@@ -367,6 +431,9 @@ router.put('/:id', protect, authorize('admin'), upload.any(), [
   body('guide')
     .notEmpty()
     .withMessage('Guide is required'),
+  body('driver')
+    .notEmpty()
+    .withMessage('Driver is required'),
   body('price')
     .isFloat({ min: 0 })
     .withMessage('Price must be a positive number')
@@ -393,6 +460,48 @@ router.put('/:id', protect, authorize('admin'), upload.any(), [
         success: false,
         message: 'Package not found'
       });
+    }
+
+    // Handle package image upload if any
+    let packageImage = package.image; // Keep existing image by default
+    if (req.files && req.files.length > 0) {
+      const imageFile = req.files.find(file => file.fieldname === 'image');
+      if (imageFile) {
+        console.log('Processing package image upload for update...');
+        
+        try {
+          // Delete old image if it exists
+          if (package.image && package.image.public_id) {
+            await cloudinary.uploader.destroy(package.image.public_id);
+            console.log('Old package image deleted');
+          }
+          
+          const result = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              {
+                folder: 'package-images',
+                transformation: [
+                  { width: 800, height: 600, crop: 'fill' },
+                  { quality: 'auto' }
+                ]
+              },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              }
+            );
+            stream.end(imageFile.buffer);
+          });
+
+          console.log('Package image uploaded for update:', result.secure_url);
+          packageImage = {
+            public_id: result.public_id,
+            url: result.secure_url
+          };
+        } catch (uploadError) {
+          console.error('Error uploading package image for update:', uploadError);
+        }
+      }
     }
 
     // Handle video uploads if any
@@ -461,8 +570,10 @@ router.put('/:id', protect, authorize('admin'), upload.any(), [
       nights: parseInt(req.body.nights),
       vehicle: req.body.vehicle,
       guide: req.body.guide,
+      driver: req.body.driver,
       price: parseFloat(req.body.price),
       featured: req.body.featured === 'true',
+      image: packageImage,
       itinerary: updatedItinerary
     };
 
@@ -476,6 +587,7 @@ router.put('/:id', protect, authorize('admin'), upload.any(), [
     ).populate('tourType', 'name description')
      .populate('vehicle', 'name model type')
      .populate('guide', 'name languages level')
+     .populate('driver', 'name licenseNumber level')
      .populate('itinerary.places', 'name location');
 
     console.log('Package updated successfully');
@@ -509,6 +621,16 @@ router.delete('/:id', protect, authorize('admin'), async (req, res) => {
         success: false,
         message: 'Package not found'
       });
+    }
+
+    // Delete package image from Cloudinary if it exists
+    if (package.image && package.image.public_id) {
+      try {
+        await cloudinary.uploader.destroy(package.image.public_id);
+        console.log('Deleted package image from Cloudinary:', package.image.public_id);
+      } catch (cloudinaryError) {
+        console.error('Error deleting package image from Cloudinary:', cloudinaryError);
+      }
     }
 
     // Delete videos from Cloudinary if they exist

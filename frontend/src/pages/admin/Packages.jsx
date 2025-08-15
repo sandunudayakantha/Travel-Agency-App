@@ -3,6 +3,7 @@ import { usePackage } from '../../contexts/PackageContext';
 import { usePlace } from '../../contexts/PlaceContext';
 import { useVehicle } from '../../contexts/VehicleContext';
 import { useTourGuide } from '../../contexts/TourGuideContext';
+import { useDriver } from '../../contexts/DriverContext';
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -37,6 +38,7 @@ const AdminPackages = () => {
   ) : [];
   const { vehicles = [], getVehicles } = useVehicle();
   const { tourGuides = [], getTourGuides } = useTourGuide();
+  const { drivers = [], getDrivers } = useDriver();
 
   console.log('AdminPackages - packages:', packages);
   console.log('AdminPackages - tourTypes:', tourTypes);
@@ -44,6 +46,7 @@ const AdminPackages = () => {
   console.log('AdminPackages - validPlaces:', validPlaces);
   console.log('AdminPackages - vehicles:', vehicles);
   console.log('AdminPackages - tourGuides:', tourGuides);
+  console.log('AdminPackages - drivers:', drivers);
   console.log('AdminPackages - loading:', loading);
   
   // Load data when component mounts
@@ -58,7 +61,8 @@ const AdminPackages = () => {
           loadTourTypes(),
           getPlaces(),
           getVehicles(),
-          getTourGuides()
+          getTourGuides(),
+          getDrivers()
         ]);
         console.log('All data loaded successfully');
       } catch (error) {
@@ -446,6 +450,7 @@ const AdminPackages = () => {
             places={validPlaces}
             vehicles={vehicles || []}
             tourGuides={tourGuides || []}
+            drivers={drivers || []}
             onClose={() => setShowPackageModal(false)}
             onSuccess={() => {
               setShowPackageModal(false);
@@ -484,7 +489,7 @@ const AdminPackages = () => {
 };
 
 // Package Modal Component
-const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourGuides, onClose, onSuccess, createPackage, updatePackage }) => {
+const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourGuides, drivers, onClose, onSuccess, createPackage, updatePackage }) => {
   const [formData, setFormData] = useState({
     title: packageItem ? packageItem.title : '',
     description: packageItem ? packageItem.description : '',
@@ -493,10 +498,12 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
     nights: packageItem ? packageItem.nights : 0,
     vehicle: packageItem ? packageItem.vehicle?._id : '',
     guide: packageItem ? packageItem.guide?._id : '',
+    driver: packageItem ? packageItem.driver?._id : '',
     price: packageItem ? packageItem.price : 0,
     featured: packageItem ? packageItem.featured : false,
     itinerary: packageItem ? packageItem.itinerary || [] : []
   });
+  const [packageImage, setPackageImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Create a ref to store the addDay function
@@ -614,6 +621,7 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
       submitData.append('nights', formData.nights);
       submitData.append('vehicle', formData.vehicle);
       submitData.append('guide', formData.guide);
+      submitData.append('driver', formData.driver);
       submitData.append('price', formData.price);
       submitData.append('featured', formData.featured);
       
@@ -626,6 +634,7 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
         nights: formData.nights,
         vehicle: formData.vehicle,
         guide: formData.guide,
+        driver: formData.driver,
         price: formData.price,
         featured: formData.featured,
         itineraryLength: formData.itinerary.length
@@ -639,6 +648,11 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
         places: day.places
       }));
       submitData.append('itinerary', JSON.stringify(itineraryWithoutFiles));
+      
+      // Add package image
+      if (packageImage) {
+        submitData.append('image', packageImage);
+      }
       
       // Add video files
       formData.itinerary.forEach((day, index) => {
@@ -792,6 +806,26 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Driver *
+              </label>
+              <select
+                required
+                value={formData.driver}
+                onChange={(e) => setFormData({ ...formData, driver: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={isSubmitting}
+              >
+                <option value="">Select Driver</option>
+                {drivers.map((driver) => (
+                  <option key={driver._id} value={driver._id}>
+                    {driver.name} - {driver.licenseNumber} ({driver.level})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Price (USD) *
               </label>
               <input
@@ -836,6 +870,52 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
               disabled={isSubmitting}
               maxLength={2000}
             />
+          </div>
+
+          {/* Package Image */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Package Image
+            </label>
+            <div className="flex items-center space-x-4">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setPackageImage(e.target.files[0] || null)}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                disabled={isSubmitting}
+              />
+              {packageImage && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-green-600">✓ Image selected</span>
+                  <button
+                    type="button"
+                    onClick={() => setPackageImage(null)}
+                    className="text-red-600 hover:text-red-800 text-sm"
+                    disabled={isSubmitting}
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+            </div>
+            {packageImage && (
+              <div className="mt-2">
+                <p className="text-xs text-gray-500">
+                  Selected: {packageImage.name} ({(packageImage.size / 1024 / 1024).toFixed(2)} MB)
+                </p>
+              </div>
+            )}
+            {packageItem?.image?.url && !packageImage && (
+              <div className="mt-2">
+                <p className="text-xs text-gray-500 mb-2">Current image:</p>
+                <img 
+                  src={packageItem.image.url} 
+                  alt="Current package image" 
+                  className="w-32 h-24 object-cover rounded-lg border"
+                />
+              </div>
+            )}
           </div>
 
           {/* Itinerary */}
