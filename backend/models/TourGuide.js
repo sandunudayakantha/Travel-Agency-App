@@ -30,10 +30,11 @@ const tourGuideSchema = new mongoose.Schema({
     required: true,
     trim: true
   }],
-  level: {
-    type: String,
-    enum: ['beginner', 'intermediate', 'advanced', 'expert'],
-    default: 'intermediate',
+  rating: {
+    type: Number,
+    min: [1, 'Rating must be at least 1'],
+    max: [5, 'Rating cannot exceed 5'],
+    default: 3,
     required: true
   },
   avatar: {

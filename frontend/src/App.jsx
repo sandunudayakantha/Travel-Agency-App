@@ -11,6 +11,7 @@ import { VehicleProvider } from './contexts/VehicleContext.jsx';
 import { TourGuideProvider } from './contexts/TourGuideContext.jsx';
 import { DriverProvider } from './contexts/DriverContext.jsx';
 import { PlaceProvider } from './contexts/PlaceContext.jsx';
+import { TourTypeProvider } from './contexts/TourTypeContext.jsx';
 
 // Components
 import Navbar from './components/layout/Navbar.jsx';
@@ -47,6 +48,7 @@ function App() {
   return (
     <LoadScript 
       googleMapsApiKey={getGoogleMapsApiKey() || 'your-api-key'}
+      libraries={['places', 'geometry']}
       onLoad={() => console.log('Google Maps API loaded successfully')}
       onError={(error) => console.error('Google Maps API failed to load:', error)}
     >
@@ -59,6 +61,7 @@ function App() {
                   <TourGuideProvider>
                     <DriverProvider>
                       <PlaceProvider>
+                        <TourTypeProvider>
                     <div className="min-h-screen flex flex-col">
                       <Navbar />
                       <main className="flex-grow">
@@ -148,6 +151,7 @@ function App() {
                     <Footer />
                   </div>
                   <Toaster position="top-right" />
+                        </TourTypeProvider>
                   </PlaceProvider>
                   </DriverProvider>
                 </TourGuideProvider>

@@ -44,7 +44,7 @@ router.get('/test', (req, res) => {
 router.get('/', [
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 50 }),
-  query('level').optional().isIn(['beginner', 'intermediate', 'advanced', 'expert']),
+  query('rating').optional().isInt({ min: 1, max: 5 }),
   query('availability').optional().isIn(['available', 'busy', 'unavailable']),
   query('licenseType').optional().isIn(['light', 'heavy', 'commercial', 'special']),
   query('vehicleType').optional().isIn(['sedan', 'suv', 'van', 'bus', 'coach', 'motorcycle']),
@@ -64,7 +64,7 @@ router.get('/', [
     const {
       page = 1,
       limit = 12,
-      level,
+      rating,
       availability,
       licenseType,
       vehicleType,
@@ -75,7 +75,7 @@ router.get('/', [
     // Build filter object
     const filter = { status: 'active' };
 
-    if (level) filter.level = level;
+    if (rating) filter.rating = parseInt(rating);
     if (availability) filter.availability = availability;
     if (licenseType) filter.licenseType = licenseType;
 
@@ -212,9 +212,9 @@ router.post('/', protect, authorize('admin'), upload.single('avatar'), [
       }
     })
     .withMessage('At least one language is required'),
-  body('level')
-    .isIn(['beginner', 'intermediate', 'advanced', 'expert'])
-    .withMessage('Invalid level'),
+  body('rating')
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Rating must be between 1 and 5'),
   body('experience')
     .optional()
     .isInt({ min: 0 })
@@ -410,10 +410,10 @@ router.put('/:id', protect, authorize('admin'), upload.single('avatar'), [
     .trim()
     .isLength({ min: 2, max: 20 })
     .withMessage('Language must be between 2 and 20 characters'),
-  body('level')
+  body('rating')
     .optional()
-    .isIn(['beginner', 'intermediate', 'advanced', 'expert'])
-    .withMessage('Invalid level'),
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Rating must be between 1 and 5'),
   body('experience')
     .optional()
     .isInt({ min: 0 })

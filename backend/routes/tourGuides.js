@@ -44,7 +44,7 @@ router.get('/test', (req, res) => {
 router.get('/', [
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 50 }),
-  query('level').optional().isIn(['beginner', 'intermediate', 'advanced', 'expert']),
+  query('rating').optional().isInt({ min: 1, max: 5 }),
   query('availability').optional().isIn(['available', 'busy', 'unavailable']),
   query('language').optional().isString(),
   query('search').optional().isString()
@@ -62,7 +62,7 @@ router.get('/', [
     const {
       page = 1,
       limit = 12,
-      level,
+      rating,
       availability,
       language,
       search
@@ -71,7 +71,7 @@ router.get('/', [
     // Build filter object
     const filter = { status: 'active' };
 
-    if (level) filter.level = level;
+    if (rating) filter.rating = parseInt(rating);
     if (availability) filter.availability = availability;
 
     // Language filter
@@ -212,9 +212,9 @@ router.post('/', protect, authorize('admin'), upload.single('avatar'), preproces
   body('languages')
     .isArray({ min: 1 })
     .withMessage('At least one language is required'),
-  body('level')
-    .isIn(['beginner', 'intermediate', 'advanced', 'expert'])
-    .withMessage('Invalid level')
+  body('rating')
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Rating must be between 1 and 5')
 ], async (req, res) => {
   try {
     console.log('=== TOUR GUIDE CREATION START ===');

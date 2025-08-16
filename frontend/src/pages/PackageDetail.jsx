@@ -114,7 +114,9 @@ const PackageDetail = () => {
     allPlaces: allPlaces.map(place => ({
       name: place.name,
       lat: place.location.coordinates.latitude,
-      lng: place.location.coordinates.longitude
+      lng: place.location.coordinates.longitude,
+      latValid: typeof place.location.coordinates.latitude === 'number',
+      lngValid: typeof place.location.coordinates.longitude === 'number'
     })),
     totalPlaces: allPlaces.length,
     pkg: pkg,
@@ -375,14 +377,93 @@ const PackageDetail = () => {
                 onLoad={(map) => {
                   console.log('Map loaded successfully');
                   console.log('Google Maps API available:', !!window.google?.maps);
+                  console.log('Google Maps API key:', getGoogleMapsApiKey());
                   console.log('Map center:', mapCenter);
                   console.log('All places:', allPlaces);
                   console.log('Map container style:', mapContainerStyle);
+                  console.log('Map instance:', map);
+                  console.log('Map zoom level:', map.getZoom());
+                  console.log('Map bounds:', map.getBounds());
+                  
+                  // Test Google Maps API functionality
+                  if (window.google?.maps) {
+                    console.log('Google Maps API is loaded and available');
+                    console.log('Available Google Maps objects:', Object.keys(window.google.maps));
+                    
+                    // Test if Marker constructor is available
+                    if (window.google.maps.Marker) {
+                      console.log('✅ Marker constructor is available');
+                    } else {
+                      console.error('❌ Marker constructor is NOT available');
+                    }
+                    
+                    // Test if Map constructor is available
+                    if (window.google.maps.Map) {
+                      console.log('✅ Map constructor is available');
+                    } else {
+                      console.error('❌ Map constructor is NOT available');
+                    }
+                  } else {
+                    console.error('Google Maps API is NOT loaded!');
+                  }
                   
                   // Hide loading indicator
                   const loadingElement = document.getElementById('map-loading');
                   if (loadingElement) {
                     loadingElement.style.display = 'none';
+                  }
+                  
+                  // Create markers programmatically and attach to map
+                  allPlaces.forEach((place, index) => {
+                    const marker = new window.google.maps.Marker({
+                      position: {
+                        lat: place.location.coordinates.latitude,
+                        lng: place.location.coordinates.longitude
+                      },
+                      map: map, // This is the key - attach to map
+                      title: `${index + 1}. ${place.name}`,
+                      label: {
+                        text: `${index + 1}`,
+                        color: 'white',
+                        fontWeight: 'bold',
+                        fontSize: '14px'
+                      },
+                      icon: {
+                        path: window.google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: index === 0 ? '#10B981' : '#3B82F6',
+                        fillOpacity: 0.9,
+                        strokeColor: '#FFFFFF',
+                        strokeWeight: 2
+                      }
+                    });
+                    
+                    console.log(`Created marker ${index + 1} for ${place.name} and attached to map`);
+                    
+                    // Add click listener
+                    marker.addListener('click', () => {
+                      console.log(`Marker clicked: ${place.name}`);
+                      setSelectedPlace({ ...place, index });
+                    });
+                  });
+                  
+                  // Create polyline to connect places
+                  if (allPlaces.length > 1) {
+                    const path = allPlaces.map(place => ({
+                      lat: place.location.coordinates.latitude,
+                      lng: place.location.coordinates.longitude
+                    }));
+                    
+                    const polyline = new window.google.maps.Polyline({
+                      path: path,
+                      geodesic: true,
+                      strokeColor: '#3B82F6',
+                      strokeOpacity: 0.8,
+                      strokeWeight: 4,
+                      map: map
+                    });
+                    
+                    console.log('Created polyline connecting all places');
                   }
                   
                   // Fit bounds to show all places
@@ -408,60 +489,9 @@ const PackageDetail = () => {
                 }}
                 onError={(error) => console.error('Map failed to load:', error)}
               >
-                {/* Markers for all places */}
-                {allPlaces.map((place, index) => (
-                  <Marker
-                    key={index}
-                    position={{
-                      lat: place.location.coordinates.latitude,
-                      lng: place.location.coordinates.longitude
-                    }}
-                    label={{
-                      text: `${index + 1}`,
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '16px'
-                    }}
-                    title={`${index + 1}. ${place.name}`}
-                    animation={window.google?.maps?.Animation?.DROP}
-                    onClick={() => setSelectedPlace({ ...place, index })}
-                    icon={{
-                      path: window.google?.maps?.SymbolPath?.CIRCLE,
-                      scale: highlightedPlaces.includes(place._id) ? 14 : 12,
-                      fillColor: highlightedPlaces.includes(place._id) 
-                        ? '#F59E0B' // Orange for highlighted places
-                        : index === 0 
-                          ? '#10B981' // Green for start
-                          : '#3B82F6', // Blue for others
-                      fillOpacity: 0.9,
-                      strokeColor: highlightedPlaces.includes(place._id) ? '#FFFFFF' : '#FFFFFF',
-                      strokeWeight: highlightedPlaces.includes(place._id) ? 3 : 2
-                    }}
-                  />
-                ))}
+                {/* Markers are now created programmatically in onLoad */}
                 
-                {/* Polyline connecting places in order */}
-                {allPlaces.length > 1 && (
-                  <Polyline
-                    path={allPlaces.map(place => ({
-                      lat: place.location.coordinates.latitude,
-                      lng: place.location.coordinates.longitude
-                    }))}
-                    options={{
-                      strokeColor: '#3B82F6',
-                      strokeOpacity: 0.8,
-                      strokeWeight: 4,
-                      geodesic: true,
-                      icons: [{
-                        icon: {
-                          path: window.google?.maps?.SymbolPath?.FORWARD_CLOSED_ARROW
-                        },
-                        offset: '50%',
-                        repeat: '100px'
-                      }]
-                    }}
-                  />
-                )}
+                {/* Polyline is now created programmatically in onLoad */}
                 
                 {/* Info Window for selected place */}
                 {selectedPlace && (
@@ -516,6 +546,101 @@ const PackageDetail = () => {
                   <div className="text-sm text-gray-500">
                     Places will appear here once they are added to the package itinerary.
                   </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Alternative: Static Map Display */}
+            {allPlaces.length > 0 && (
+              <div className="mt-4 p-4 bg-green-50 rounded-lg border">
+                <h4 className="text-lg font-semibold text-green-900 mb-3">Alternative Map View:</h4>
+                <div className="relative w-full rounded-lg overflow-hidden border border-gray-200 bg-slate-100" style={{ aspectRatio: '16 / 10' }}>
+                  {/* Background map image */}
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Sri_Lanka_districts_map.png/800px-Sri_Lanka_districts_map.png"
+                    alt="Sri Lanka map"
+                    className="absolute inset-0 h-full w-full object-contain bg-gradient-to-b from-sky-50 to-slate-100"
+                  />
+                  
+                  {/* SVG overlay for places */}
+                  <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+                    {allPlaces.map((place, index) => {
+                      // Simple positioning based on index (you can improve this)
+                      const x = 20 + (index * 20);
+                      const y = 30 + (index * 15);
+                      
+                      return (
+                        <g key={index}>
+                          <circle cx={x} cy={y} r={2} fill="#3B82F6" stroke="#FFFFFF" strokeWidth={1} />
+                          <text x={x + 3} y={y} fontSize={3} fill="#1F2937" stroke="#FFFFFF" strokeWidth={0.5}>
+                            {index + 1}. {place.name}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                </div>
+                <p className="text-xs text-green-700 mt-2">Static map showing {allPlaces.length} places</p>
+              </div>
+            )}
+            
+            {/* Simple Place List Display */}
+            {allPlaces.length > 0 && (
+              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                <h4 className="text-lg font-semibold text-blue-900 mb-3">Places in This Package:</h4>
+                
+                {/* Test Button */}
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                  <button 
+                    onClick={() => {
+                      console.log('Testing marker creation...');
+                      if (window.google?.maps?.Marker) {
+                        console.log('✅ Can create markers programmatically');
+                        // Try to create a test marker attached to the map
+                        const mapElement = document.querySelector('[data-testid="google-map"]') || document.querySelector('.google-map') || document.querySelector('[role="application"]');
+                        if (mapElement && mapElement.__googleMap) {
+                          const testMarker = new window.google.maps.Marker({
+                            position: mapCenter,
+                            title: 'Test Programmatic Marker',
+                            map: mapElement.__googleMap
+                          });
+                          console.log('Test marker created and attached to map:', testMarker);
+                        } else {
+                          console.log('Map element not found, creating standalone marker');
+                          const testMarker = new window.google.maps.Marker({
+                            position: mapCenter,
+                            title: 'Test Programmatic Marker'
+                          });
+                          console.log('Test marker created (not attached):', testMarker);
+                        }
+                      } else {
+                        console.error('❌ Cannot create markers - Marker constructor not available');
+                      }
+                    }}
+                    className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                  >
+                    Test Marker Creation
+                  </button>
+                  <p className="text-xs text-yellow-700 mt-1">Click to test if markers can be created programmatically</p>
+                </div>
+                
+                <div className="space-y-2">
+                  {allPlaces.map((place, index) => (
+                    <div key={index} className="flex items-center p-3 bg-white rounded border">
+                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <h5 className="font-medium text-gray-900">{place.name}</h5>
+                        <p className="text-sm text-gray-600">
+                          📍 {place.location.formattedAddress}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Coordinates: {place.location.coordinates.latitude.toFixed(6)}, {place.location.coordinates.longitude.toFixed(6)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

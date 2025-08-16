@@ -63,13 +63,19 @@ router.get('/', optionalAuth, [
       page = 1,
       limit = 12,
       featured,
-      search
+      search,
+      tourType
     } = req.query;
 
     // Build filter object
     const filter = {};
 
     if (featured !== undefined) filter.featured = featured === 'true';
+
+    // Tour type filter
+    if (tourType) {
+      filter.tourType = tourType;
+    }
 
     // Search filter
     if (search) {

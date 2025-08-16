@@ -24,17 +24,17 @@ const TourGuides = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingTourGuide, setEditingTourGuide] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState('');
+  const [selectedRating, setSelectedRating] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     loadTourGuides();
-  }, [currentPage, searchTerm, selectedLevel]);
+  }, [currentPage, searchTerm, selectedRating]);
 
   const loadTourGuides = () => {
     const filters = {};
     if (searchTerm) filters.search = searchTerm;
-    if (selectedLevel) filters.level = selectedLevel;
+    if (selectedRating) filters.rating = selectedRating;
     getTourGuides(filters, currentPage);
   };
 
@@ -60,16 +60,21 @@ const TourGuides = () => {
     console.log('Modal should now be visible');
   };
 
-  const tourGuideLevels = [
-    'beginner', 'intermediate', 'advanced', 'expert'
+  const tourGuideRatings = [
+    { value: '1', label: '1 Star' },
+    { value: '2', label: '2 Stars' },
+    { value: '3', label: '3 Stars' },
+    { value: '4', label: '4 Stars' },
+    { value: '5', label: '5 Stars' }
   ];
 
-  const getLevelColor = (level) => {
-    switch (level) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-blue-100 text-blue-800';
-      case 'advanced': return 'bg-yellow-100 text-yellow-800';
-      case 'expert': return 'bg-purple-100 text-purple-800';
+  const getRatingColor = (rating) => {
+    switch (rating) {
+      case 1: return 'bg-red-100 text-red-800';
+      case 2: return 'bg-orange-100 text-orange-800';
+      case 3: return 'bg-yellow-100 text-yellow-800';
+      case 4: return 'bg-blue-100 text-blue-800';
+      case 5: return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -136,14 +141,14 @@ const TourGuides = () => {
         </div>
         <div className="flex gap-2">
           <select
-            value={selectedLevel}
-            onChange={(e) => setSelectedLevel(e.target.value)}
+            value={selectedRating}
+            onChange={(e) => setSelectedRating(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="">All Levels</option>
-            {tourGuideLevels.map(level => (
-              <option key={level} value={level}>
-                {level.charAt(0).toUpperCase() + level.slice(1)}
+            <option value="">All Ratings</option>
+            {tourGuideRatings.map(rating => (
+              <option key={rating.value} value={rating.value}>
+                {rating.label}
               </option>
             ))}
           </select>
@@ -178,7 +183,7 @@ const TourGuides = () => {
                     Languages
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Level
+                    Rating
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
@@ -223,8 +228,8 @@ const TourGuides = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getLevelColor(tourGuide.level)}`}>
-                        {tourGuide.level.charAt(0).toUpperCase() + tourGuide.level.slice(1)}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRatingColor(tourGuide.rating)}`}>
+                        {tourGuide.rating} {tourGuide.rating === 1 ? 'Star' : 'Stars'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -344,7 +349,7 @@ const TourGuideModal = ({ tourGuide, onClose, onSuccess }) => {
     email: '',
     phone: '',
     languages: [],
-    level: 'intermediate',
+    rating: 3,
     bio: '',
     experience: 0,
     specializations: [],
@@ -362,7 +367,7 @@ const TourGuideModal = ({ tourGuide, onClose, onSuccess }) => {
         email: tourGuide.email || '',
         phone: tourGuide.phone || '',
         languages: tourGuide.languages || [],
-        level: tourGuide.level || 'intermediate',
+        rating: tourGuide.rating || 3,
         bio: tourGuide.bio || '',
         experience: tourGuide.experience || 0,
         specializations: tourGuide.specializations || [],
@@ -558,22 +563,23 @@ const TourGuideModal = ({ tourGuide, onClose, onSuccess }) => {
               </div>
             </div>
 
-            {/* Level and Availability */}
+            {/* Rating and Availability */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Level *
+                  Rating *
                 </label>
                 <select
                   required
-                  value={formData.level}
-                  onChange={(e) => setFormData(prev => ({ ...prev, level: e.target.value }))}
+                  value={formData.rating}
+                  onChange={(e) => setFormData(prev => ({ ...prev, rating: parseInt(e.target.value) }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                  <option value="expert">Expert</option>
+                  <option value={1}>1 Star</option>
+                  <option value={2}>2 Stars</option>
+                  <option value={3}>3 Stars</option>
+                  <option value={4}>4 Stars</option>
+                  <option value={5}>5 Stars</option>
                 </select>
               </div>
 

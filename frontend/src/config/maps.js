@@ -13,7 +13,7 @@ export const GOOGLE_MAPS_CONFIG = {
   defaultZoom: 10,
   
   // Required libraries for the Google Maps API
-  libraries: ['places', 'geometry'],
+  libraries: ['places', 'geometry', 'marker'],
   
   // Map styles and options
   mapOptions: {

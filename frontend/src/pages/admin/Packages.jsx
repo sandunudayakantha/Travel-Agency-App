@@ -818,7 +818,7 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
                 <option value="">Select Driver</option>
                 {drivers.map((driver) => (
                   <option key={driver._id} value={driver._id}>
-                    {driver.name} - {driver.licenseNumber} ({driver.level})
+                    {driver.name} - {driver.licenseNumber} ({driver.rating} Stars)
                   </option>
                 ))}
               </select>

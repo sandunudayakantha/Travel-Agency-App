@@ -23,19 +23,19 @@ const Drivers = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingDriver, setEditingDriver] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState('');
+  const [selectedRating, setSelectedRating] = useState('');
   const [selectedLicenseType, setSelectedLicenseType] = useState('');
   const [selectedVehicleType, setSelectedVehicleType] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     loadDrivers();
-  }, [currentPage, searchTerm, selectedLevel, selectedLicenseType, selectedVehicleType]);
+  }, [currentPage, searchTerm, selectedRating, selectedLicenseType, selectedVehicleType]);
 
   const loadDrivers = () => {
     const filters = {};
     if (searchTerm) filters.search = searchTerm;
-    if (selectedLevel) filters.level = selectedLevel;
+    if (selectedRating) filters.rating = selectedRating;
     if (selectedLicenseType) filters.licenseType = selectedLicenseType;
     if (selectedVehicleType) filters.vehicleType = selectedVehicleType;
     getDrivers(filters, currentPage);
@@ -61,8 +61,12 @@ const Drivers = () => {
     setShowModal(true);
   };
 
-  const driverLevels = [
-    'beginner', 'intermediate', 'advanced', 'expert'
+  const driverRatings = [
+    { value: '1', label: '1 Star' },
+    { value: '2', label: '2 Stars' },
+    { value: '3', label: '3 Stars' },
+    { value: '4', label: '4 Stars' },
+    { value: '5', label: '5 Stars' }
   ];
 
   const licenseTypes = [
@@ -73,12 +77,13 @@ const Drivers = () => {
     'sedan', 'suv', 'van', 'bus', 'coach', 'motorcycle'
   ];
 
-  const getLevelColor = (level) => {
-    switch (level) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-blue-100 text-blue-800';
-      case 'advanced': return 'bg-yellow-100 text-yellow-800';
-      case 'expert': return 'bg-purple-100 text-purple-800';
+  const getRatingColor = (rating) => {
+    switch (rating) {
+      case 1: return 'bg-red-100 text-red-800';
+      case 2: return 'bg-orange-100 text-orange-800';
+      case 3: return 'bg-yellow-100 text-yellow-800';
+      case 4: return 'bg-blue-100 text-blue-800';
+      case 5: return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -160,16 +165,16 @@ const Drivers = () => {
             />
           </div>
 
-          {/* Level Filter */}
+          {/* Rating Filter */}
           <select
-            value={selectedLevel}
-            onChange={(e) => setSelectedLevel(e.target.value)}
+            value={selectedRating}
+            onChange={(e) => setSelectedRating(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="">All Levels</option>
-            {driverLevels.map(level => (
-              <option key={level} value={level}>
-                {level.charAt(0).toUpperCase() + level.slice(1)}
+            <option value="">All Ratings</option>
+            {driverRatings.map(rating => (
+              <option key={rating.value} value={rating.value}>
+                {rating.label}
               </option>
             ))}
           </select>
@@ -206,7 +211,7 @@ const Drivers = () => {
           <button
             onClick={() => {
               setSearchTerm('');
-              setSelectedLevel('');
+              setSelectedRating('');
               setSelectedLicenseType('');
               setSelectedVehicleType('');
             }}
@@ -292,8 +297,8 @@ const Drivers = () => {
                       <div className="text-sm text-gray-500">
                         {driver.toursCompleted} tours completed
                       </div>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getLevelColor(driver.level)}`}>
-                        {driver.level}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRatingColor(driver.rating)}`}>
+                        {driver.rating} {driver.rating === 1 ? 'Star' : 'Stars'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -422,7 +427,7 @@ const DriverModal = ({ driver, onClose, onSuccess }) => {
     licenseType: 'light',
     licenseExpiry: '',
     languages: ['English'],
-    level: 'intermediate',
+    rating: 3,
     bio: '',
     experience: 0,
     toursCompleted: 0,
@@ -445,7 +450,7 @@ const DriverModal = ({ driver, onClose, onSuccess }) => {
         licenseType: driver.licenseType || 'light',
         licenseExpiry: driver.licenseExpiry ? new Date(driver.licenseExpiry).toISOString().split('T')[0] : '',
         languages: driver.languages || ['English'],
-        level: driver.level || 'intermediate',
+        rating: driver.rating || 3,
         bio: driver.bio || '',
         experience: driver.experience || 0,
         toursCompleted: driver.toursCompleted || 0,
@@ -717,7 +722,7 @@ const DriverModal = ({ driver, onClose, onSuccess }) => {
               </div>
             </div>
 
-            {/* Experience and Level */}
+            {/* Experience and Rating */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -749,18 +754,19 @@ const DriverModal = ({ driver, onClose, onSuccess }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Level *
+                  Rating *
                 </label>
                 <select
                   required
-                  value={formData.level}
-                  onChange={(e) => setFormData(prev => ({ ...prev, level: e.target.value }))}
+                  value={formData.rating}
+                  onChange={(e) => setFormData(prev => ({ ...prev, rating: parseInt(e.target.value) }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                  <option value="expert">Expert</option>
+                  <option value={1}>1 Star</option>
+                  <option value={2}>2 Stars</option>
+                  <option value={3}>3 Stars</option>
+                  <option value={4}>4 Stars</option>
+                  <option value={5}>5 Stars</option>
                 </select>
               </div>
 

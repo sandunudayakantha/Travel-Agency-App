@@ -18,7 +18,7 @@ const initialState = {
     hasPrevPage: false
   },
   filters: {
-    level: '',
+    rating: '',
     availability: '',
     licenseType: '',
     vehicleType: '',
