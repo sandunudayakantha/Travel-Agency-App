@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -14,11 +14,20 @@ import {
 } from '@heroicons/react/24/outline';
 import { usePackage } from '../contexts/PackageContext';
 import { usePlace } from '../contexts/PlaceContext';
+import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import PlaceMap from '../components/PlaceMap';
+import StarRating from '../components/StarRating';
+import FeaturedReviews from '../components/FeaturedReviews';
+import { 
+  EnvelopeIcon,
+  PhoneIcon,
+  ClockIcon
+} from '@heroicons/react/24/outline';
 
 const Home = () => {
   const { featuredPackages = [], getFeaturedPackages, loading, error } = usePackage();
   const { places, getPlaces, loading: placesLoading } = usePlace();
+  const { settings } = useSiteSettings();
   
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,55 +35,130 @@ const Home = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [showMap, setShowMap] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  
+  // Refs
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     // Only fetch if we don't have featured packages and we're not loading
     if (featuredPackages.length === 0 && !loading && getFeaturedPackages) {
-      console.log('Fetching featured packages...');
       getFeaturedPackages();
     }
   }, []); // Empty dependency array - only run once on mount
 
-  // Handle search
-  const handleSearch = async () => {
-    console.log('Search triggered with term:', searchTerm);
-    
-    if (!searchTerm.trim()) {
-      console.log('Search term is empty, clearing results');
+  // Real-time search with debouncing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchTerm.trim().length >= 1) {
+        performSearch(searchTerm);
+      } else if (searchTerm.trim().length === 0) {
+        setSearchResults([]);
+        setShowSearchResults(false);
+        setIsSearching(false);
+      }
+    }, 200); // 200ms debounce delay for faster response
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
+
+  // Keep focus on search input after search results update
+  useEffect(() => {
+    if (searchInputRef.current && searchTerm.trim().length >= 1) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
+      }, 10);
+    }
+  }, [searchResults, showSearchResults]);
+
+  // Additional focus restoration for any focus loss
+  useEffect(() => {
+    const handleFocusLoss = () => {
+      if (searchInputRef.current && searchTerm.trim().length >= 1 && !searchInputRef.current.matches(':focus')) {
+        setTimeout(() => {
+          if (searchInputRef.current) {
+            searchInputRef.current.focus();
+          }
+        }, 50);
+      }
+    };
+
+    // Check for focus loss periodically
+    const interval = setInterval(handleFocusLoss, 100);
+
+    return () => clearInterval(interval);
+  }, [searchTerm]);
+
+  // Separate function for performing search
+  const performSearch = async (term) => {
+    if (!term.trim()) {
       setSearchResults([]);
       setShowSearchResults(false);
+      setIsSearching(false);
       return;
     }
 
+    setIsSearching(true);
+    setShowSearchResults(true);
+
     try {
-      console.log('Calling getPlaces with search term:', searchTerm);
-      const result = await getPlaces({ search: searchTerm }, 1);
-      console.log('Search result:', result);
+      const result = await getPlaces({ search: term }, 1);
+      
       if (result.success) {
         setSearchResults(result.data.places);
-        setShowSearchResults(true);
-        console.log('Search results set:', result.data.places.length, 'places found');
+      } else {
+        setSearchResults([]);
       }
     } catch (error) {
-      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Handle search button click
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      performSearch(searchTerm);
     }
   };
 
   // Handle search input change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    if (!e.target.value.trim()) {
-      setSearchResults([]);
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
       setShowSearchResults(false);
+      setSearchResults([]);
+      setSearchTerm('');
     }
   };
 
-  // Handle search on Enter key
-  const handleSearchKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
+  // Handle search input focus
+  const handleSearchFocus = () => {
+    setIsSearchFocused(true);
+    if (searchTerm.trim().length >= 1) {
+      setShowSearchResults(true);
     }
   };
+
+  // Keep focus when clicking on results
+  const handleResultClick = (place) => {
+    handlePlaceSelect(place);
+    // Don't lose focus - keep the search input focused
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
+
+
 
   // Handle place selection
   const handlePlaceSelect = (place) => {
@@ -89,8 +173,29 @@ const Home = () => {
     setSearchResults([]);
   };
 
-  // Debug log to see what we have
-  console.log('Home component - featuredPackages:', featuredPackages.length, 'loading:', loading);
+  // Contact action handlers
+  const handleWhatsAppClick = () => {
+    const phone = settings?.contactInfo?.phone?.replace(/\D/g, '') || '15551234567';
+    const message = encodeURIComponent('Hello! I would like to inquire about your travel packages.');
+    const whatsappUrl = `https://wa.me/${phone}?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleEmailClick = () => {
+    const email = settings?.contactInfo?.email || 'info@travelagency.com';
+    const subject = encodeURIComponent('Travel Package Inquiry');
+    const body = encodeURIComponent('Hello! I would like to inquire about your travel packages.');
+    const mailtoUrl = `mailto:${email}?subject=${subject}&body=${body}`;
+    window.open(mailtoUrl);
+  };
+
+  const handlePhoneClick = () => {
+    const phone = settings?.contactInfo?.phone || '+1 (555) 123-4567';
+    const telUrl = `tel:${phone}`;
+    window.open(telUrl);
+  };
+
+
 
   const heroVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -206,7 +311,7 @@ const Home = () => {
             </p>
             
             {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-8">
+            <div className="max-w-2xl mx-auto mb-8 search-container">
               <div className="relative">
                 {/* Simple, highly visible search bar */}
                 <div className="bg-white p-2 rounded-lg shadow-2xl">
@@ -214,11 +319,13 @@ const Home = () => {
                     <div className="flex-1 relative">
                       <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-500" />
                       <input
+                        ref={searchInputRef}
                         type="text"
-                        placeholder="Search for places, destinations, attractions..."
+                        placeholder="Search for place names..."
                         value={searchTerm}
                         onChange={handleSearchChange}
-                        onKeyPress={handleSearchKeyPress}
+                        onFocus={handleSearchFocus}
+                        onKeyDown={handleKeyDown}
                         className="w-full pl-12 pr-4 py-3 bg-white text-black placeholder-gray-600 focus:outline-none text-lg border-0"
                         style={{
                           backgroundColor: 'white',
@@ -230,7 +337,7 @@ const Home = () => {
                     </div>
                     <button
                       onClick={handleSearch}
-                      disabled={placesLoading}
+                      disabled={isSearching}
                       className="ml-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-md transition-colors flex items-center gap-2"
                       style={{
                         backgroundColor: '#2563eb',
@@ -238,7 +345,7 @@ const Home = () => {
                         fontWeight: 'bold'
                       }}
                     >
-                      {placesLoading ? (
+                      {isSearching ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                           Searching...
@@ -252,7 +359,7 @@ const Home = () => {
                 
                 {/* Search Instructions */}
                 <p className="text-white text-sm mt-3 text-center font-medium">
-                  Search for attractions, restaurants, hotels, museums, parks, beaches, and more...
+                  Start typing place names for real-time results - try "Galle", "Sigiriya", "Temple"...
                 </p>
                 
 
@@ -272,18 +379,20 @@ const Home = () => {
       {/* Test Search Bar - Simple and Visible */}
       <section className="bg-gray-100 py-8">
         <div className="max-w-2xl mx-auto px-4">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Search Places</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Real-Time Place Search</h3>
           
           {/* Search Bar - Hidden when results are shown */}
           {!showSearchResults && (
-            <div className="bg-white p-4 rounded-lg shadow-lg">
+            <div className="bg-white p-4 rounded-lg shadow-lg search-container">
               <div className="flex items-center gap-3">
                 <input
+                  ref={searchInputRef}
                   type="text"
-                  placeholder="Type to search places..."
+                  placeholder="Type place names to search..."
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  onKeyPress={handleSearchKeyPress}
+                  onFocus={handleSearchFocus}
+                  onKeyDown={handleKeyDown}
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-md text-lg"
                   style={{
                     backgroundColor: 'white',
@@ -297,69 +406,42 @@ const Home = () => {
                 />
                 <button
                   onClick={handleSearch}
-                  disabled={placesLoading}
+                  disabled={isSearching}
                   className="px-6 py-3 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700"
                   style={{
                     backgroundColor: '#2563eb',
                     color: 'white'
                   }}
                 >
-                  {placesLoading ? 'Searching...' : 'Search'}
+                  {isSearching ? 'Searching...' : 'Search'}
                 </button>
                 
-                {/* Test button to show sample results */}
-                <button
-                  onClick={() => {
-                    console.log('Test button clicked');
-                    const testResults = [
-                      {
-                        _id: '1',
-                        name: 'Test Place 1',
-                        category: 'attraction',
-                        location: { city: 'Colombo', country: 'Sri Lanka' },
-                        primaryImage: { url: 'https://via.placeholder.com/150' },
-                        videos: []
-                      },
-                      {
-                        _id: '2',
-                        name: 'Test Place 2',
-                        category: 'restaurant',
-                        location: { city: 'Kandy', country: 'Sri Lanka' },
-                        primaryImage: null,
-                        videos: [{ url: 'test-video.mp4' }]
-                      }
-                    ];
-                    setSearchResults(testResults);
-                    setShowSearchResults(true);
-                    console.log('Test results set:', testResults);
-                  }}
-                  className="px-4 py-3 bg-green-600 text-white font-bold rounded-md hover:bg-green-700"
-                >
-                  Test Results
-                </button>
+
               </div>
             </div>
           )}
           
           {/* Compact Search Bar - Shown when results are displayed */}
           {showSearchResults && (
-            <div className="bg-white p-3 rounded-lg shadow-lg mb-4">
+            <div className="bg-white p-3 rounded-lg shadow-lg mb-4 search-container">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1">
                   <input
+                    ref={searchInputRef}
                     type="text"
                     placeholder="Search again..."
                     value={searchTerm}
                     onChange={handleSearchChange}
-                    onKeyPress={handleSearchKeyPress}
+                    onFocus={handleSearchFocus}
+                    onKeyDown={handleKeyDown}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
                   />
                   <button
                     onClick={handleSearch}
-                    disabled={placesLoading}
+                    disabled={isSearching}
                     className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 text-sm"
                   >
-                    {placesLoading ? 'Searching...' : 'Search'}
+                    {isSearching ? 'Searching...' : 'Search'}
                   </button>
                 </div>
                 <button
@@ -367,6 +449,10 @@ const Home = () => {
                     setShowSearchResults(false);
                     setSearchResults([]);
                     setSearchTerm('');
+                    // Keep focus on search input
+                    if (searchInputRef.current) {
+                      searchInputRef.current.focus();
+                    }
                   }}
                   className="ml-3 px-3 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 text-sm"
                 >
@@ -377,18 +463,23 @@ const Home = () => {
           )}
             
           {/* Search Results Display */}
-          {showSearchResults && (
-            <div className="mt-4 relative z-10">
+          {searchTerm.trim().length >= 1 && (
+            <div className="mt-4 relative z-10 search-results-container" tabIndex="-1">
               {/* Clear Results Button */}
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Search Results ({searchResults.length} found)
+                  {isSearching ? 'Searching...' : `Search Results (${searchResults.length} found)`}
                 </h3>
                 <button
+                  onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
                   onClick={() => {
                     setShowSearchResults(false);
                     setSearchResults([]);
                     setSearchTerm('');
+                    // Keep focus on search input
+                    if (searchInputRef.current) {
+                      searchInputRef.current.focus();
+                    }
                   }}
                   className="px-3 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 text-sm"
                 >
@@ -402,7 +493,8 @@ const Home = () => {
                     {searchResults.map((place) => (
                       <div
                         key={place._id}
-                        onClick={() => handlePlaceSelect(place)}
+                        onClick={() => handleResultClick(place)}
+                        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
                         className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
                       >
                         <div className="flex items-start space-x-3">
@@ -447,13 +539,17 @@ const Home = () => {
                     ))}
                   </div>
                 </div>
-              ) : !placesLoading && searchTerm.trim() ? (
+              ) : !isSearching && searchTerm.trim() ? (
                 <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-yellow-800 text-center">No places found matching your search.</p>
                 </div>
+              ) : searchTerm.trim().length === 0 ? (
+                <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  <p className="text-gray-600 text-center">Start typing to search for places...</p>
+                </div>
               ) : null}
               
-              {placesLoading && (
+              {isSearching && (
                 <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
@@ -662,9 +758,10 @@ const Home = () => {
                         {pkg.title}
                       </h3>
                       <div className="flex items-center">
-                        <StarIcon className="h-5 w-5 text-yellow-400 fill-current" />
+                        <StarRating rating={pkg.averageRating || 0} readonly size="sm" />
                         <span className="ml-1 text-sm text-gray-600">
-                          4.5
+                          {pkg.averageRating ? pkg.averageRating.toFixed(1) : '0.0'}
+                          {pkg.numReviews > 0 && ` (${pkg.numReviews})`}
                         </span>
                       </div>
                     </div>
@@ -1082,6 +1179,112 @@ const Home = () => {
               className="btn-outline text-lg px-8 py-4 inline-flex items-center hover:bg-primary-600 hover:text-white transition-colors"
             >
               View All Packages
+              <ArrowRightIcon className="ml-2 h-5 w-5" />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Featured Reviews Section */}
+      <FeaturedReviews />
+
+      {/* Contact Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            variants={heroVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Get in Touch
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Ready to start your adventure? Contact us today and let our travel experts help you plan the perfect trip.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Quick Contact Actions */}
+            <motion.div
+              variants={cardVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="lg:col-span-2 p-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-soft text-white"
+            >
+              <h3 className="text-2xl font-semibold mb-6">Quick Contact</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <button
+                  onClick={handleWhatsAppClick}
+                  className="flex flex-col items-center gap-3 bg-green-500 hover:bg-green-600 text-white px-4 py-4 rounded-lg transition-colors duration-200"
+                >
+                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                  </svg>
+                  <span className="text-sm font-medium">WhatsApp</span>
+                </button>
+                <button
+                  onClick={handleEmailClick}
+                  className="flex flex-col items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-4 rounded-lg transition-colors duration-200"
+                >
+                  <EnvelopeIcon className="w-8 h-8" />
+                  <span className="text-sm font-medium">Email</span>
+                </button>
+                <button
+                  onClick={handlePhoneClick}
+                  className="flex flex-col items-center gap-3 bg-red-500 hover:bg-red-600 text-white px-4 py-4 rounded-lg transition-colors duration-200"
+                >
+                  <PhoneIcon className="w-8 h-8" />
+                  <span className="text-sm font-medium">Call</span>
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Contact Info */}
+            <motion.div
+              variants={cardVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="p-6 bg-white rounded-xl shadow-soft border border-gray-100"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <EnvelopeIcon className="w-6 h-6 text-blue-500" />
+                <h4 className="font-semibold text-gray-900">Email</h4>
+              </div>
+              <p className="text-gray-600 text-sm">{settings?.contactInfo?.email || 'info@travelagency.com'}</p>
+            </motion.div>
+
+            <motion.div
+              variants={cardVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="p-6 bg-white rounded-xl shadow-soft border border-gray-100"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <PhoneIcon className="w-6 h-6 text-green-500" />
+                <h4 className="font-semibold text-gray-900">Phone</h4>
+              </div>
+              <p className="text-gray-600 text-sm">{settings?.contactInfo?.phone || '+1 (555) 123-4567'}</p>
+            </motion.div>
+          </div>
+
+          <motion.div
+            variants={cardVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="mt-8 text-center"
+          >
+            <Link
+              to="/contact"
+              className="btn-primary text-lg px-8 py-4 inline-flex items-center"
+            >
+              Contact Us
               <ArrowRightIcon className="ml-2 h-5 w-5" />
             </Link>
           </motion.div>

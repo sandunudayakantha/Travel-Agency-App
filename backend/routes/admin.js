@@ -4,11 +4,12 @@ const User = require('../models/User');
 const Package = require('../models/Package');
 const Booking = require('../models/Booking');
 const { protect, authorize } = require('../middleware/auth');
+const { adminLimiter } = require('../middleware/security');
 
 const router = express.Router();
 
-// All routes require admin access
-router.use(protect, authorize('admin'));
+// All routes require admin access with rate limiting
+router.use(protect, authorize('admin'), adminLimiter);
 
 // @route   GET /api/admin/dashboard
 // @desc    Get admin dashboard statistics

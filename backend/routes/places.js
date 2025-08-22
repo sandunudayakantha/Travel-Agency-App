@@ -154,20 +154,68 @@ router.get('/', [
     if (req.query.country) filter['location.country'] = new RegExp(req.query.country, 'i');
     if (req.query.city) filter['location.city'] = new RegExp(req.query.city, 'i');
 
-    // Search functionality
+    // Search functionality - prioritize name matches
     if (req.query.search) {
-      filter.$text = { $search: req.query.search };
+      const searchTerm = req.query.search.trim();
+      
+      // Create a more sophisticated search that prioritizes name matches
+      filter.$or = [
+        // Exact name match (highest priority)
+        { name: { $regex: `^${searchTerm}$`, $options: 'i' } },
+        // Name starts with search term (high priority)
+        { name: { $regex: `^${searchTerm}`, $options: 'i' } },
+        // Name contains search term (medium priority)
+        { name: { $regex: searchTerm, $options: 'i' } },
+        // Description contains search term (lower priority)
+        { description: { $regex: searchTerm, $options: 'i' } },
+        // Short description contains search term (lower priority)
+        { shortDescription: { $regex: searchTerm, $options: 'i' } },
+        // Tags contain search term (lower priority)
+        { tags: { $regex: searchTerm, $options: 'i' } }
+      ];
     }
 
     console.log('Applied filters:', filter);
 
     // Get places with pagination
-    const places = await Place.find(filter)
+    let places = await Place.find(filter)
       .populate('createdBy', 'name email')
       .populate('updatedBy', 'name email')
-      .sort({ featured: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit);
+
+    // Sort results to prioritize name matches if search is active
+    if (req.query.search) {
+      const searchTerm = req.query.search.trim().toLowerCase();
+      places = places.sort((a, b) => {
+        const aName = a.name.toLowerCase();
+        const bName = b.name.toLowerCase();
+        
+        // Exact match gets highest priority
+        if (aName === searchTerm && bName !== searchTerm) return -1;
+        if (bName === searchTerm && aName !== searchTerm) return 1;
+        
+        // Starts with search term gets high priority
+        if (aName.startsWith(searchTerm) && !bName.startsWith(searchTerm)) return -1;
+        if (bName.startsWith(searchTerm) && !aName.startsWith(searchTerm)) return 1;
+        
+        // Contains search term gets medium priority
+        if (aName.includes(searchTerm) && !bName.includes(searchTerm)) return -1;
+        if (bName.includes(searchTerm) && !aName.includes(searchTerm)) return 1;
+        
+        // Fall back to featured and creation date
+        if (a.featured && !b.featured) return -1;
+        if (b.featured && !a.featured) return 1;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+    } else {
+      // Default sort for non-search queries
+      places = places.sort((a, b) => {
+        if (a.featured && !b.featured) return -1;
+        if (b.featured && !a.featured) return 1;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+    }
 
     // Get total count for pagination
     const totalPlaces = await Place.countDocuments(filter);

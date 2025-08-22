@@ -427,6 +427,7 @@ const DriverModal = ({ driver, onClose, onSuccess }) => {
     licenseType: 'light',
     licenseExpiry: '',
     languages: ['English'],
+    level: 'intermediate',
     rating: 3,
     bio: '',
     experience: 0,
@@ -450,6 +451,7 @@ const DriverModal = ({ driver, onClose, onSuccess }) => {
         licenseType: driver.licenseType || 'light',
         licenseExpiry: driver.licenseExpiry ? new Date(driver.licenseExpiry).toISOString().split('T')[0] : '',
         languages: driver.languages || ['English'],
+        level: driver.level || 'intermediate',
         rating: driver.rating || 3,
         bio: driver.bio || '',
         experience: driver.experience || 0,
@@ -516,8 +518,13 @@ const DriverModal = ({ driver, onClose, onSuccess }) => {
     driverData.append('licenseType', formData.licenseType);
     driverData.append('licenseExpiry', formData.licenseExpiry);
     driverData.append('languages', JSON.stringify(formData.languages));
-    driverData.append('level', formData.level);
-    driverData.append('bio', formData.bio);
+    driverData.append('rating', formData.rating);
+    if (formData.level && formData.level !== 'undefined') {
+      driverData.append('level', formData.level);
+    }
+    if (formData.bio) {
+      driverData.append('bio', formData.bio);
+    }
     driverData.append('experience', formData.experience);
     driverData.append('toursCompleted', formData.toursCompleted);
     driverData.append('vehicleTypes', JSON.stringify(formData.vehicleTypes));
@@ -528,7 +535,36 @@ const DriverModal = ({ driver, onClose, onSuccess }) => {
       driverData.append('avatar', avatar);
     }
 
-    console.log('Final driver data to send:', JSON.stringify(Object.fromEntries(driverData), null, 2));
+    // Log the form data without the file for debugging
+    const logData = {
+      name: formData.name,
+      age: formData.age,
+      email: formData.email,
+      phone: formData.phone,
+      licenseNumber: formData.licenseNumber,
+      licenseType: formData.licenseType,
+      licenseExpiry: formData.licenseExpiry,
+      languages: formData.languages,
+      rating: formData.rating,
+      level: formData.level,
+      bio: formData.bio,
+      experience: formData.experience,
+      toursCompleted: formData.toursCompleted,
+      vehicleTypes: formData.vehicleTypes,
+      specializations: formData.specializations,
+      availability: formData.availability,
+      avatar: avatar ? 'File present' : 'No file'
+    };
+    console.log('Final driver data to send:', JSON.stringify(logData, null, 2));
+    
+    // Also log what will actually be sent in FormData
+    console.log('FormData entries:');
+    for (let [key, value] of driverData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    
+    // Log the actual form data object for debugging
+    console.log('Form data object:', formData);
 
     const result = driver 
       ? await updateDriver(driver._id, driverData)
@@ -767,6 +803,21 @@ const DriverModal = ({ driver, onClose, onSuccess }) => {
                   <option value={3}>3 Stars</option>
                   <option value={4}>4 Stars</option>
                   <option value={5}>5 Stars</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Level
+                </label>
+                <select
+                  value={formData.level}
+                  onChange={(e) => setFormData(prev => ({ ...prev, level: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="expert">Expert</option>
                 </select>
               </div>
 

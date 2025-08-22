@@ -12,43 +12,109 @@ export const ClerkAuthProvider = ({ children }) => {
   const [clerkUser, setClerkUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Check for existing token on app load
   useEffect(() => {
+    const existingToken = localStorage.getItem('token');
+    const existingUser = localStorage.getItem('user');
+    
+    if (existingToken && existingUser && !isSignedIn) {
+      // User has a token but Clerk session is not active
+      // This can happen on page refresh
+      try {
+        const userData = JSON.parse(existingUser);
+        setClerkUser(userData);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
+        setLoading(false);
+        return;
+      } catch (error) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+    }
+    
     if (isLoaded) {
       if (isSignedIn && user) {
-        // Convert Clerk user to our app's user format
-        const appUser = {
-          _id: user.id,
-          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'User',
-          email: user.primaryEmailAddress?.emailAddress,
-          avatar: user.imageUrl,
-          role: 'user', // Default role for Clerk users
-          isVerified: user.emailAddresses?.[0]?.verification?.status === 'verified',
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-          // Add social provider info
-          socialProvider: user.externalAccounts?.[0]?.provider || null
-        };
-        
-        setClerkUser(appUser);
-        
-        // Set auth header for API calls
-        if (session) {
-          session.getToken().then(token => {
-            if (token) {
-              axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        // Sync Clerk user with our database
+        const syncUserWithDatabase = async () => {
+          try {
+            const userData = {
+              clerkId: user.id,
+              name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'User',
+              email: user.primaryEmailAddress?.emailAddress,
+              avatar: user.imageUrl || null,
+              isVerified: user.emailAddresses?.[0]?.verification?.status === 'verified' || false,
+              socialProvider: user.externalAccounts?.[0]?.provider || null
+            };
+
+            // Validate required fields
+            if (!userData.email) {
+              toast.error('Email address is required for authentication');
+              return;
             }
-          }).catch(err => {
-            console.log('Could not get session token:', err);
-            // Fallback to user ID based token
-            axios.defaults.headers.common['Authorization'] = `Bearer clerk-${user.id}`;
-          });
-        }
-        
-        // Determine which social platform was used
-        const socialPlatform = user.externalAccounts?.[0]?.provider || 'social account';
-        toast.success(`Signed in with ${socialPlatform}!`);
+
+            const response = await axios.post('/api/auth/clerk-sync', userData);
+            
+            if (response.data.success) {
+              // Use our database user instead of Clerk user
+              const dbUser = response.data.data.user;
+              const token = response.data.data.token;
+              
+              // Store our app's token and user data
+              localStorage.setItem('token', token);
+              localStorage.setItem('user', JSON.stringify(dbUser));
+              axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+              
+              setClerkUser(dbUser);
+              
+              // Only show success toast if this is a fresh login (not page refresh)
+              // We'll let AuthNotification handle the welcome message instead
+              // to avoid duplicate toasts
+            } else {
+              toast.error('Failed to sync user with database');
+            }
+          } catch (error) {
+            // Show more specific error messages
+            if (error.response?.data?.message) {
+              toast.error(`Sync failed: ${error.response.data.message}`);
+            } else if (error.response?.data?.errors) {
+              toast.error(`Validation errors: ${error.response.data.errors.join(', ')}`);
+            } else {
+              toast.error('Failed to sync user with database');
+            }
+            
+            // Fallback to Clerk user data
+            const appUser = {
+              _id: user.id,
+              name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'User',
+              email: user.primaryEmailAddress?.emailAddress,
+              avatar: user.imageUrl,
+              role: 'user',
+              isVerified: user.emailAddresses?.[0]?.verification?.status === 'verified',
+              createdAt: user.createdAt,
+              updatedAt: user.updatedAt,
+              socialProvider: user.externalAccounts?.[0]?.provider || null
+            };
+            
+            setClerkUser(appUser);
+            
+            // Set auth header for API calls
+            if (session) {
+              session.getToken().then(token => {
+                if (token) {
+                  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                }
+              }).catch(err => {
+                axios.defaults.headers.common['Authorization'] = `Bearer clerk-${user.id}`;
+              });
+            }
+          }
+        };
+
+        syncUserWithDatabase();
       } else {
         setClerkUser(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         delete axios.defaults.headers.common['Authorization'];
       }
       setLoading(false);
@@ -69,6 +135,8 @@ export const ClerkAuthProvider = ({ children }) => {
     try {
       await clerkSignOut();
       setClerkUser(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       delete axios.defaults.headers.common['Authorization'];
       toast.success('Signed out successfully');
       return { success: true };
@@ -80,12 +148,15 @@ export const ClerkAuthProvider = ({ children }) => {
 
   const value = {
     clerkUser,
-    isSignedIn,
+    isSignedIn: isSignedIn || !!clerkUser, // Consider user signed in if we have clerkUser from localStorage
     isLoaded,
     loading,
     signInWithSocial,
-    signOut
+    signOut,
+    isAdmin: () => clerkUser?.role === 'admin'
   };
+
+
 
   return (
     <ClerkAuthContext.Provider value={value}>

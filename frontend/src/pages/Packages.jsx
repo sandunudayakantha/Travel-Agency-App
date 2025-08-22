@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { usePackage } from '../contexts/PackageContext';
 import { useTourType } from '../contexts/TourTypeContext';
+import StarRating from '../components/StarRating';
 
 const Packages = () => {
   const { packages, loading, error, getPackages, pagination } = usePackage();
@@ -18,17 +19,20 @@ const Packages = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    // Fetch tour types on component mount
+    // Fetch tour types and initial packages on component mount
     getTourTypes({ status: 'active' });
-  }, [getTourTypes]);
+    getPackages({}, 1);
+  }, [getTourTypes, getPackages]);
 
   useEffect(() => {
-    // Fetch packages based on selected tour type
-    const filters = {};
-    if (selectedTourType) {
-      filters.tourType = selectedTourType;
+    // Fetch packages based on selected tour type (skip initial load)
+    if (currentPage > 1 || selectedTourType) {
+      const filters = {};
+      if (selectedTourType) {
+        filters.tourType = selectedTourType;
+      }
+      getPackages(filters, currentPage);
     }
-    getPackages(filters, currentPage);
   }, [selectedTourType, currentPage, getPackages]);
 
   const handleTourTypeClick = (tourTypeId) => {
@@ -245,6 +249,15 @@ const Packages = () => {
                       <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                         {pkg.description}
                       </p>
+
+                      {/* Rating */}
+                      <div className="flex items-center mb-3">
+                        <StarRating rating={pkg.averageRating || 0} readonly size="sm" />
+                        <span className="text-sm text-gray-600 ml-2">
+                          {pkg.averageRating ? pkg.averageRating.toFixed(1) : '0.0'} 
+                          {pkg.numReviews > 0 && ` (${pkg.numReviews} review${pkg.numReviews !== 1 ? 's' : ''})`}
+                        </span>
+                      </div>
 
                       {/* Package Details */}
                       <div className="space-y-2 mb-6">

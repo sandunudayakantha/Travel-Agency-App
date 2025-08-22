@@ -15,6 +15,16 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
   },
+  clerkId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  socialProvider: {
+    type: String,
+    enum: ['google', 'facebook', 'github', 'twitter', 'linkedin', 'discord', 'twitch', 'apple'],
+    required: false
+  },
   password: {
     type: String,
     required: [true, 'Password is required'],

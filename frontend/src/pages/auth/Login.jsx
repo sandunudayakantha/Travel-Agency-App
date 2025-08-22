@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useClerkAuthContext } from '../../contexts/ClerkAuthContext.jsx';
+import { SignIn } from '@clerk/clerk-react';
 import SocialAuth from '../../components/auth/SocialAuth.jsx';
 
 const scenicPhotos = [
@@ -9,7 +10,7 @@ const scenicPhotos = [
   'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1600&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1600&auto=format&fit=crop',
 ];
 
 const Login = () => {
@@ -17,9 +18,6 @@ const Login = () => {
   const { login, isAuthenticated, loading, error, clearError } = useAuth();
   const { isSignedIn: isClerkSignedIn } = useClerkAuthContext();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
   const [currentBgIndex, setCurrentBgIndex] = useState(() => Math.floor(Math.random() * scenicPhotos.length));
   const [tiltStyle, setTiltStyle] = useState({ transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)' });
@@ -27,6 +25,11 @@ const Login = () => {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showCursor, setShowCursor] = useState(true);
+  const [loginMethod, setLoginMethod] = useState('traditional'); // 'traditional' or 'social'
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
 
   const phrases = [
     'Discover hidden beaches',
@@ -40,7 +43,7 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated || isClerkSignedIn) {
-      navigate('/profile');
+      navigate('/');
     }
   }, [isAuthenticated, isClerkSignedIn, navigate]);
 
@@ -90,23 +93,26 @@ const Login = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLocalError('');
-    if (!email || !password) {
-      setLocalError('Please enter your email and password');
-      return;
-    }
-    const result = await login({ email, password });
-    if (result?.success) {
-      navigate('/profile');
-    }
-  };
-
-  const handleFieldChange = (setter) => (e) => {
+  const handleFieldChange = (field) => (e) => {
     if (error) clearError();
     setLocalError('');
-    setter(e.target.value);
+    setFormData(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
+  };
+
+  const handleTraditionalLogin = async (e) => {
+    e.preventDefault();
+    if (!formData.email || !formData.password) {
+      setLocalError('Please fill in all fields');
+      return;
+    }
+    
+    const result = await login(formData);
+    if (result.success) {
+      navigate('/');
+    }
   };
 
   const handleTiltMove = (event) => {
@@ -192,124 +198,127 @@ const Login = () => {
               style={tiltStyle}
             >
               <div className="rounded-2xl bg-white/90 p-6 shadow-2xl backdrop-blur sm:p-8">
-              <div className="mb-6 text-center">
-                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#0c1c2e] text-white shadow">
-                  🌍
-                </div>
-                <h2 className="text-2xl font-semibold text-gray-900">Sign in</h2>
-                <p className="mt-1 text-sm text-gray-600">Welcome back to your journey</p>
-              </div>
-
-              {(localError || error) && (
-                <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                  {localError || error}
-                </div>
-              )}
-
-              {/* Google Sign In */}
-              <div className="mb-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
+                <div className="mb-6 text-center">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#0c1c2e] text-white shadow">
+                    🌍
                   </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-2 text-gray-500">Or continue with</span>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <SocialAuth mode="signin" />
-                </div>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
-                      Email
-                    </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center justify-center text-gray-400">✉️</div>
-                      <input
-                        id="email"
-                        type="email"
-                        autoComplete="email"
-                        value={email}
-                        onChange={handleFieldChange(setEmail)}
-                        className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4"
-                        placeholder="you@traveler.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center justify-center text-gray-400">🔒</div>
-                      <input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="current-password"
-                        value={password}
-                        onChange={handleFieldChange(setPassword)}
-                        className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-10 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4"
-                        placeholder="••••••••"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((s) => !s)}
-                        className="absolute inset-y-0 right-0 mr-2 inline-flex items-center rounded-md px-2 text-sm text-gray-500 hover:text-gray-700"
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showPassword ? '🙈' : '👁️'}
-                      </button>
-                    </div>
-                  </div>
-
-                <div className="flex items-center justify-between">
-                  <label className="inline-flex items-center gap-2 text-sm text-gray-600">
-                    <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-[#0c1c2e] focus:ring-[#0c1c2e]" />
-                    Remember me
-                  </label>
-                  <span className="text-sm text-[#0c1c2e] hover:opacity-80">
-                    {/* Future route */}
-                    <span className="cursor-not-allowed opacity-60">Forgot password?</span>
-                  </span>
+                  <h2 className="text-2xl font-semibold text-gray-900">Sign in</h2>
+                  <p className="mt-1 text-sm text-gray-600">Welcome back to your journey</p>
                 </div>
 
+                {/* Login Method Toggle */}
+                <div className="mb-6 flex rounded-lg border border-gray-200 p-1">
                   <button
-                    type="submit"
-                    disabled={loading}
-                    className="group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0c1c2e] px-4 py-2.5 font-medium text-white shadow hover:bg-[#0a1626] focus:outline-none focus:ring-4 focus:ring-[#0c1c2e]/30 disabled:cursor-not-allowed disabled:opacity-80"
+                    type="button"
+                    onClick={() => setLoginMethod('traditional')}
+                    className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                      loginMethod === 'traditional'
+                        ? 'bg-[#0c1c2e] text-white shadow'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
                   >
-                    <span className="text-lg transition-transform group-hover:translate-x-1">✈️</span>
-                    {loading ? (
-                      <span className="inline-flex items-center gap-2">
-                        Signing you in…
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                      </span>
-                    ) : (
-                      'Sign in'
-                    )}
+                    Email & Password
                   </button>
-              </form>
+                  <button
+                    type="button"
+                    onClick={() => setLoginMethod('social')}
+                    className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                      loginMethod === 'social'
+                        ? 'bg-[#0c1c2e] text-white shadow'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    Social Login
+                  </button>
+                </div>
 
-              <div className="mt-6 text-center text-sm text-gray-700">
-                New here?{' '}
-                <Link to="/register" className="font-medium text-[#0c1c2e] hover:opacity-80">
-                  Create an account
-                </Link>
-              </div>
+                {(localError || error) && (
+                  <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                    {localError || error}
+                  </div>
+                )}
 
-              <div className="mt-4 text-center">
-                <button
-                  type="button"
-                  onClick={() => navigate('/')}
-                  className="text-sm text-gray-500 underline underline-offset-4 hover:text-gray-700"
-                >
-                  Continue as guest
-                </button>
-              </div>
+                {loginMethod === 'traditional' ? (
+                  /* Traditional Login Form */
+                  <form onSubmit={handleTraditionalLogin} className="space-y-4">
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        value={formData.email}
+                        onChange={handleFieldChange('email')}
+                        className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4"
+                        placeholder="Enter your email"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        id="password"
+                        value={formData.password}
+                        onChange={handleFieldChange('password')}
+                        className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4"
+                        placeholder="Enter your password"
+                        required
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0c1c2e] px-4 py-2.5 font-medium text-white shadow hover:bg-[#0a1626] focus:outline-none focus:ring-4 focus:ring-[#0c1c2e]/30 disabled:cursor-not-allowed disabled:opacity-80"
+                    >
+                      {loading ? 'Signing in...' : 'Sign in'}
+                    </button>
+                  </form>
+                ) : (
+                  /* Social Login */
+                  <div className="space-y-4">
+                    <SignIn 
+                      appearance={{
+                        elements: {
+                          formButtonPrimary: 'group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0c1c2e] px-4 py-2.5 font-medium text-white shadow hover:bg-[#0a1626] focus:outline-none focus:ring-4 focus:ring-[#0c1c2e]/30 disabled:cursor-not-allowed disabled:opacity-80',
+                          card: 'shadow-none',
+                          headerTitle: 'text-2xl font-semibold text-gray-900',
+                          headerSubtitle: 'text-sm text-gray-600',
+                          socialButtonsBlockButton: 'w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-[#0c1c2e]/30 transition-colors',
+                          dividerLine: 'bg-gray-300',
+                          dividerText: 'bg-white px-2 text-gray-500 text-sm',
+                          formFieldInput: 'block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4',
+                          formFieldLabel: 'mb-1 block text-sm font-medium text-gray-700',
+                          footerActionLink: 'font-medium text-[#0c1c2e] hover:opacity-80'
+                        }
+                      }}
+                      redirectUrl="/"
+                      signUpUrl="/register"
+                    />
+                  </div>
+                )}
+
+                <div className="mt-6 text-center text-sm text-gray-700">
+                  New here?{' '}
+                  <Link to="/register" className="font-medium text-[#0c1c2e] hover:opacity-80">
+                    Create an account
+                  </Link>
+                </div>
+
+                <div className="mt-4 text-center">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/')}
+                    className="text-sm text-gray-500 underline underline-offset-4 hover:text-gray-700"
+                  >
+                    Continue as guest
+                  </button>
+                </div>
               </div>
             </div>
           </div>

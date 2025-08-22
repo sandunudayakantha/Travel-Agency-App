@@ -94,7 +94,7 @@ router.get('/', optionalAuth, [
       .populate('vehicle', 'name model type')
       .populate('guide', 'name languages level')
       .populate('driver', 'name licenseNumber level')
-      .populate('itinerary.places', 'name location')
+      .populate('itinerary.places')
       .sort({ featured: -1, createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -145,7 +145,7 @@ router.get('/featured', async (req, res) => {
     .populate('vehicle', 'name model type')
     .populate('guide', 'name languages level')
     .populate('driver', 'name licenseNumber level')
-    .populate('itinerary.places', 'name location')
+    .populate('itinerary.places')
     .sort({ createdAt: -1 })
     .limit(6);
 
@@ -178,7 +178,7 @@ router.get('/:id', async (req, res) => {
       .populate('tourType', 'name description')
       .populate('vehicle', 'name model type')
       .populate('guide', 'name languages level')
-      .populate('itinerary.places', 'name location');
+      .populate('itinerary.places');
     
     console.log('Package found:', package ? 'yes' : 'no');
     if (package) {
@@ -594,7 +594,7 @@ router.put('/:id', protect, authorize('admin'), upload.any(), [
      .populate('vehicle', 'name model type')
      .populate('guide', 'name languages level')
      .populate('driver', 'name licenseNumber level')
-     .populate('itinerary.places', 'name location');
+     .populate('itinerary.places');
 
     console.log('Package updated successfully');
 

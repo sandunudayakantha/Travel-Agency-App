@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { usePackage } from '../contexts/PackageContext';
+import { usePlace } from '../contexts/PlaceContext';
 import { 
   MapPinIcon, 
   CalendarIcon, 
   StarIcon,
   ArrowLeftIcon,
-  PlayIcon,
   PauseIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
@@ -19,23 +19,303 @@ import {
   GlobeAltIcon
 } from '@heroicons/react/24/outline';
 import { GoogleMap, Marker, Polyline, InfoWindow } from '@react-google-maps/api';
-import { getGoogleMapsApiKey } from '../config/maps';
+import { getGoogleMapsApiKey, GOOGLE_MAPS_CONFIG, getGoogleMapsMapId } from '../config/maps';
+import ReviewSection from '../components/ReviewSection';
+import BookingForm from '../components/BookingForm';
 
 const PackageDetail = () => {
   const { id } = useParams();
   const { getPackage, currentPackage, loading, error } = usePackage();
+  const { getPlaceById } = usePlace();
   const [activeDay, setActiveDay] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const [isVideoFullscreen, setIsVideoFullscreen] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [highlightedPlaces, setHighlightedPlaces] = useState([]);
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [fullPlacesData, setFullPlacesData] = useState({});
+
+  // Preview Content Component for PackageDetail Map
+  const PreviewContent = ({ place, index }) => {
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+    const [showVideos, setShowVideos] = useState(false);
+
+    const primaryImage = place.images?.find(img => img.isPrimary) || place.images?.[0];
+    const hasImages = place.images && place.images.length > 0;
+    const hasVideos = place.videos && place.videos.length > 0;
+
+    const nextImage = () => {
+      if (hasImages) {
+        setCurrentImageIndex((prev) => (prev + 1) % place.images.length);
+      }
+    };
+
+    const prevImage = () => {
+      if (hasImages) {
+        setCurrentImageIndex((prev) => (prev - 1 + place.images.length) % place.images.length);
+      }
+    };
+
+    const nextVideo = () => {
+      if (hasVideos) {
+        setCurrentVideoIndex((prev) => (prev + 1) % place.videos.length);
+      }
+    };
+
+    const prevVideo = () => {
+      if (hasVideos) {
+        setCurrentVideoIndex((prev) => (prev - 1 + place.videos.length) % place.videos.length);
+      }
+    };
+
+    return (
+      <div className="bg-white rounded-lg shadow-xl border border-gray-200 max-w-sm">
+        {/* Header with place info */}
+        <div className="p-3 border-b border-gray-100">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center">
+              <div className={`w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold mr-2 ${
+                index === 0 ? 'bg-green-500' : 'bg-blue-600'
+              }`}>
+                {index + 1}
+              </div>
+              <h3 className="font-semibold text-gray-900 text-sm">
+                {place.name}
+              </h3>
+            </div>
+            <span className="text-xs text-gray-500 capitalize">
+              {place.category}
+            </span>
+          </div>
+          <p className="text-xs text-gray-600">
+            📍 {place.location?.formattedAddress || place.location?.city || 'Location not specified'}
+          </p>
+        </div>
+
+        {/* Content Tabs */}
+        {(hasImages || hasVideos) && (
+          <div className="flex border-b border-gray-100">
+            {hasImages && (
+              <button
+                onClick={() => setShowVideos(false)}
+                className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
+                  !showVideos 
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Images ({place.images.length})
+              </button>
+            )}
+            {hasVideos && (
+              <button
+                onClick={() => setShowVideos(true)}
+                className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
+                  showVideos 
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z" />
+                </svg>
+                Videos ({place.videos.length})
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Image Preview */}
+        {hasImages && !showVideos && (
+          <div className="relative">
+            <div className="aspect-video bg-gray-100 rounded-b-lg overflow-hidden">
+              <img
+                src={place.images[currentImageIndex]?.url || primaryImage?.url}
+                alt={place.images[currentImageIndex]?.caption || place.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/400x225?text=Image+Not+Available';
+                }}
+              />
+            </div>
+            
+            {/* Image Navigation */}
+            {place.images.length > 1 && (
+              <>
+                <button
+                  onClick={prevImage}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
+            
+            {/* Image Caption */}
+            {place.images[currentImageIndex]?.caption && (
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2">
+                {place.images[currentImageIndex].caption}
+              </div>
+            )}
+            
+            {/* Image Counter */}
+            {place.images.length > 1 && (
+              <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                {currentImageIndex + 1} / {place.images.length}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Video Preview */}
+        {hasVideos && showVideos && (
+          <div className="relative">
+            <div className="aspect-video bg-gray-100 rounded-b-lg overflow-hidden">
+              <video
+                src={place.videos[currentVideoIndex]?.url}
+                poster={place.videos[currentVideoIndex]?.thumbnail?.url}
+                className="w-full h-full object-cover"
+                controls
+                preload="metadata"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            
+            {/* Video Navigation */}
+            {place.videos.length > 1 && (
+              <>
+                <button
+                  onClick={prevVideo}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={nextVideo}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
+            
+            {/* Video Title */}
+            {place.videos[currentVideoIndex]?.title && (
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2">
+                {place.videos[currentVideoIndex].title}
+              </div>
+            )}
+            
+            {/* Video Counter */}
+            {place.videos.length > 1 && (
+              <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                {currentVideoIndex + 1} / {place.videos.length}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* No Media Fallback */}
+        {!hasImages && !hasVideos && (
+          <div className="aspect-video bg-gray-100 rounded-b-lg flex items-center justify-center">
+            <div className="text-center text-gray-500">
+              <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p className="text-xs">No images or videos available</p>
+            </div>
+          </div>
+        )}
+
+        {/* Description */}
+        {place.description && (
+          <div className="p-3 border-t border-gray-100">
+            <p className="text-xs text-gray-600 line-clamp-2">{place.description}</p>
+          </div>
+        )}
+
+        {/* Short Description */}
+        {place.shortDescription && (
+          <div className="p-3 border-t border-gray-100">
+            <p className="text-xs text-gray-500">{place.shortDescription}</p>
+          </div>
+        )}
+
+        {/* Additional Info */}
+        <div className="p-3 border-t border-gray-100">
+          <div className="text-xs text-gray-600 space-y-1">
+            {place.location?.country && (
+              <p>🌍 Country: {place.location.country}</p>
+            )}
+            {place.location?.region && (
+              <p>🏛️ Region: {place.location.region}</p>
+            )}
+            {place.location?.city && (
+              <p>🏙️ City: {place.location.city}</p>
+            )}
+            {place.tags && place.tags.length > 0 && (
+              <p>🏷️ Tags: {place.tags.join(', ')}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     if (id && getPackage) {
       getPackage(id);
     }
   }, [id]); // Remove getPackage from dependencies to prevent infinite loop
+
+  // Fetch full place data for each place in the itinerary
+  useEffect(() => {
+    const fetchFullPlaceData = async () => {
+      if (!currentPackage?.itinerary) return;
+      
+      const allPlaceIds = currentPackage.itinerary
+        .flatMap(day => day.places)
+        .map(place => place._id)
+        .filter((id, index, arr) => arr.indexOf(id) === index); // Remove duplicates
+      
+      const newFullPlacesData = {};
+      
+      for (const placeId of allPlaceIds) {
+        try {
+          const result = await getPlaceById(placeId);
+          if (result.success) {
+            newFullPlacesData[placeId] = result.place;
+          }
+        } catch (error) {
+          // Handle error silently
+        }
+      }
+      
+      setFullPlacesData(newFullPlacesData);
+    };
+
+    fetchFullPlaceData();
+  }, [currentPackage, getPlaceById]);
 
   // Update highlighted places when active day changes
   useEffect(() => {
@@ -107,21 +387,12 @@ const PackageDetail = () => {
   
   const allPlaces = pkg.itinerary?.flatMap(day => day.places).filter(place => place?.location?.coordinates) || [];
   
-  // Debug map data
-  console.log('Map Debug:', {
-    firstPlace,
-    mapCenter,
-    allPlaces: allPlaces.map(place => ({
-      name: place.name,
-      lat: place.location.coordinates.latitude,
-      lng: place.location.coordinates.longitude,
-      latValid: typeof place.location.coordinates.latitude === 'number',
-      lngValid: typeof place.location.coordinates.longitude === 'number'
-    })),
-    totalPlaces: allPlaces.length,
-    pkg: pkg,
-    itinerary: pkg.itinerary
+  // Use full place data if available, otherwise use the basic place data
+  const allPlacesWithFullData = allPlaces.map(place => {
+    const fullPlaceData = fullPlacesData[place._id];
+    return fullPlaceData || place;
   });
+
   
   const mapContainerStyle = {
     width: '100%',
@@ -129,20 +400,14 @@ const PackageDetail = () => {
   };
 
   const mapOptions = {
+    mapId: getGoogleMapsMapId(),
     zoomControl: true,
     mapTypeControl: true,
     scaleControl: true,
     streetViewControl: true,
     rotateControl: false,
     fullscreenControl: true,
-    gestureHandling: 'greedy',
-    styles: [
-      {
-        featureType: 'poi',
-        elementType: 'labels',
-        stylers: [{ visibility: 'on' }]
-      }
-    ]
+    gestureHandling: 'greedy'
   };
 
   return (
@@ -316,7 +581,7 @@ const PackageDetail = () => {
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">Route Map</h2>
             
             {/* Route Summary */}
-            {allPlaces.length > 0 && (
+            {allPlacesWithFullData.length > 0 && (
               <div className="mb-4 p-4 bg-blue-50 rounded-lg">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">Route Summary</h3>
                 
@@ -344,7 +609,7 @@ const PackageDetail = () => {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {allPlaces.map((place, index) => (
+                  {allPlacesWithFullData.map((place, index) => (
                     <div key={index} className="flex items-center text-sm">
                       <div className={`w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold mr-2 ${
                         index === 0 ? 'bg-green-500' : 'bg-blue-600'
@@ -356,178 +621,167 @@ const PackageDetail = () => {
                   ))}
                 </div>
                 <div className="mt-2 text-xs text-blue-700">
-                  Total stops: {allPlaces.length} • Route shows the order of visits
+                  Total stops: {allPlacesWithFullData.length} • Route shows the order of visits
                 </div>
               </div>
             )}
             
-            {allPlaces.length > 0 ? (
-              <div className="relative rounded-lg overflow-hidden border border-gray-200" style={{ height: '400px' }}>
-                <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10" id="map-loading">
-                  <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mb-2"></div>
-                    <p className="text-sm text-gray-600">Loading map...</p>
+            {allPlacesWithFullData.length > 0 ? (
+              <>
+                <div className="relative rounded-lg overflow-hidden border border-gray-200" style={{ height: '400px' }}>
+                  <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10" id="map-loading">
+                    <div className="text-center">
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mb-2"></div>
+                      <p className="text-sm text-gray-600">Loading map...</p>
+                    </div>
                   </div>
-                </div>
-                <GoogleMap
-                mapContainerStyle={mapContainerStyle}
-                center={mapCenter}
-                zoom={allPlaces.length > 1 ? 8 : 12}
-                options={mapOptions}
-                onLoad={(map) => {
-                  console.log('Map loaded successfully');
-                  console.log('Google Maps API available:', !!window.google?.maps);
-                  console.log('Google Maps API key:', getGoogleMapsApiKey());
-                  console.log('Map center:', mapCenter);
-                  console.log('All places:', allPlaces);
-                  console.log('Map container style:', mapContainerStyle);
-                  console.log('Map instance:', map);
-                  console.log('Map zoom level:', map.getZoom());
-                  console.log('Map bounds:', map.getBounds());
-                  
-                  // Test Google Maps API functionality
-                  if (window.google?.maps) {
-                    console.log('Google Maps API is loaded and available');
-                    console.log('Available Google Maps objects:', Object.keys(window.google.maps));
-                    
-                    // Test if Marker constructor is available
-                    if (window.google.maps.Marker) {
-                      console.log('✅ Marker constructor is available');
-                    } else {
-                      console.error('❌ Marker constructor is NOT available');
+                  <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={mapCenter}
+                  zoom={allPlacesWithFullData.length > 1 ? 8 : 12}
+                  options={mapOptions}
+                  onLoad={(map) => {
+                    // Hide loading indicator
+                    const loadingElement = document.getElementById('map-loading');
+                    if (loadingElement) {
+                      loadingElement.style.display = 'none';
                     }
                     
-                    // Test if Map constructor is available
-                    if (window.google.maps.Map) {
-                      console.log('✅ Map constructor is available');
-                    } else {
-                      console.error('❌ Map constructor is NOT available');
-                    }
-                  } else {
-                    console.error('Google Maps API is NOT loaded!');
-                  }
-                  
-                  // Hide loading indicator
-                  const loadingElement = document.getElementById('map-loading');
-                  if (loadingElement) {
-                    loadingElement.style.display = 'none';
-                  }
-                  
-                  // Create markers programmatically and attach to map
-                  allPlaces.forEach((place, index) => {
-                    const marker = new window.google.maps.Marker({
-                      position: {
+                    // Create markers programmatically and attach to map
+                    allPlacesWithFullData.forEach((place, index) => {
+                      // Create custom marker element with label
+                      const markerElement = document.createElement('div');
+                      markerElement.className = 'custom-marker';
+                      
+                      // Create SVG for the marker
+                      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                      svg.setAttribute('width', '24');
+                      svg.setAttribute('height', '24');
+                      svg.setAttribute('viewBox', '0 0 24 24');
+                      
+                      // Create circle for marker
+                      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                      circle.setAttribute('cx', '12');
+                      circle.setAttribute('cy', '12');
+                      circle.setAttribute('r', '10');
+                      circle.setAttribute('fill', index === 0 ? '#10B981' : '#3B82F6');
+                      circle.setAttribute('stroke', '#FFFFFF');
+                      circle.setAttribute('stroke-width', '2');
+                      
+                      // Create text for label
+                      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                      text.setAttribute('x', '12');
+                      text.setAttribute('y', '16');
+                      text.setAttribute('text-anchor', 'middle');
+                      text.setAttribute('fill', 'white');
+                      text.setAttribute('font-size', '12');
+                      text.setAttribute('font-weight', 'bold');
+                      text.textContent = `${index + 1}`;
+                      
+                      svg.appendChild(circle);
+                      svg.appendChild(text);
+                      markerElement.appendChild(svg);
+                      
+                      // Create AdvancedMarkerElement
+                      const marker = new window.google.maps.marker.AdvancedMarkerElement({
+                        position: {
+                          lat: place.location.coordinates.latitude,
+                          lng: place.location.coordinates.longitude
+                        },
+                        map: map,
+                        title: `${index + 1}. ${place.name}`,
+                        content: markerElement
+                      });
+                      
+                      // Add click listener
+                      marker.addListener('click', () => {
+                        setSelectedPlace({ ...place, index });
+                      });
+                    });
+                    
+                    // Create polyline to connect places
+                    if (allPlacesWithFullData.length > 1) {
+                      const path = allPlacesWithFullData.map(place => ({
                         lat: place.location.coordinates.latitude,
                         lng: place.location.coordinates.longitude
-                      },
-                      map: map, // This is the key - attach to map
-                      title: `${index + 1}. ${place.name}`,
-                      label: {
-                        text: `${index + 1}`,
-                        color: 'white',
-                        fontWeight: 'bold',
-                        fontSize: '14px'
-                      },
-                      icon: {
-                        path: window.google.maps.SymbolPath.CIRCLE,
-                        scale: 10,
-                        fillColor: index === 0 ? '#10B981' : '#3B82F6',
-                        fillOpacity: 0.9,
-                        strokeColor: '#FFFFFF',
-                        strokeWeight: 2
-                      }
-                    });
+                      }));
+                      
+                      const polyline = new window.google.maps.Polyline({
+                        path: path,
+                        geodesic: true,
+                        strokeColor: '#3B82F6',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 4,
+                        map: map
+                      });
+                    }
                     
-                    console.log(`Created marker ${index + 1} for ${place.name} and attached to map`);
-                    
-                    // Add click listener
-                    marker.addListener('click', () => {
-                      console.log(`Marker clicked: ${place.name}`);
-                      setSelectedPlace({ ...place, index });
-                    });
-                  });
+                    // Fit bounds to show all places
+                    if (allPlacesWithFullData.length > 1) {
+                      const bounds = new window.google.maps.LatLngBounds();
+                      allPlacesWithFullData.forEach(place => {
+                        const lat = place.location.coordinates.latitude;
+                        const lng = place.location.coordinates.longitude;
+                        bounds.extend({ lat, lng });
+                      });
+                      map.fitBounds(bounds);
+                      // Add some padding
+                      map.setZoom(Math.min(map.getZoom(), 12));
+                    } else if (allPlacesWithFullData.length === 1) {
+                      const place = allPlacesWithFullData[0];
+                      map.setCenter({
+                        lat: place.location.coordinates.latitude,
+                        lng: place.location.coordinates.longitude
+                      });
+                      map.setZoom(12);
+                    }
+                  }}
+                  onError={(error) => {
+                    // Handle map loading error silently
+                  }}
+                >
+                  {/* Markers are now created programmatically in onLoad */}
                   
-                  // Create polyline to connect places
-                  if (allPlaces.length > 1) {
-                    const path = allPlaces.map(place => ({
-                      lat: place.location.coordinates.latitude,
-                      lng: place.location.coordinates.longitude
-                    }));
-                    
-                    const polyline = new window.google.maps.Polyline({
-                      path: path,
-                      geodesic: true,
-                      strokeColor: '#3B82F6',
-                      strokeOpacity: 0.8,
-                      strokeWeight: 4,
-                      map: map
-                    });
-                    
-                    console.log('Created polyline connecting all places');
-                  }
+                  {/* Polyline is now created programmatically in onLoad */}
                   
-                  // Fit bounds to show all places
-                  if (allPlaces.length > 1) {
-                    const bounds = new window.google.maps.LatLngBounds();
-                    allPlaces.forEach(place => {
-                      const lat = place.location.coordinates.latitude;
-                      const lng = place.location.coordinates.longitude;
-                      console.log(`Adding place ${place.name} at ${lat}, ${lng}`);
-                      bounds.extend({ lat, lng });
-                    });
-                    map.fitBounds(bounds);
-                    // Add some padding
-                    map.setZoom(Math.min(map.getZoom(), 12));
-                  } else if (allPlaces.length === 1) {
-                    const place = allPlaces[0];
-                    map.setCenter({
-                      lat: place.location.coordinates.latitude,
-                      lng: place.location.coordinates.longitude
-                    });
-                    map.setZoom(12);
-                  }
-                }}
-                onError={(error) => console.error('Map failed to load:', error)}
-              >
-                {/* Markers are now created programmatically in onLoad */}
-                
-                {/* Polyline is now created programmatically in onLoad */}
-                
-                {/* Info Window for selected place */}
-                {selectedPlace && (
-                  <InfoWindow
-                    position={{
-                      lat: selectedPlace.location.coordinates.latitude,
-                      lng: selectedPlace.location.coordinates.longitude
-                    }}
-                    onCloseClick={() => setSelectedPlace(null)}
-                  >
-                    <div className="p-3 max-w-xs">
-                      <div className="flex items-center mb-2">
-                        <div className={`w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold mr-2 ${
-                          selectedPlace.index === 0 ? 'bg-green-500' : 'bg-blue-600'
-                        }`}>
-                          {selectedPlace.index + 1}
-                        </div>
-                        <h3 className="font-semibold text-gray-900">
-                          {selectedPlace.name}
-                        </h3>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">
-                        📍 {selectedPlace.location.formattedAddress}
-                      </p>
-                      <div className="text-xs text-gray-500 space-y-1">
-                        <div>🏁 {selectedPlace.index === 0 ? 'Starting Point' : `Stop #${selectedPlace.index + 1}`}</div>
-                        <div>🌍 {selectedPlace.location.country}</div>
-                        {selectedPlace.location.region && (
-                          <div>🏛️ {selectedPlace.location.region}</div>
-                        )}
+                  {/* Rich Preview for selected place */}
+                  {selectedPlace && (
+                    <div 
+                      className="absolute z-20 animate-fade-in"
+                      style={{
+                        left: '50%',
+                        top: '20px',
+                        transform: 'translateX(-50%)',
+                        maxWidth: '400px',
+                        width: '90vw'
+                      }}
+                    >
+                      <div className="relative">
+                        <button
+                          onClick={() => setSelectedPlace(null)}
+                          className="absolute -top-2 -right-2 z-30 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                          title="Close"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                        <PreviewContent 
+                          place={selectedPlace}
+                          index={selectedPlace.index}
+                        />
                       </div>
                     </div>
-                  </InfoWindow>
-                )}
-              </GoogleMap>
-              </div>
+                  )}
+                </GoogleMap>
+                </div>
+                
+                <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-800 text-center">
+                    💡 Click on any marker to view place details, images, and videos
+                  </p>
+                </div>
+              </>
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <p>No places available for this package</p>
@@ -535,7 +789,7 @@ const PackageDetail = () => {
             )}
             
             {/* Fallback Map Display */}
-            {allPlaces.length === 0 && (
+            {allPlacesWithFullData.length === 0 && (
               <div className="mt-4 p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                 <div className="text-center">
                   <GlobeAltIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -551,7 +805,7 @@ const PackageDetail = () => {
             )}
             
             {/* Alternative: Static Map Display */}
-            {allPlaces.length > 0 && (
+            {allPlacesWithFullData.length > 0 && (
               <div className="mt-4 p-4 bg-green-50 rounded-lg border">
                 <h4 className="text-lg font-semibold text-green-900 mb-3">Alternative Map View:</h4>
                 <div className="relative w-full rounded-lg overflow-hidden border border-gray-200 bg-slate-100" style={{ aspectRatio: '16 / 10' }}>
@@ -564,7 +818,7 @@ const PackageDetail = () => {
                   
                   {/* SVG overlay for places */}
                   <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-                    {allPlaces.map((place, index) => {
+                    {allPlacesWithFullData.map((place, index) => {
                       // Simple positioning based on index (you can improve this)
                       const x = 20 + (index * 20);
                       const y = 30 + (index * 15);
@@ -580,52 +834,20 @@ const PackageDetail = () => {
                     })}
                   </svg>
                 </div>
-                <p className="text-xs text-green-700 mt-2">Static map showing {allPlaces.length} places</p>
+                <p className="text-xs text-green-700 mt-2">Static map showing {allPlacesWithFullData.length} places</p>
               </div>
             )}
             
             {/* Simple Place List Display */}
-            {allPlaces.length > 0 && (
+            {allPlacesWithFullData.length > 0 && (
               <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                 <h4 className="text-lg font-semibold text-blue-900 mb-3">Places in This Package:</h4>
                 
                 {/* Test Button */}
-                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                  <button 
-                    onClick={() => {
-                      console.log('Testing marker creation...');
-                      if (window.google?.maps?.Marker) {
-                        console.log('✅ Can create markers programmatically');
-                        // Try to create a test marker attached to the map
-                        const mapElement = document.querySelector('[data-testid="google-map"]') || document.querySelector('.google-map') || document.querySelector('[role="application"]');
-                        if (mapElement && mapElement.__googleMap) {
-                          const testMarker = new window.google.maps.Marker({
-                            position: mapCenter,
-                            title: 'Test Programmatic Marker',
-                            map: mapElement.__googleMap
-                          });
-                          console.log('Test marker created and attached to map:', testMarker);
-                        } else {
-                          console.log('Map element not found, creating standalone marker');
-                          const testMarker = new window.google.maps.Marker({
-                            position: mapCenter,
-                            title: 'Test Programmatic Marker'
-                          });
-                          console.log('Test marker created (not attached):', testMarker);
-                        }
-                      } else {
-                        console.error('❌ Cannot create markers - Marker constructor not available');
-                      }
-                    }}
-                    className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                  >
-                    Test Marker Creation
-                  </button>
-                  <p className="text-xs text-yellow-700 mt-1">Click to test if markers can be created programmatically</p>
-                </div>
+
                 
                 <div className="space-y-2">
-                  {allPlaces.map((place, index) => (
+                  {allPlacesWithFullData.map((place, index) => (
                     <div key={index} className="flex items-center p-3 bg-white rounded border">
                       <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
                         {index + 1}
@@ -667,7 +889,9 @@ const PackageDetail = () => {
                 muted={isVideoMuted}
                 onPlay={handleVideoPlay}
                 onPause={handleVideoPause}
-                onError={(e) => console.error('Video error:', e)}
+                onError={(e) => {
+                  // Handle video error silently
+                }}
                 ref={(el) => {
                   if (el) {
                     el.muted = isVideoMuted;
@@ -712,12 +936,41 @@ const PackageDetail = () => {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <button className="btn-primary px-8 py-3 text-lg font-semibold">
+          <button 
+            onClick={() => setShowBookingForm(true)}
+            className="btn-primary px-8 py-3 text-lg font-semibold"
+          >
             Book This Package
           </button>
-          <button className="btn-secondary px-8 py-3 text-lg font-semibold">
+          <Link 
+            to="/contact" 
+            className="btn-secondary px-8 py-3 text-lg font-semibold inline-flex items-center justify-center"
+          >
             Contact Us
-          </button>
+          </Link>
+        </motion.div>
+
+        {/* Booking Form Modal */}
+        {showBookingForm && (
+          <BookingForm
+            packageName={pkg.title}
+            onClose={() => setShowBookingForm(false)}
+            onSuccess={(booking) => {
+              setShowBookingForm(false);
+            }}
+          />
+        )}
+
+        {/* Reviews Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.0 }}
+          className="bg-gray-50 py-12"
+        >
+          <div className="container mx-auto px-4">
+            <ReviewSection packageId={id} />
+          </div>
         </motion.div>
       </div>
     </div>

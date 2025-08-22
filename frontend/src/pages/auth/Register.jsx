@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useClerkAuthContext } from '../../contexts/ClerkAuthContext.jsx';
+import { SignUp } from '@clerk/clerk-react';
 import SocialAuth from '../../components/auth/SocialAuth.jsx';
 
 const scenicPhotos = [
@@ -17,13 +18,7 @@ const Register = () => {
   const { register, isAuthenticated, loading, error, clearError } = useAuth();
   const { isSignedIn: isClerkSignedIn } = useClerkAuthContext();
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [localError, setLocalError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [currentBgIndex, setCurrentBgIndex] = useState(() => Math.floor(Math.random() * scenicPhotos.length));
   const [tiltStyle, setTiltStyle] = useState({ transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)' });
   const [typedText, setTypedText] = useState('');
@@ -43,7 +38,7 @@ const Register = () => {
 
   useEffect(() => {
     if (isAuthenticated || isClerkSignedIn) {
-      navigate('/profile');
+      navigate('/');
     }
   }, [isAuthenticated, isClerkSignedIn, navigate]);
 
@@ -99,26 +94,7 @@ const Register = () => {
     setter(e.target.value);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLocalError('');
-    if (!name || !email || !password || !confirmPassword) {
-      setLocalError('Please fill in all fields');
-      return;
-    }
-    if (password.length < 6) {
-      setLocalError('Password must be at least 6 characters');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setLocalError('Passwords do not match');
-      return;
-    }
-    const result = await register({ name, email, password });
-    if (result?.success) {
-      navigate('/profile');
-    }
-  };
+
 
   const handleTiltMove = (event) => {
     const card = event.currentTarget;
@@ -218,126 +194,27 @@ const Register = () => {
                   </div>
                 )}
 
-                {/* Google Sign Up */}
-                <div className="mb-6">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300" />
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="bg-white px-2 text-gray-500">Or continue with</span>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <SocialAuth mode="signup" />
-                  </div>
+                {/* Clerk SignUp Component */}
+                <div className="flex justify-center">
+                  <SignUp 
+                    appearance={{
+                      elements: {
+                        formButtonPrimary: 'group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0c1c2e] px-4 py-2.5 font-medium text-white shadow hover:bg-[#0a1626] focus:outline-none focus:ring-4 focus:ring-[#0c1c2e]/30 disabled:cursor-not-allowed disabled:opacity-80',
+                        card: 'shadow-none',
+                        headerTitle: 'text-2xl font-semibold text-gray-900',
+                        headerSubtitle: 'text-sm text-gray-600',
+                        socialButtonsBlockButton: 'w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-[#0c1c2e]/30 transition-colors',
+                        dividerLine: 'bg-gray-300',
+                        dividerText: 'bg-white px-2 text-gray-500 text-sm',
+                        formFieldInput: 'block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4',
+                        formFieldLabel: 'mb-1 block text-sm font-medium text-gray-700',
+                        footerActionLink: 'font-medium text-[#0c1c2e] hover:opacity-80'
+                      }
+                    }}
+                    redirectUrl="/"
+                    signInUrl="/login"
+                  />
                 </div>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700">
-                      Full name
-                    </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center justify-center text-gray-400">👤</div>
-                      <input
-                        id="name"
-                        type="text"
-                        autoComplete="name"
-                        value={name}
-                        onChange={handleFieldChange(setName)}
-                        className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4"
-                        placeholder="Alex Traveler"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
-                      Email
-                    </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center justify-center text-gray-400">✉️</div>
-                      <input
-                        id="email"
-                        type="email"
-                        autoComplete="email"
-                        value={email}
-                        onChange={handleFieldChange(setEmail)}
-                        className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4"
-                        placeholder="you@traveler.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center justify-center text-gray-400">🔒</div>
-                      <input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="new-password"
-                        value={password}
-                        onChange={handleFieldChange(setPassword)}
-                        className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-10 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4"
-                        placeholder="••••••••"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((s) => !s)}
-                        className="absolute inset-y-0 right-0 mr-2 inline-flex items-center rounded-md px-2 text-sm text-gray-500 hover:text-gray-700"
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showPassword ? '🙈' : '👁️'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="confirmPassword" className="mb-1 block text-sm font-medium text-gray-700">
-                      Confirm password
-                    </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center justify-center text-gray-400">✅</div>
-                      <input
-                        id="confirmPassword"
-                        type={showConfirm ? 'text' : 'password'}
-                        autoComplete="new-password"
-                        value={confirmPassword}
-                        onChange={handleFieldChange(setConfirmPassword)}
-                        className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-10 py-2.5 text-gray-900 shadow-sm outline-none ring-[#0c1c2e]/20 focus:border-[#0c1c2e] focus:ring-4"
-                        placeholder="••••••••"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirm((s) => !s)}
-                        className="absolute inset-y-0 right-0 mr-2 inline-flex items-center rounded-md px-2 text-sm text-gray-500 hover:text-gray-700"
-                        aria-label={showConfirm ? 'Hide password' : 'Show password'}
-                      >
-                        {showConfirm ? '🙈' : '👁️'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0c1c2e] px-4 py-2.5 font-medium text-white shadow hover:bg-[#0a1626] focus:outline-none focus:ring-4 focus:ring-[#0c1c2e]/30 disabled:cursor-not-allowed disabled:opacity-80"
-                  >
-                    <span className="text-lg transition-transform group-hover:translate-x-1">🧭</span>
-                    {loading ? (
-                      <span className="inline-flex items-center gap-2">
-                        Creating your account…
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                      </span>
-                    ) : (
-                      'Create account'
-                    )}
-                  </button>
-                </form>
 
                 <div className="mt-6 text-center text-sm text-gray-700">
                   Already have an account?{' '}

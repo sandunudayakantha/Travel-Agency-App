@@ -4,6 +4,8 @@ import { usePlace } from '../../contexts/PlaceContext';
 import { useVehicle } from '../../contexts/VehicleContext';
 import { useTourGuide } from '../../contexts/TourGuideContext';
 import { useDriver } from '../../contexts/DriverContext';
+import { useAdminAuth } from '../../contexts/AdminAuthContext';
+
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -16,6 +18,12 @@ import {
 } from '@heroicons/react/24/outline';
 
 const AdminPackages = () => {
+  const { admin, isAdminAuthenticated, makeCurrentUserAdmin } = useAdminAuth();
+  
+  // Use admin user
+  const user = admin;
+  const isUserLoggedIn = isAdminAuthenticated;
+  
   const { 
     packages = [], 
     tourTypes = [],
@@ -40,18 +48,10 @@ const AdminPackages = () => {
   const { tourGuides = [], getTourGuides } = useTourGuide();
   const { drivers = [], getDrivers } = useDriver();
 
-  console.log('AdminPackages - packages:', packages);
-  console.log('AdminPackages - tourTypes:', tourTypes);
-  console.log('AdminPackages - places:', places);
-  console.log('AdminPackages - validPlaces:', validPlaces);
-  console.log('AdminPackages - vehicles:', vehicles);
-  console.log('AdminPackages - tourGuides:', tourGuides);
-  console.log('AdminPackages - drivers:', drivers);
-  console.log('AdminPackages - loading:', loading);
+
   
   // Load data when component mounts
   useEffect(() => {
-    console.log('AdminPackages useEffect - loading data...');
     setIsLoadingData(true);
     
     const loadAllData = async () => {
@@ -64,7 +64,6 @@ const AdminPackages = () => {
           getTourGuides(),
           getDrivers()
         ]);
-        console.log('All data loaded successfully');
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -85,8 +84,7 @@ const AdminPackages = () => {
 
   const handleAddPackage = () => {
     // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!isUserLoggedIn) {
       alert('Please log in to create packages');
       return;
     }
@@ -97,8 +95,7 @@ const AdminPackages = () => {
 
   const handleEditPackage = (packageItem) => {
     // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!isUserLoggedIn) {
       alert('Please log in to edit packages');
       return;
     }
@@ -109,8 +106,7 @@ const AdminPackages = () => {
 
   const handleDeletePackage = async (id) => {
     // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!isUserLoggedIn) {
       alert('Please log in to delete packages');
       return;
     }
@@ -121,27 +117,27 @@ const AdminPackages = () => {
   };
 
   const handleAddTourType = () => {
-    console.log('handleAddTourType called');
-    console.log('createTourType function:', createTourType);
-    console.log('updateTourType function:', updateTourType);
-    console.log('deleteTourType function:', deleteTourType);
     
     // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!isUserLoggedIn) {
       alert('Please log in to create tour types');
+      return;
+    }
+    
+    // Debug: Check if user has admin role
+    if (user && user.role !== 'admin') {
+      console.warn('User does not have admin role:', user.role);
+      alert('Admin access required to create tour types');
       return;
     }
     
     setEditingTourType(null);
     setShowTourTypeModal(true);
-    console.log('Tour type modal should be open now');
   };
 
   const handleEditTourType = (tourType) => {
     // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!isUserLoggedIn) {
       alert('Please log in to edit tour types');
       return;
     }
@@ -152,8 +148,7 @@ const AdminPackages = () => {
 
   const handleDeleteTourType = async (id) => {
     // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!isUserLoggedIn) {
       alert('Please log in to delete tour types');
       return;
     }
@@ -173,34 +168,6 @@ const AdminPackages = () => {
           <p className="text-xl text-gray-600">
             Create and manage travel packages
           </p>
-          
-          {/* Debug Info */}
-          <div className="mt-4 p-4 bg-gray-100 rounded-lg text-left text-sm">
-            <h3 className="font-semibold mb-2">Debug Info:</h3>
-            <p>Context Loading: {loading ? 'Yes' : 'No'}</p>
-            <p>Component Loading: {isLoadingData ? 'Yes' : 'No'}</p>
-            <p>Packages: {packages?.length || 0}</p>
-            <p>Tour Types: {tourTypes?.length || 0}</p>
-            <p>Places: {places?.length || 0}</p>
-            <p>Vehicles: {vehicles?.length || 0}</p>
-            <p>Tour Guides: {tourGuides?.length || 0}</p>
-            <div className="mt-2 space-x-2">
-              <button 
-                onClick={() => {
-                  console.log('Manual reload triggered');
-                  setIsLoadingData(true);
-                  loadPackages();
-                  loadTourTypes();
-                  getPlaces();
-                  getVehicles();
-                  getTourGuides();
-                }}
-                className="px-3 py-1 bg-blue-500 text-white rounded text-xs"
-              >
-                Reload Data
-              </button>
-            </div>
-          </div>
         </div>
         
         {/* Tour Types Section */}
@@ -213,7 +180,6 @@ const AdminPackages = () => {
               </div>
               <button
                 onClick={(e) => {
-                  console.log('Add Tour Type button clicked');
                   e.preventDefault();
                   handleAddTourType();
                 }}
@@ -238,7 +204,6 @@ const AdminPackages = () => {
                 <div className="mt-6">
                   <button
                     onClick={(e) => {
-                      console.log('Add Tour Type button clicked (empty state)');
                       e.preventDefault();
                       handleAddTourType();
                     }}
@@ -330,15 +295,6 @@ const AdminPackages = () => {
           </div>
 
           <div className="p-6">
-            {/* Debug Info */}
-            <div className="mb-4 p-3 bg-yellow-100 rounded text-sm">
-              <p><strong>Debug:</strong> Loading: {loading ? 'Yes' : 'No'}, IsLoadingData: {isLoadingData ? 'Yes' : 'No'}</p>
-              <p>Packages: {packages ? packages.length : 'undefined'}</p>
-              <p>Tour Types: {tourTypes ? tourTypes.length : 'undefined'}</p>
-              <p>Places: {places ? places.length : 'undefined'}</p>
-              <p>Vehicles: {vehicles ? vehicles.length : 'undefined'}</p>
-              <p>Tour Guides: {tourGuides ? tourGuides.length : 'undefined'}</p>
-            </div>
             
             {loading || isLoadingData ? (
               <div className="flex items-center justify-center py-8">
@@ -466,11 +422,9 @@ const AdminPackages = () => {
           <TourTypeModal
             tourType={editingTourType}
             onClose={() => {
-              console.log('Closing tour type modal');
               setShowTourTypeModal(false);
             }}
             onSuccess={() => {
-              console.log('Tour type modal success');
               setShowTourTypeModal(false);
               setEditingTourType(null);
             }}
@@ -479,10 +433,7 @@ const AdminPackages = () => {
           />
         )}
         
-        {/* Debug info for modal state */}
-        <div className="fixed bottom-4 right-4 bg-black text-white p-2 rounded text-xs z-50">
-          showTourTypeModal: {showTourTypeModal ? 'true' : 'false'}
-        </div>
+
       </div>
     </div>
   );
@@ -533,8 +484,6 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
   };
 
   const addDay = useCallback(() => {
-    console.log('addDay function called');
-    
     setFormData(prevData => {
       const newDay = {
         day: prevData.itinerary.length + 1,
@@ -543,9 +492,6 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
         places: [],
         video: null
       };
-      
-      console.log('Adding new day:', newDay);
-      console.log('Current itinerary length:', prevData.itinerary.length);
       
       return {
         ...prevData,
@@ -661,11 +607,7 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
         }
       });
 
-      // Debug: Log FormData contents
-      console.log('FormData contents:');
-      for (let [key, value] of submitData.entries()) {
-        console.log(`${key}:`, value);
-      }
+
 
       if (packageItem) {
         result = await updatePackage(packageItem._id, submitData);
@@ -673,7 +615,7 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
         result = await createPackage(submitData);
       }
 
-      console.log('Package submission result:', result);
+
       if (result.success) {
         onSuccess();
       } else {
@@ -924,21 +866,7 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
               <h4 className="text-lg font-medium text-gray-900">Itinerary</h4>
             </div>
             
-            {/* Debug info for itinerary */}
-            <div className="mb-4 p-2 bg-yellow-100 rounded text-xs">
-              <p><strong>Debug:</strong> Itinerary length: {formData.itinerary.length}</p>
-              <p>Itinerary: {JSON.stringify(formData.itinerary, null, 2)}</p>
-              <button 
-                type="button" 
-                onClick={() => {
-                  console.log('Debug area Add Day button clicked');
-                  addDay();
-                }}
-                className="bg-green-500 text-white px-2 py-1 rounded text-xs mt-2"
-              >
-                Add Day (Debug)
-              </button>
-            </div>
+
 
             {formData.itinerary.map((day, index) => (
               <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
@@ -1112,7 +1040,6 @@ const PackageModal = ({ package: packageItem, tourTypes, places, vehicles, tourG
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('Add Day button clicked');
                   addDay();
                 }}
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
@@ -1205,15 +1132,12 @@ const TourTypeModal = ({ tourType, onClose, onSuccess, createTourType, updateTou
     setIsSubmitting(true);
 
     try {
-      console.log('Submitting tour type form...');
       let result;
       if (tourType) {
         result = await updateTourType(tourType._id, formData);
       } else {
         result = await createTourType(formData);
       }
-
-      console.log('Tour type submission result:', result);
       if (result.success) {
         onSuccess();
       } else {

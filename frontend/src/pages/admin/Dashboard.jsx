@@ -7,7 +7,12 @@ import {
   TruckIcon,
   UserGroupIcon,
   ChartBarIcon,
-  MapPinIcon
+  MapPinIcon,
+  ClipboardDocumentListIcon,
+  StarIcon,
+  EnvelopeIcon,
+  CogIcon,
+  PhotoIcon
 } from '@heroicons/react/24/outline';
 
 const Dashboard = () => {
@@ -62,11 +67,45 @@ const Dashboard = () => {
       color: 'bg-emerald-500'
     },
     {
+      title: 'Custom Inquiries',
+      description: 'Manage custom package requests',
+      icon: ClipboardDocumentListIcon,
+      href: '/admin/custom-inquiries',
+      color: 'bg-pink-500'
+    },
+    {
+      title: 'Messages',
+      description: 'Manage contact form messages and inquiries',
+      icon: EnvelopeIcon,
+      href: '/admin/messages',
+      color: 'bg-cyan-500'
+    },
+    {
+      title: 'Reviews',
+      description: 'Manage customer reviews and ratings',
+      icon: StarIcon,
+      href: '/admin/reviews',
+      color: 'bg-yellow-500'
+    },
+    {
       title: 'Analytics',
       description: 'View business analytics and reports',
       icon: ChartBarIcon,
       href: '/admin/analytics',
       color: 'bg-red-500'
+    },
+    {
+      title: 'Site Settings',
+      description: 'Manage contact info and social media links',
+      icon: CogIcon,
+      href: '/admin/site-settings',
+    },
+    {
+      title: 'Gallery',
+      description: 'Manage images and videos',
+      icon: PhotoIcon,
+      href: '/admin/gallery',
+      color: 'bg-violet-500'
     }
   ];
 

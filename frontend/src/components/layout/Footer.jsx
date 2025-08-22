@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useSiteSettings } from '../../contexts/SiteSettingsContext';
 import { 
   GlobeAltIcon,
   EnvelopeIcon,
@@ -8,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Footer = () => {
+  const { settings } = useSiteSettings();
   const currentYear = new Date().getFullYear();
 
   const navigation = {
@@ -20,14 +22,14 @@ const Footer = () => {
     ],
     support: [
       { name: 'Help Center', href: '/help' },
-      { name: 'Privacy Policy', href: '/privacy' },
-      { name: 'Terms of Service', href: '/terms' },
-      { name: 'FAQ', href: '/faq' },
+      { name: 'Privacy Policy', href: '/privacy-policy' },
+      { name: 'Terms of Service', href: '/terms-of-service' },
+      { name: 'FAQ', href: '/help' },
     ],
     social: [
       {
         name: 'Facebook',
-        href: '#',
+        href: settings?.socialMedia?.facebook || '#',
         icon: (props) => (
           <svg fill="currentColor" viewBox="0 0 20 20" {...props}>
             <path
@@ -40,7 +42,7 @@ const Footer = () => {
       },
       {
         name: 'Instagram',
-        href: '#',
+        href: settings?.socialMedia?.instagram || '#',
         icon: (props) => (
           <svg fill="currentColor" viewBox="0 0 20 20" {...props}>
             <path
@@ -53,7 +55,7 @@ const Footer = () => {
       },
       {
         name: 'Twitter',
-        href: '#',
+        href: settings?.socialMedia?.twitter || '#',
         icon: (props) => (
           <svg fill="currentColor" viewBox="0 0 20 20" {...props}>
             <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
@@ -71,26 +73,25 @@ const Footer = () => {
           <div className="space-y-8 xl:col-span-1">
             <div className="flex items-center space-x-2">
               <GlobeAltIcon className="h-8 w-8 text-primary-400" />
-              <span className="text-xl font-bold">Wanderlust</span>
+              <span className="text-xl font-bold">{settings?.companyInfo?.name || 'Wanderlust'}</span>
             </div>
             <p className="text-gray-300 text-base">
-              Discover amazing destinations and create unforgettable memories with our premium travel packages. 
-              Your journey starts here.
+              {settings?.companyInfo?.description || 'Discover amazing destinations and create unforgettable memories with our premium travel packages. Your journey starts here.'}
             </p>
             
             {/* Contact Info */}
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <PhoneIcon className="h-5 w-5 text-primary-400" />
-                <span className="text-gray-300">+1 (555) 123-4567</span>
+                <span className="text-gray-300">{settings?.contactInfo?.phone || '+1 (555) 123-4567'}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <EnvelopeIcon className="h-5 w-5 text-primary-400" />
-                <span className="text-gray-300">info@wanderlust.com</span>
+                <span className="text-gray-300">{settings?.contactInfo?.email || 'info@wanderlust.com'}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPinIcon className="h-5 w-5 text-primary-400" />
-                <span className="text-gray-300">123 Travel Street, Adventure City, AC 12345</span>
+                <span className="text-gray-300">{settings?.contactInfo?.address || '123 Travel Street, Adventure City, AC 12345'}</span>
               </div>
             </div>
           </div>
@@ -140,7 +141,7 @@ const Footer = () => {
         <div className="mt-12 border-t border-gray-700 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-base text-gray-400">
-              &copy; {currentYear} Wanderlust Travel Agency. All rights reserved.
+              {settings?.footer?.copyright || `&copy; ${currentYear} Wanderlust Travel Agency. All rights reserved.`}
             </p>
             <div className="mt-6 md:mt-0 flex space-x-6">
               {navigation.social.map((item) => (

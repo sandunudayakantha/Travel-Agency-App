@@ -181,7 +181,8 @@ router.post('/', protect, authorize('admin'), upload.single('avatar'), [
     .withMessage('Name must be between 2 and 100 characters'),
   body('age')
     .isInt({ min: 18, max: 80 })
-    .withMessage('Age must be between 18 and 80'),
+    .withMessage('Age must be between 18 and 80')
+    .customSanitizer(value => parseInt(value)),
   body('email')
     .isEmail()
     .normalizeEmail()
@@ -214,15 +215,22 @@ router.post('/', protect, authorize('admin'), upload.single('avatar'), [
     .withMessage('At least one language is required'),
   body('rating')
     .isInt({ min: 1, max: 5 })
-    .withMessage('Rating must be between 1 and 5'),
+    .withMessage('Rating must be between 1 and 5')
+    .customSanitizer(value => parseInt(value)),
   body('experience')
     .optional()
     .isInt({ min: 0 })
-    .withMessage('Experience must be a non-negative integer'),
+    .withMessage('Experience must be a non-negative integer')
+    .customSanitizer(value => value ? parseInt(value) : value),
   body('toursCompleted')
     .optional()
     .isInt({ min: 0 })
-    .withMessage('Tours completed must be a non-negative integer'),
+    .withMessage('Tours completed must be a non-negative integer')
+    .customSanitizer(value => value ? parseInt(value) : value),
+  body('level')
+    .optional()
+    .isIn(['beginner', 'intermediate', 'expert'])
+    .withMessage('Invalid level'),
   body('vehicleTypes')
     .custom((value) => {
       try {
@@ -314,18 +322,19 @@ router.post('/', protect, authorize('admin'), upload.single('avatar'), [
     // Create driver data
     const driverData = {
       name: req.body.name,
-      age: parseInt(req.body.age),
+      age: req.body.age, // Already sanitized by validation middleware
       email: req.body.email.toLowerCase(),
       phone: req.body.phone,
       licenseNumber: req.body.licenseNumber,
       licenseType: req.body.licenseType,
       licenseExpiry: new Date(req.body.licenseExpiry),
       languages,
-      level: req.body.level,
+      rating: req.body.rating, // Already sanitized by validation middleware
+      level: req.body.level || 'intermediate',
       avatar,
       bio: req.body.bio || '',
-      experience: parseInt(req.body.experience) || 0,
-      toursCompleted: parseInt(req.body.toursCompleted) || 0,
+      experience: req.body.experience || 0, // Already sanitized by validation middleware
+      toursCompleted: req.body.toursCompleted || 0, // Already sanitized by validation middleware
       vehicleTypes,
       specializations,
       availability: req.body.availability || 'available',
@@ -378,7 +387,8 @@ router.put('/:id', protect, authorize('admin'), upload.single('avatar'), [
   body('age')
     .optional()
     .isInt({ min: 18, max: 80 })
-    .withMessage('Age must be between 18 and 80'),
+    .withMessage('Age must be between 18 and 80')
+    .customSanitizer(value => value ? parseInt(value) : value),
   body('email')
     .optional()
     .isEmail()
@@ -403,41 +413,67 @@ router.put('/:id', protect, authorize('admin'), upload.single('avatar'), [
     .withMessage('Please enter a valid license expiry date'),
   body('languages')
     .optional()
-    .isArray({ min: 1 })
+    .custom((value) => {
+      try {
+        const languages = Array.isArray(value) ? value : JSON.parse(value);
+        if (!Array.isArray(languages) || languages.length === 0) {
+          throw new Error('At least one language is required');
+        }
+        return true;
+      } catch (error) {
+        throw new Error('Invalid languages format');
+      }
+    })
     .withMessage('At least one language is required'),
-  body('languages.*')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 20 })
-    .withMessage('Language must be between 2 and 20 characters'),
   body('rating')
     .optional()
     .isInt({ min: 1, max: 5 })
-    .withMessage('Rating must be between 1 and 5'),
+    .withMessage('Rating must be between 1 and 5')
+    .customSanitizer(value => value ? parseInt(value) : value),
   body('experience')
     .optional()
     .isInt({ min: 0 })
-    .withMessage('Experience must be a non-negative integer'),
+    .withMessage('Experience must be a non-negative integer')
+    .customSanitizer(value => value ? parseInt(value) : value),
   body('toursCompleted')
     .optional()
     .isInt({ min: 0 })
-    .withMessage('Tours completed must be a non-negative integer'),
+    .withMessage('Tours completed must be a non-negative integer')
+    .customSanitizer(value => value ? parseInt(value) : value),
+  body('level')
+    .optional()
+    .isIn(['beginner', 'intermediate', 'expert'])
+    .withMessage('Invalid level'),
   body('vehicleTypes')
     .optional()
-    .isArray({ min: 1 })
+    .custom((value) => {
+      try {
+        const vehicleTypes = Array.isArray(value) ? value : JSON.parse(value);
+        if (!Array.isArray(vehicleTypes) || vehicleTypes.length === 0) {
+          throw new Error('At least one vehicle type is required');
+        }
+        const validTypes = ['sedan', 'suv', 'van', 'bus', 'coach', 'motorcycle'];
+        for (const type of vehicleTypes) {
+          if (!validTypes.includes(type)) {
+            throw new Error(`Invalid vehicle type: ${type}`);
+          }
+        }
+        return true;
+      } catch (error) {
+        throw new Error('Invalid vehicle types format');
+      }
+    })
     .withMessage('At least one vehicle type is required'),
-  body('vehicleTypes.*')
-    .optional()
-    .isIn(['sedan', 'suv', 'van', 'bus', 'coach', 'motorcycle'])
-    .withMessage('Invalid vehicle type'),
   body('specializations')
     .optional()
-    .isArray(),
-  body('specializations.*')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Specialization must be between 2 and 50 characters'),
+    .custom((value) => {
+      try {
+        const specializations = Array.isArray(value) ? value : JSON.parse(value);
+        return true;
+      } catch (error) {
+        throw new Error('Invalid specializations format');
+      }
+    }),
   body('bio')
     .optional()
     .isLength({ max: 1000 })

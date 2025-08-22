@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { MapPinIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { Wrapper } from '@googlemaps/react-wrapper';
-import { GOOGLE_MAPS_CONFIG, isGoogleMapsConfigured } from '../config/maps';
+import { GOOGLE_MAPS_CONFIG, isGoogleMapsConfigured, getGoogleMapsMapId } from '../config/maps';
 
 // Google Map Component
 const GoogleMap = ({ center, zoom, onMapClick, onMapLoad, children }) => {
@@ -14,6 +13,7 @@ const GoogleMap = ({ center, zoom, onMapClick, onMapLoad, children }) => {
         center,
         zoom,
         ...GOOGLE_MAPS_CONFIG.mapOptions,
+        mapId: getGoogleMapsMapId()
       });
       setMap(newMap);
       if (onMapLoad) onMapLoad(newMap);
@@ -45,17 +45,39 @@ const GoogleMap = ({ center, zoom, onMapClick, onMapLoad, children }) => {
   );
 };
 
-// Google Map Marker Component
+// Advanced Google Map Marker Component
 const Marker = ({ position, map, title, draggable = true, onDragEnd }) => {
   const [marker, setMarker] = useState(null);
 
   useEffect(() => {
-    if (!marker && map && position) {
-      const newMarker = new window.google.maps.Marker({
+    if (!marker && map && position && window.google.maps.marker) {
+      // Create custom marker element
+      const markerElement = document.createElement('div');
+      markerElement.className = 'custom-marker';
+      
+      // Create SVG for the marker
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '32');
+      svg.setAttribute('height', '32');
+      svg.setAttribute('viewBox', '0 0 32 32');
+      
+      // Create pin shape
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', 'M16 0C10.477 0 6 4.477 6 10c0 7 10 22 10 22s10-15 10-22c0-5.523-4.477-10-10-10z');
+      path.setAttribute('fill', '#3B82F6');
+      path.setAttribute('stroke', '#FFFFFF');
+      path.setAttribute('stroke-width', '2');
+      
+      svg.appendChild(path);
+      markerElement.appendChild(svg);
+      
+      // Create AdvancedMarkerElement
+      const newMarker = new window.google.maps.marker.AdvancedMarkerElement({
         position,
         map,
         title,
-        draggable,
+        content: markerElement,
+        gmpDraggable: draggable
       });
       
       setMarker(newMarker);
@@ -67,14 +89,14 @@ const Marker = ({ position, map, title, draggable = true, onDragEnd }) => {
     
     return () => {
       if (marker) {
-        marker.setMap(null);
+        marker.map = null;
       }
     };
   }, [marker, map, position, title, draggable, onDragEnd]);
 
   useEffect(() => {
     if (marker && position) {
-      marker.setPosition(position);
+      marker.position = position;
     }
   }, [marker, position]);
 
@@ -414,13 +436,19 @@ const GoogleMapsPicker = ({
     );
   };
 
-  return (
-    <Wrapper 
-      apiKey={GOOGLE_MAPS_CONFIG.apiKey} 
-      libraries={GOOGLE_MAPS_CONFIG.libraries}
-      render={render}
-    />
-  );
+  // Check if Google Maps is available
+  if (!window.google || !window.google.maps) {
+    return (
+      <div className="border border-gray-300 bg-gray-50 rounded-lg p-4">
+        <div className="flex items-center space-x-3">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          <p className="text-gray-600">Loading Google Maps...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return render();
 };
 
 export default GoogleMapsPicker; 

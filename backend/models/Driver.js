@@ -73,6 +73,11 @@ const driverSchema = new mongoose.Schema({
     min: [0, 'Tours completed cannot be negative'],
     default: 0
   },
+  level: {
+    type: String,
+    enum: ['beginner', 'intermediate', 'expert'],
+    default: 'intermediate'
+  },
   vehicleTypes: [{
     type: String,
     enum: ['sedan', 'suv', 'van', 'bus', 'coach', 'motorcycle'],

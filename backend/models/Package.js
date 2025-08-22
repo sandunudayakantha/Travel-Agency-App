@@ -51,6 +51,17 @@ const packageSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  averageRating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
+  },
+  numReviews: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
   image: {
     public_id: String,
     url: String

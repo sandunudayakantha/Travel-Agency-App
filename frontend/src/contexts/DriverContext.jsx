@@ -154,6 +154,14 @@ export const DriverProvider = ({ children }) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
+      console.log('DriverContext: Sending driver data:', driverData);
+      
+      // Log the FormData contents
+      console.log('DriverContext: FormData contents:');
+      for (let [key, value] of driverData.entries()) {
+        console.log(`  ${key}: ${value}`);
+      }
+      
       const response = await axios.post('/api/drivers', driverData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -168,7 +176,21 @@ export const DriverProvider = ({ children }) => {
       toast.success('Driver created successfully');
       return { success: true, driver: response.data.driver };
     } catch (error) {
-      const message = error.response?.data?.message || 'Error creating driver';
+      console.error('DriverContext: Error creating driver:', error);
+      console.error('DriverContext: Error response:', error.response?.data);
+      
+      let message = 'Error creating driver';
+      
+      if (error.response?.data?.errors) {
+        console.error('DriverContext: Validation errors:', error.response.data.errors);
+        // Show the first validation error message
+        if (error.response.data.errors.length > 0) {
+          message = error.response.data.errors[0].msg || error.response.data.errors[0].message;
+        }
+      } else if (error.response?.data?.message) {
+        message = error.response.data.message;
+      }
+      
       dispatch({ type: 'SET_ERROR', payload: message });
       toast.error(message);
       return { success: false, error: message };
