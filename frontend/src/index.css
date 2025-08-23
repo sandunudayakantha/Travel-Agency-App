@@ -77,6 +77,32 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Parallax-specific components */
+  .parallax-bg {
+    will-change: transform;
+    transform-style: preserve-3d;
+  }
+  
+  .parallax-element {
+    will-change: transform;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
+  
+  .parallax-container {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .parallax-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    will-change: transform;
+  }
 }
 
 @layer utilities {
@@ -214,6 +240,74 @@
     to {
       opacity: 1;
       transform: scale(1);
+    }
+  }
+
+  /* Enhanced parallax animations */
+  .animate-parallax-slow {
+    animation: parallaxSlow 20s ease-in-out infinite;
+  }
+  
+  @keyframes parallaxSlow {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-30px) rotate(2deg);
+    }
+  }
+  
+  .animate-parallax-medium {
+    animation: parallaxMedium 15s ease-in-out infinite;
+  }
+  
+  @keyframes parallaxMedium {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(-1deg);
+    }
+  }
+  
+  .animate-parallax-fast {
+    animation: parallaxFast 10s ease-in-out infinite;
+  }
+  
+  @keyframes parallaxFast {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-15px) rotate(1deg);
+    }
+  }
+  
+  .animate-glow {
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+  
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+    to {
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+    }
+  }
+  
+  .animate-pulse-slow {
+    animation: pulseSlow 4s ease-in-out infinite;
+  }
+  
+  @keyframes pulseSlow {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.05);
     }
   }
 }

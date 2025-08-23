@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { 
   PlayIcon, 
   ArrowRightIcon, 
@@ -24,6 +24,55 @@ import {
   ClockIcon
 } from '@heroicons/react/24/outline';
 
+// Typing effect component
+const TypewriterText = ({ words, speed = 100, delay = 2000 }) => {
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentWord = words[currentWordIndex];
+    
+    if (isDeleting) {
+      // Deleting effect
+      if (currentText === '') {
+        setIsDeleting(false);
+        setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        return;
+      }
+      
+      const timeout = setTimeout(() => {
+        setCurrentText(currentText.slice(0, -1));
+      }, speed / 2);
+      
+      return () => clearTimeout(timeout);
+    } else {
+      // Typing effect
+      if (currentText === currentWord) {
+        // Word is complete, wait then start deleting
+        const timeout = setTimeout(() => {
+          setIsDeleting(true);
+        }, delay);
+        
+        return () => clearTimeout(timeout);
+      }
+      
+      const timeout = setTimeout(() => {
+        setCurrentText(currentWord.slice(0, currentText.length + 1));
+      }, speed);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [currentText, isDeleting, currentWordIndex, words, speed, delay]);
+
+  return (
+    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+      {currentText}
+      <span className="animate-pulse">|</span>
+    </span>
+  );
+};
+
 const Home = () => {
   const { featuredPackages = [], getFeaturedPackages, loading, error } = usePackage();
   const { places, getPlaces, loading: placesLoading } = usePlace();
@@ -38,6 +87,10 @@ const Home = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   
+  // Parallax scroll state
+  const [scrollY, setScrollY] = useState(0);
+  const { scrollYProgress } = useScroll();
+  
   // Refs
   const searchInputRef = useRef(null);
 
@@ -47,6 +100,13 @@ const Home = () => {
       getFeaturedPackages();
     }
   }, []); // Empty dependency array - only run once on mount
+
+  // Parallax scroll effect
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Real-time search with debouncing
   useEffect(() => {
@@ -158,8 +218,6 @@ const Home = () => {
     }
   };
 
-
-
   // Handle place selection
   const handlePlaceSelect = (place) => {
     setSelectedPlace(place);
@@ -194,8 +252,6 @@ const Home = () => {
     const telUrl = `tel:${phone}`;
     window.open(telUrl);
   };
-
-
 
   const heroVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -247,133 +303,170 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-slate-800 via-slate-900 to-black overflow-hidden">
-        {/* Mountain Background */}
-        <div className="absolute inset-0">
+      {/* Enhanced Hero Section with Parallax */}
+      <section className="relative h-screen overflow-hidden">
+        {/* Parallax Background */}
+        <div 
+          className="absolute inset-0 will-change-transform"
+          style={{
+            transform: `translateY(${scrollY * 0.5}px)`,
+          }}
+        >
           <img 
-            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
-            alt="Mountain Landscape" 
-            className="w-full h-full object-cover"
+            src="https://images.unsplash.com/photo-1580889240912-c39ecefd3d95?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
+            alt="Sigiriya Lion Rock Fortress, Sri Lanka" 
+            className="w-full h-[120%] object-cover"
           />
+          <div className="absolute inset-0 bg-black/40"></div>
         </div>
         
-        {/* Animated Mist Layers */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30"></div>
-          
-          {/* Mist Layer 1 */}
-          <div className="absolute inset-0 opacity-30">
-            <div className="absolute top-1/4 left-0 w-full h-32 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-mist"></div>
-            <div className="absolute top-1/2 right-0 w-full h-24 bg-gradient-to-l from-transparent via-white/15 to-transparent animate-mist-reverse" style={{animationDelay: '2s'}}></div>
-            <div className="absolute top-3/4 left-0 w-full h-28 bg-gradient-to-r from-transparent via-white/25 to-transparent animate-mist" style={{animationDelay: '4s'}}></div>
-          </div>
-          
-          {/* Mist Layer 2 */}
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-1/3 left-1/4 w-1/2 h-20 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-mist-reverse" style={{animationDelay: '1s'}}></div>
-            <div className="absolute top-2/3 right-1/4 w-1/2 h-16 bg-gradient-to-l from-transparent via-white/25 to-transparent animate-mist" style={{animationDelay: '3s'}}></div>
-          </div>
-          
-          {/* Floating Mist Particles */}
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-2 h-2 bg-white/40 rounded-full animate-float"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 3}s`,
-                  animationDuration: `${3 + Math.random() * 2}s`
-                }}
-              ></div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="absolute inset-0 bg-black opacity-20"></div>
-       
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+                {/* Enhanced Parallax Background Elements */}
+        <div 
+          className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-purple-300/30 rounded-full -translate-x-48 -translate-y-48"
+          style={{
+            transform: `translate(-192px, -192px) translateY(${scrollY * 0.1}px) rotate(${scrollY * 0.05}deg)`,
+          }}
+        ></div>
+        <div 
+          className="absolute top-1/4 right-0 w-64 h-64 bg-gradient-to-br from-emerald-200/20 to-blue-300/20 rounded-full translate-x-32"
+          style={{
+            transform: `translate(128px, 0px) translateY(${scrollY * -0.08}px) rotate(${scrollY * -0.02}deg)`,
+          }}
+        ></div>
+        <div 
+          className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-200/30 to-red-300/30 rounded-full translate-x-32 translate-y-32"
+          style={{
+            transform: `translate(128px, 128px) translateY(${scrollY * -0.15}px) rotate(${scrollY * -0.03}deg)`,
+          }}
+        ></div>
+
+        {/* Content */}
+        <div className="relative z-10 flex items-center justify-center h-full text-white">
+          <div className="text-center px-4 max-w-4xl">
           <motion.div 
-            className="text-center"
-            variants={heroVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Discover Your Next
-              <span className="block text-secondary-300">Adventure</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="mb-6"
+            >
+              <div className="flex items-center justify-center space-x-2 mb-4">
+                <MapPinIcon className="h-6 w-6 text-blue-400" />
+                <span className="text-blue-400 uppercase tracking-wide">Best in the World</span>
+              </div>
+                            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Discover Your Next<br />
+                <TypewriterText 
+                  words={["Adventure", "Journey", "Experience", "Destination", "Escape"]}
+                  speed={150}
+                  delay={2500}
+                />
+              </h1>
+            </motion.div>
+
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.8 }}
+              className="text-xl md:text-2xl mb-8 text-gray-200 max-w-2xl mx-auto"
+            >
               Experience the world's most amazing destinations with our curated travel packages. 
-            </p>
+            </motion.p>
             
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-8 search-container">
+            {/* Enhanced Search Bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 1.1 }}
+              className="max-w-2xl mx-auto mb-8"
+            >
               <div className="relative">
-                {/* Simple, highly visible search bar */}
-                <div className="bg-white p-2 rounded-lg shadow-2xl">
-                  <div className="flex items-center">
-                    <div className="flex-1 relative">
-                      <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-500" />
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        placeholder="Search for place names..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        onFocus={handleSearchFocus}
-                        onKeyDown={handleKeyDown}
-                        className="w-full pl-12 pr-4 py-3 bg-white text-black placeholder-gray-600 focus:outline-none text-lg border-0"
-                        style={{
-                          backgroundColor: 'white',
-                          color: 'black',
-                          fontSize: '18px',
-                          fontWeight: '500'
-                        }}
-                      />
+                {/* Glass morphism search container */}
+                <div className="relative">
+                  {/* Backdrop blur and glass effect */}
+                  <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl"></div>
+                  
+                  {/* Inner glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl"></div>
+                  
+                  {/* Main search content */}
+                  <div className="relative p-1 rounded-3xl">
+                    <div className="flex items-center bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-lg">
+                      <div className="flex-1 relative">
+                        <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-white/70" />
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          placeholder="Search for place names..."
+                          value={searchTerm}
+                          onChange={handleSearchChange}
+                          onFocus={handleSearchFocus}
+                          onKeyDown={handleKeyDown}
+                          className="w-full pl-14 pr-4 py-4 bg-transparent text-white placeholder-white/70 focus:outline-none text-lg border-0 rounded-2xl"
+                          style={{
+                            color: 'white',
+                            fontSize: '18px',
+                            fontWeight: '500'
+                          }}
+                        />
+                      </div>
+
                     </div>
-                    <button
-                      onClick={handleSearch}
-                      disabled={isSearching}
-                      className="ml-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-md transition-colors flex items-center gap-2"
-                      style={{
-                        backgroundColor: '#2563eb',
-                        color: 'white',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      {isSearching ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          Searching...
-                        </>
-                      ) : (
-                        'Search'
-                      )}
-                    </button>
                   </div>
+                  
+                  {/* Subtle glow effect */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-xl opacity-50"></div>
                 </div>
                 
-                {/* Search Instructions */}
-                <p className="text-white text-sm mt-3 text-center font-medium">
+                <p className="text-white/90 text-sm mt-4 text-center font-medium backdrop-blur-sm">
                   Start typing place names for real-time results - try "Galle", "Sigiriya", "Temple"...
                 </p>
-                
-
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 1.4 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(0,0,0,0.3)" }}
+                whileTap={{ scale: 0.95 }}
+                className="relative px-8 py-4 bg-gradient-to-r from-blue-500/80 to-purple-600/80 text-white rounded-2xl hover:from-blue-600/90 hover:to-purple-700/90 transition-all duration-300 shadow-xl backdrop-blur-sm border border-white/20 overflow-hidden group"
+              >
+                {/* Button glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <span className="relative z-10 font-bold">Start Your Adventure</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative px-8 py-4 bg-white/10 backdrop-blur-md border-2 border-white/30 text-white rounded-2xl hover:bg-white/20 hover:border-white/50 transition-all duration-300 shadow-xl overflow-hidden group"
+              >
+                {/* Button glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <span className="relative z-10 font-bold">View Destinations</span>
+              </motion.button>
+            </motion.div>
+        </div>
         </div>
 
-        {/* Video Background Option */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <button className="bg-white/20 backdrop-blur-sm rounded-full p-4 hover:bg-white/30 transition-all duration-300">
-            <PlayIcon className="h-8 w-8 text-white" />
-          </button>
-        </div>
+        {/* Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 1 }}
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white"
+        >
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="flex flex-col items-center space-y-2"
+          >
+            <span className="text-sm uppercase tracking-wide">Scroll to explore</span>
+            <ArrowRightIcon className="h-6 w-6 rotate-90" />
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Test Search Bar - Simple and Visible */}
@@ -700,328 +793,11 @@ const Home = () => {
         </div>
       )}
 
-      {/* Popular Destinations Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-12"
-            variants={heroVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Our Popular Packages
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover our most popular travel packages that travelers love to book
-            </p>
-          </motion.div>
+      {/* Sigiriya Showcase Section with Parallax */}
 
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-              <p className="mt-4 text-gray-600">Loading featured packages...</p>
-            </div>
-          ) : featuredPackages && Array.isArray(featuredPackages) && featuredPackages.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredPackages.slice(0, 6).map((pkg, index) => (
-                <motion.div
-                  key={pkg._id}
-                  className="group relative overflow-hidden rounded-xl shadow-soft hover:shadow-large transition-all duration-300 bg-white"
-                  variants={cardVariants}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={pkg.image?.url || "https://via.placeholder.com/400x300"}
-                      alt={pkg.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    {pkg.featured && (
-                      <div className="absolute top-4 left-4 bg-accent-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                        Featured
-                      </div>
-                    )}
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-sm font-medium text-gray-900">
-                      ${pkg.price}
-                    </div>
-                    <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full text-xs text-white">
-                      {pkg.tourType?.name || 'Tour'}
-                    </div>
-                  </div>
-                  
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
-                        {pkg.title}
-                      </h3>
-                      <div className="flex items-center">
-                        <StarRating rating={pkg.averageRating || 0} readonly size="sm" />
-                        <span className="ml-1 text-sm text-gray-600">
-                          {pkg.averageRating ? pkg.averageRating.toFixed(1) : '0.0'}
-                          {pkg.numReviews > 0 && ` (${pkg.numReviews})`}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center text-gray-600 mb-3">
-                      <MapPinIcon className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{pkg.itinerary?.[0]?.places?.[0]?.name || 'Multiple destinations'}</span>
-                    </div>
-                    
-                    <div className="flex items-center text-gray-600 mb-4">
-                      <CalendarIcon className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{pkg.days} days, {pkg.nights} nights</span>
-                    </div>
-                    
-                    {/* Guide and Driver Information */}
-                    <div className="mb-4 space-y-2">
-                      {pkg.guide && (
-                        <div className="flex items-center text-gray-600">
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full mr-2">
-                            Guide
-                          </span>
-                          <span className="text-sm">{pkg.guide.name}</span>
-                        </div>
-                      )}
-                      {pkg.driver && (
-                        <div className="flex items-center text-gray-600">
-                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full mr-2">
-                            Driver
-                          </span>
-                          <span className="text-sm">{pkg.driver.name}</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {pkg.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="text-lg font-bold text-primary-600">
-                        ${pkg.price}
-                        <span className="text-sm text-gray-500 font-normal"> per person</span>
-                      </div>
-                      <Link
-                        to={`/packages/${pkg._id}`}
-                        className="btn-primary px-6 py-2 text-sm group-hover:bg-primary-700 transition-colors"
-                      >
-                        Explore
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">⚠️</div>
-              <h3 className="text-xl font-semibold text-red-600 mb-2">
-                Error Loading Packages
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {error}
-              </p>
-              <button
-                onClick={() => getFeaturedPackages()}
-                className="btn-primary inline-flex items-center"
-              >
-                Try Again
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
-              </button>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">🌍</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No Packages Available
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Check back soon for our latest travel packages!
-              </p>
-              <Link
-                to="/packages"
-                className="btn-primary inline-flex items-center"
-              >
-                Browse All Packages
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
-              </Link>
-            </div>
-          )}
 
-          <motion.div 
-            className="text-center mt-12"
-            variants={cardVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <Link
-              to="/packages"
-              className="btn-outline text-lg px-8 py-4 inline-flex items-center hover:bg-primary-600 hover:text-white transition-colors"
-            >
-              View All Packages
-              <ArrowRightIcon className="ml-2 h-5 w-5" />
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                className="text-center"
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: index * 0.1 }}
-              >
-                <div className="text-3xl md:text-4xl font-bold text-primary-600 mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-gray-600 font-medium">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Travel Experience Cards Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-16"
-            variants={heroVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Discover Different Ways to Travel
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              From solo adventures to family getaways, find the perfect travel style for you
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                title: "Solo Adventures",
-                description: "Explore the world on your own terms with our solo travel packages",
-                icon: "🧳",
-                color: "from-blue-500 to-blue-600",
-                features: ["Flexible itineraries", "Solo-friendly accommodations", "Group activities available"]
-              },
-              {
-                title: "Family Vacations",
-                description: "Create lasting memories with family-friendly destinations and activities",
-                icon: "👨‍👩‍👧‍👦",
-                color: "from-green-500 to-green-600",
-                features: ["Kid-friendly activities", "Family accommodations", "Educational experiences"]
-              },
-              {
-                title: "Couples Retreats",
-                description: "Romantic getaways designed for two with intimate experiences",
-                icon: "💕",
-                color: "from-pink-500 to-pink-600",
-                features: ["Private experiences", "Romantic settings", "Couple activities"]
-              },
-              {
-                title: "Group Tours",
-                description: "Travel with like-minded people and make new friends along the way",
-                icon: "👥",
-                color: "from-purple-500 to-purple-600",
-                features: ["Guided tours", "Group discounts", "Social activities"]
-              }
-            ].map((experience, index) => (
-              <motion.div
-                key={experience.title}
-                className="group relative bg-white rounded-xl shadow-soft hover:shadow-large transition-all duration-300 overflow-hidden"
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: index * 0.1 }}
-              >
-                <div className={`absolute top-0 left-0 right-0 h-2 bg-gradient-to-r ${experience.color}`}></div>
-                <div className="p-6">
-                  <div className="text-4xl mb-4">{experience.icon}</div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
-                    {experience.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-4">
-                    {experience.description}
-                  </p>
-                  <ul className="space-y-2">
-                    {experience.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center text-sm text-gray-600">
-                        <div className="w-1.5 h-1.5 bg-primary-500 rounded-full mr-2"></div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-6">
-                    <Link
-                      to="/packages"
-                      className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium text-sm group-hover:underline"
-                    >
-                      Explore Packages
-                      <ArrowRightIcon className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-16"
-            variants={heroVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose Wanderlust?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We're committed to making your travel dreams come true with exceptional service and unforgettable experiences.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                className="text-center p-6 bg-white rounded-xl shadow-soft hover:shadow-medium transition-all duration-300"
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: index * 0.1 }}
-              >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600">
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Enhanced Popular Destinations Section with Parallax */}
+ 
 
       {/* Featured Packages Section */}
       <section className="py-20 bg-white">
@@ -1188,9 +964,29 @@ const Home = () => {
       {/* Featured Reviews Section */}
       <FeaturedReviews />
 
-      {/* Contact Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Enhanced Contact Section with Parallax */}
+      <section className="py-20 bg-gray-50 relative overflow-hidden">
+        {/* Parallax Background Elements */}
+        <div 
+          className="absolute top-0 right-1/4 w-80 h-80 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full opacity-40"
+          style={{
+            transform: `translateY(${scrollY * 0.08}px) rotate(${scrollY * 0.02}deg)`,
+          }}
+        ></div>
+        <div 
+          className="absolute bottom-0 left-1/4 w-64 h-64 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full opacity-50"
+          style={{
+            transform: `translateY(${scrollY * -0.06}px) rotate(${scrollY * -0.012}deg)`,
+          }}
+        ></div>
+        <div 
+          className="absolute top-1/3 left-0 w-48 h-48 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full opacity-30"
+          style={{
+            transform: `translateX(-96px) translateY(${scrollY * 0.05}px)`,
+          }}
+        ></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             variants={heroVariants}
             initial="hidden"
@@ -1291,13 +1087,34 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary-600 to-secondary-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* Enhanced CTA Section with Parallax */}
+      <section className="py-20 bg-gradient-to-r from-primary-600 to-secondary-600 relative overflow-hidden">
+        {/* Parallax Background Elements */}
+        <div 
+          className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full -translate-x-48 -translate-y-48"
+          style={{
+            transform: `translate(-192px, -192px) translateY(${scrollY * 0.12}px) rotate(${scrollY * 0.04}deg)`,
+          }}
+        ></div>
+        <div 
+          className="absolute bottom-0 right-0 w-80 h-80 bg-white/5 rounded-full translate-x-40 translate-y-40"
+          style={{
+            transform: `translate(160px, 160px) translateY(${scrollY * -0.15}px) rotate(${scrollY * -0.03}deg)`,
+          }}
+        ></div>
+        <div 
+          className="absolute top-1/2 left-1/2 w-64 h-64 bg-white/8 rounded-full -translate-x-32 -translate-y-32"
+          style={{
+            transform: `translate(-128px, -128px) translateY(${scrollY * 0.08}px) rotate(${scrollY * 0.02}deg)`,
+          }}
+        ></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <motion.div
             variants={heroVariants}
             initial="hidden"
-            animate="visible"
+            whileInView="visible"
+            viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Ready to Start Your Journey?
@@ -1307,18 +1124,28 @@ const Home = () => {
               Your next adventure is just a click away.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
               <Link
                 to="/register"
-                className="btn-secondary text-lg px-8 py-4"
+                  className="btn-secondary text-lg px-8 py-4 inline-block"
               >
                 Get Started Today
               </Link>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
               <Link
                 to="/contact"
-                className="btn-outline text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-primary-600"
+                  className="btn-outline text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-primary-600 inline-block"
               >
                 Contact Us
               </Link>
+              </motion.div>
             </div>
           </motion.div>
         </div>
