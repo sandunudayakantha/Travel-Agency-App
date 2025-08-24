@@ -59,98 +59,164 @@ const Gallery = () => {
     getGalleryItems(filters, page);
   };
 
-  const renderGalleryItem = (item) => (
-    <motion.div
-      key={item._id}
-      className="group relative overflow-hidden rounded-lg shadow-lg cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -5 }}
-      onClick={() => handleItemClick(item)}
-    >
-      {/* Image or Video Thumbnail */}
-      <div className="aspect-w-16 aspect-h-9 bg-gray-200">
-        {item.type === 'image' ? (
-          <img
-            src={item.image.url}
-            alt={item.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-          />
-        ) : (
-          <div className="relative w-full h-full">
+  const renderGalleryItem = (item, index) => {
+    // Generate random height for variety
+    const heights = ['h-48', 'h-56', 'h-64', 'h-72', 'h-80', 'h-96', 'h-[28rem]', 'h-[32rem]'];
+    const randomHeight = heights[Math.floor(Math.random() * heights.length)];
+    
+    // Generate random width for some items to break the grid
+    const widths = ['w-full', 'w-full', 'w-full', 'w-full', 'w-full', 'w-full', 'w-full', 'w-full'];
+    const randomWidth = widths[Math.floor(Math.random() * widths.length)];
+    
+    // Add some items that span multiple columns
+    const spanClasses = index % 7 === 0 ? 'sm:col-span-2 lg:col-span-2' : 
+                       index % 11 === 0 ? 'lg:col-span-2' : 
+                       index % 13 === 0 ? 'sm:col-span-2' : '';
+    
+    return (
+      <motion.div
+        key={item._id}
+        className={`group relative overflow-hidden rounded-xl cursor-pointer transform transition-all duration-500 hover:scale-[1.02] ${spanClasses}`}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -8 }}
+        onClick={() => handleItemClick(item)}
+        style={{
+          boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+        }}
+      >
+                {/* Image or Video Container */}
+        <div className={`relative ${randomWidth} ${randomHeight} bg-gray-100`}>
+          {item.type === 'image' ? (
             <img
-              src={item.video.thumbnail}
+              src={item.image.url}
               alt={item.title}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-              <PlayIcon className="w-16 h-16 text-white opacity-80 group-hover:opacity-100 transition-opacity" />
+          ) : (
+            <div className="relative w-full h-full">
+              <img
+                src={item.video.thumbnail}
+                alt={item.title}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-30 transition-all duration-300">
+                <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <PlayIcon className="w-8 h-8 text-gray-800" />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+          
+          {/* Content Overlay */}
+          <div className="absolute inset-0 flex flex-col justify-end p-6 text-white opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
+            <div className="space-y-3">
+              <h3 className="text-xl font-bold leading-tight">{item.title}</h3>
+              {item.description && (
+                <p className="text-sm text-gray-200 leading-relaxed line-clamp-2">
+                  {item.description}
+                </p>
+              )}
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center space-x-2">
+                  <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium border border-white/30">
+                    {item.category}
+                  </span>
+                  <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium border border-white/30">
+                    {item.type}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  {item.featured && (
+                    <span className="px-2 py-1 bg-yellow-500/90 text-yellow-900 text-xs font-bold rounded-full">
+                      ★ Featured
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-        )}
-      </div>
-
-      {/* Overlay with info */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-          <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
-          {item.description && (
-            <p className="text-sm text-gray-200 line-clamp-2">{item.description}</p>
-          )}
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-              {item.category}
-            </span>
-            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-              {item.type}
-            </span>
+          
+          {/* Type Badge */}
+          <div className="absolute top-4 right-4">
+            <div className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
+              {item.type === 'image' ? (
+                <PhotoIcon className="w-5 h-5 text-gray-800" />
+              ) : (
+                <PlayIcon className="w-5 h-5 text-gray-800" />
+              )}
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Type indicator */}
-      <div className="absolute top-3 right-3">
-        {item.type === 'image' ? (
-          <PhotoIcon className="w-6 h-6 text-white bg-black/50 rounded-full p-1" />
-        ) : (
-          <PlayIcon className="w-6 h-6 text-white bg-black/50 rounded-full p-1" />
-        )}
-      </div>
-    </motion.div>
-  );
+      </motion.div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative bg-gradient-to-r from-blue-600/90 to-purple-600/90 text-white py-32 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80')`,
+          }}
+        >
+          {/* Overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/40"></div>
+        </div>
+        
+        {/* Content */}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Our Gallery</h1>
-            <p className="text-xl text-white/90 max-w-2xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="mb-6"
+            >
+             
+            </motion.div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 drop-shadow-lg">
+              Our Gallery
+            </h1>
+            <p className="text-xl md:text-2xl text-white/95 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
               Explore stunning destinations, exciting activities, and memorable moments from our travel experiences
             </p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="mt-8"
+            >
+              
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* Search and Filters */}
-      <section className="py-8 bg-white border-b">
+      <section className="py-12 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
             {/* Search */}
-            <form onSubmit={handleSearch} className="flex-1 max-w-md">
+            <form onSubmit={handleSearch} className="flex-1 max-w-lg">
               <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search gallery..."
+                  placeholder="Search for destinations, activities, or experiences..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm hover:shadow-md transition-shadow"
                 />
               </div>
             </form>
@@ -158,10 +224,10 @@ const Gallery = () => {
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <FunnelIcon className="w-5 h-5" />
-              Filters
+              <span className="font-medium">Filters</span>
             </button>
           </div>
 
@@ -171,18 +237,18 @@ const Gallery = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mt-4 p-4 bg-gray-50 rounded-lg"
+              className="mt-8 p-8 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border border-gray-100 shadow-lg"
             >
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Category Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">
                     Category
                   </label>
                   <select
                     value={filters.category}
                     onChange={(e) => handleFilterChange('category', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm hover:shadow-md transition-shadow"
                   >
                     <option value="">All Categories</option>
                     {categories.map((category) => (
@@ -194,33 +260,33 @@ const Gallery = () => {
                 </div>
 
                 {/* Type Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Type
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Media Type
                   </label>
                   <select
                     value={filters.type}
                     onChange={(e) => handleFilterChange('type', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm hover:shadow-md transition-shadow"
                   >
                     <option value="">All Types</option>
-                    <option value="image">Images</option>
-                    <option value="video">Videos</option>
+                    <option value="image">📸 Images</option>
+                    <option value="video">🎥 Videos</option>
                   </select>
                 </div>
 
                 {/* Featured Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">
                     Featured
                   </label>
                   <select
                     value={filters.featured}
                     onChange={(e) => handleFilterChange('featured', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm hover:shadow-md transition-shadow"
                   >
                     <option value="">All Items</option>
-                    <option value="true">Featured Only</option>
+                    <option value="true">⭐ Featured Only</option>
                   </select>
                 </div>
 
@@ -228,9 +294,9 @@ const Gallery = () => {
                 <div className="flex items-end">
                   <button
                     onClick={handleClearFilters}
-                    className="w-full px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                    className="w-full px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
                   >
-                    Clear Filters
+                    Clear All
                   </button>
                 </div>
               </div>
@@ -243,42 +309,55 @@ const Gallery = () => {
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="flex justify-center items-center py-32">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600 font-medium">Loading amazing content...</p>
+              </div>
             </div>
           ) : galleryItems.length === 0 ? (
-            <div className="text-center py-20">
-              <PhotoIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No gallery items found</h3>
-              <p className="text-gray-600">Try adjusting your filters or search terms.</p>
+            <div className="text-center py-32">
+              <div className="w-24 h-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <PhotoIcon className="w-12 h-12 text-gray-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">No gallery items found</h3>
+              <p className="text-gray-600 max-w-md mx-auto mb-6">
+                Try adjusting your filters or search terms to discover amazing travel content.
+              </p>
+              <button
+                onClick={handleClearFilters}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Clear Filters
+              </button>
             </div>
           ) : (
             <>
-              {/* Gallery Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {galleryItems.map(renderGalleryItem)}
+              {/* Gallery Grid - Dynamic Sizes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-max">
+                {galleryItems.map((item, index) => renderGalleryItem(item, index))}
               </div>
 
               {/* Pagination */}
               {pagination.totalPages > 1 && (
-                <div className="flex justify-center items-center mt-12">
-                  <nav className="flex items-center space-x-2">
+                <div className="flex justify-center items-center mt-16">
+                  <nav className="flex items-center space-x-3 bg-white rounded-2xl shadow-lg border border-gray-100 p-2">
                     <button
                       onClick={() => handlePageChange(pagination.currentPage - 1)}
                       disabled={!pagination.hasPrevPage}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 rounded-xl hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                     >
-                      Previous
+                      ← Previous
                     </button>
                     
                     {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
                       <button
                         key={page}
                         onClick={() => handlePageChange(page)}
-                        className={`px-3 py-2 text-sm font-medium rounded-md ${
+                        className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
                           page === pagination.currentPage
-                            ? 'bg-blue-600 text-white'
-                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                            : 'text-gray-600 bg-white hover:bg-gray-50 border border-gray-200'
                         }`}
                       >
                         {page}
@@ -288,9 +367,9 @@ const Gallery = () => {
                     <button
                       onClick={() => handlePageChange(pagination.currentPage + 1)}
                       disabled={!pagination.hasNextPage}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 rounded-xl hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                     >
-                      Next
+                      Next →
                     </button>
                   </nav>
                 </div>
