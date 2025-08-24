@@ -1,9 +1,9 @@
-import AboutUs from './components/AboutUs';
+import Gallery from './components/Gallery';
 
 export default function App() {
   return (
     <div className="min-h-screen">
-      <AboutUs />
+      <Gallery />
     </div>
   );
 }
