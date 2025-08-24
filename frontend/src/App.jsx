@@ -20,7 +20,7 @@ import { SiteSettingsProvider } from './contexts/SiteSettingsContext.jsx';
 import { GalleryProvider } from './contexts/GalleryContext.jsx';
 
 // Components
-import Navbar from './components/layout/Navbar.jsx';
+import Navigation from './components/layout/Navigation.jsx';
 import Footer from './components/layout/Footer.jsx';
 import PrivateRoute from './components/auth/PrivateRoute.jsx';
 import AdminRoute from './components/auth/AdminRoute.jsx';
@@ -95,7 +95,7 @@ function App() {
                                 <GalleryProvider>
                     <div className="min-h-screen flex flex-col">
                       <AuthNotification />
-                      <Navbar />
+                      <Navigation />
                       <main className="flex-grow">
                         <Routes>
                           {/* Public Routes */}
