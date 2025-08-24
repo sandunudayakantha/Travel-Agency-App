@@ -190,8 +190,9 @@ const FeaturedPackages = () => {
                         backdropFilter: 'blur(10px)'
                       }}
                     >
-                     
-                      
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-white" style={{ fontSize: '0.875rem' }}>4.8</span>
+                      <span className="text-white/70" style={{ fontSize: '0.875rem' }}>({Math.floor(Math.random() * 200) + 50})</span>
                     </div>
 
                     {/* Featured Badge */}
@@ -238,7 +239,8 @@ const FeaturedPackages = () => {
                         <span>{pkg.days} days, {pkg.nights} nights</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        
+                        <Users className="w-4 h-4" />
+                        <span>2-8 People</span>
                       </div>
                     </div>
 
@@ -274,7 +276,7 @@ const FeaturedPackages = () => {
 
                     {/* CTA Button */}
                     <motion.button
-                      className="w-full rounded-3xl px-6 py-3 text-white transition-all duration-300 group-hover:bg-white group-hover:text-slate-900"
+                      className="w-full rounded-xl px-6 py-3 text-white transition-all duration-300 group-hover:bg-white group-hover:text-slate-900"
                       style={{
                         background: 'rgba(255,255,255,0.2)',
                         backdropFilter: 'blur(10px)',
