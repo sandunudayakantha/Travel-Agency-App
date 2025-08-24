@@ -161,10 +161,10 @@ const SearchSection = () => {
 
           <div 
             ref={searchContainerRef}
-            className={`max-w-4xl mx-auto mb-12 transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            className={`max-w-4xl mx-auto mb-12 transition-all duration-700 delay-300 relative ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
           >
-            <div className="relative">
-              <div className="relative group">
+            <div className="relative z-[9998]">
+              <div className="relative group z-[9998]">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors z-10" />
                 <Input
                   type="text"
@@ -187,7 +187,7 @@ const SearchSection = () => {
 
               {/* Search Results Dropdown */}
               {showResults && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-[9999]">
                   <div className="max-h-80 overflow-y-auto">
                     {searchResults.slice(0, 8).map((place) => (
                       <button
@@ -247,7 +247,7 @@ const SearchSection = () => {
 
               {/* No Results */}
               {showResults && searchQuery.length > 0 && searchResults.length === 0 && !isSearching && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-[9999]">
                   <div className="text-center text-gray-500">
                     <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
                     <p>No places found for "{searchQuery}"</p>
@@ -258,7 +258,7 @@ const SearchSection = () => {
 
               {/* Loading State */}
               {isSearching && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-[9999]">
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
                     <p className="text-gray-600">Searching for places...</p>
