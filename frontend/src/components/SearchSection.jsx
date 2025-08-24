@@ -3,10 +3,11 @@ import { Search, MapPin, Clock, TrendingUp, Image, Video } from 'lucide-react';
 import { Input } from './ui/input.jsx';
 import { Button } from './ui/button.jsx';
 import { usePlace } from '../contexts/PlaceContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SearchSection = () => {
   const { getPlaces, loading: placesLoading } = usePlace();
+  const navigate = useNavigate();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -115,7 +116,8 @@ const SearchSection = () => {
   const handleSearchSelect = (place) => {
     setSearchQuery(place.name);
     setShowResults(false);
-    // You can navigate to place detail or trigger other actions here
+    // Navigate to place detail page
+    navigate(`/places/${place._id}`);
   };
 
   const handlePopularSearch = (search) => {
@@ -161,7 +163,7 @@ const SearchSection = () => {
 
           <div 
             ref={searchContainerRef}
-            className={`max-w-4xl mx-auto mb-12 transition-all duration-700 delay-300 relative ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            className={`max-w-4xl mx-auto mb-12 transition-all duration-700 delay-300 relative z-50 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
           >
             <div className="relative z-[9998]">
               <div className="relative group z-[9998]">
@@ -173,11 +175,11 @@ const SearchSection = () => {
                   onChange={handleInputChange}
                   onFocus={handleInputFocus}
                   onKeyDown={handleKeyDown}
-                  className="pl-12 pr-20 py-6 text-lg border-2 border-transparent bg-white shadow-xl hover:shadow-2xl focus:border-blue-500 focus:shadow-2xl transition-all duration-300 rounded-2xl"
+                  className="pl-12 pr-20 py-7 text-lg border-2 border-transparent bg-white shadow-xl hover:shadow-2xl focus:border-blue-500 focus:shadow-2xl transition-all duration-300 rounded-full"
                 />
                 <Button
                   size="lg"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 rounded-xl px-6"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 rounded-3xl px-6 text-white"
                   onClick={() => handleSearch(searchQuery)}
                   disabled={isSearching}
                 >
@@ -187,7 +189,7 @@ const SearchSection = () => {
 
               {/* Search Results Dropdown */}
               {showResults && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-[9999]">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-[99999]">
                   <div className="max-h-80 overflow-y-auto">
                     {searchResults.slice(0, 8).map((place) => (
                       <button
@@ -247,7 +249,7 @@ const SearchSection = () => {
 
               {/* No Results */}
               {showResults && searchQuery.length > 0 && searchResults.length === 0 && !isSearching && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-[9999]">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-[99999]">
                   <div className="text-center text-gray-500">
                     <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
                     <p>No places found for "{searchQuery}"</p>
@@ -258,7 +260,7 @@ const SearchSection = () => {
 
               {/* Loading State */}
               {isSearching && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-[9999]">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-[99999]">
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
                     <p className="text-gray-600">Searching for places...</p>
@@ -269,7 +271,7 @@ const SearchSection = () => {
           </div>
 
           {/* Popular Searches */}
-          <div className={`max-w-4xl mx-auto transition-all duration-700 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className={`max-w-4xl mx-auto transition-all duration-700 delay-600 relative z-10 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="text-center mb-6">
               <div className="flex items-center justify-center space-x-2 text-gray-500 mb-4">
                 <Clock className="h-4 w-4" />
@@ -292,31 +294,7 @@ const SearchSection = () => {
           </div>
 
           {/* Features Section */}
-          <div className={`max-w-4xl mx-auto mt-16 transition-all duration-700 delay-900 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center group">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <MapPin className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="mb-2 font-semibold text-gray-900">500+ Destinations</h3>
-                <p className="text-gray-600 text-sm">Explore amazing places around Sri Lanka</p>
-              </div>
-              <div className="text-center group">
-                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <TrendingUp className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="mb-2 font-semibold text-gray-900">Real-time Updates</h3>
-                <p className="text-gray-600 text-sm">Get the latest travel information instantly</p>
-              </div>
-              <div className="text-center group">
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Search className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="mb-2 font-semibold text-gray-900">Smart Search</h3>
-                <p className="text-gray-600 text-sm">Find exactly what you're looking for</p>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
     </section>
