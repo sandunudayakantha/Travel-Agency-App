@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
@@ -6,7 +6,7 @@ import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { 
   Play, Heart, Eye, Share2, Calendar, 
-  MapPin, Users, Search, X, Camera
+  MapPin, Users, Search, X
 } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useGallery } from '../contexts/GalleryContext';
@@ -25,18 +25,14 @@ const Gallery = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [currentBg, setCurrentBg] = useState(0);
-  const sectionRef = React.useRef(null);
+  const sectionRef = useRef(null);
   const isSectionInView = useInView(sectionRef, { once: true, amount: 0.3 });
 
   // Esala Perahera background
   const backgroundImage = "https://images.unsplash.com/photo-1566766188646-5d0310191714?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlc2FsYSUyMHBlcmFoZXJhJTIwc3JpJTIwbGFua2F8ZW58MXx8fHwxNzU2MDU0MjI3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
-  useEffect(() => {
-    getGalleryItems(filters, pagination.currentPage);
-  }, [filters, pagination.currentPage]);
-
-  // Filter gallery items based on search query
-  const filteredItems = useMemo(() => {
+  // Filter videos based on search query
+  const filteredVideos = useMemo(() => {
     if (!searchQuery.trim()) {
       return galleryItems;
     }
@@ -45,8 +41,7 @@ const Gallery = () => {
     return galleryItems.filter(item => 
       item.title.toLowerCase().includes(query) ||
       (item.description && item.description.toLowerCase().includes(query)) ||
-      (item.tags && item.tags.some(tag => tag.toLowerCase().includes(query))) ||
-      item.category.toLowerCase().includes(query)
+      (item.tags && item.tags.some(tag => tag.toLowerCase().includes(query)))
     );
   }, [searchQuery, galleryItems]);
 
@@ -54,8 +49,8 @@ const Gallery = () => {
     return `https://www.youtube.com/embed/${videoId}`;
   };
 
-  const featuredItems = filteredItems.filter(item => item.featured);
-  const regularItems = filteredItems.filter(item => !item.featured);
+  const featuredVideos = filteredVideos.filter(item => item.featured);
+  const regularVideos = filteredVideos.filter(item => !item.featured);
 
   const clearSearch = () => {
     setSearchQuery('');
@@ -78,6 +73,11 @@ const Gallery = () => {
   const handlePageChange = (page) => {
     getGalleryItems(filters, page);
   };
+
+  // Load gallery items on component mount
+  React.useEffect(() => {
+    getGalleryItems(filters, pagination.currentPage);
+  }, [filters, pagination.currentPage]);
 
   return (
     <div ref={sectionRef} className="relative min-h-screen overflow-hidden">
@@ -123,7 +123,7 @@ const Gallery = () => {
             >
               Experience
               <span className="block text-orange-400">Sri Lanka</span>
-              <span className="block">Through Media</span>
+              <span className="block">Through Video</span>
             </motion.h1>
             
             <motion.p 
@@ -133,7 +133,7 @@ const Gallery = () => {
               transition={{ duration: 0.6, delay: 0.7 }}
             >
               From the magnificent Esala Perahera procession to hidden waterfalls, 
-              witness the beauty of Sri Lanka through our curated media collection.
+              witness the beauty of Sri Lanka through our curated video collection.
             </motion.p>
 
             {/* Search Bar */}
@@ -149,10 +149,10 @@ const Gallery = () => {
                 </div>
                 <Input
                   type="text"
-                  placeholder="Search media... (e.g., 'temple', 'safari', 'food', 'kandy')"
+                  placeholder="Search videos... (e.g., 'temple', 'safari', 'food', 'kandy')"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-16 pl-12 pr-12 text-lg bg-black/30 backdrop-blur-md border-white/30 text-white placeholder:text-gray-300 focus:border-orange-400 focus:ring-orange-400/30 rounded-xl"
+                  className="w-full h-16 pl-12 pr-12 text-lg bg-black/30 backdrop-blur-md border-white/30 text-white placeholder:text-gray-300 focus:border-orange-400 focus:ring-orange-400/30 rounded-xl transition-all duration-300 hover:bg-black/40 hover:border-white/40"
                 />
                 {searchQuery && (
                   <button
@@ -174,7 +174,7 @@ const Gallery = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30">
-                    {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} found
+                    {filteredVideos.length} video{filteredVideos.length !== 1 ? 's' : ''} found
                     {searchQuery.trim() && ` for "${searchQuery}"`}
                   </Badge>
                 </motion.div>
@@ -189,7 +189,7 @@ const Gallery = () => {
                 transition={{ duration: 0.5, delay: 1.1 }}
               >
                 <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30 px-6 py-3 text-lg">
-                  {galleryItems.length} Amazing Items • Updated Regularly
+                  {galleryItems.length} Amazing Videos • Updated Weekly
                 </Badge>
               </motion.div>
             )}
@@ -197,33 +197,38 @@ const Gallery = () => {
         </section>
 
         {/* Search Results - No Results Found */}
-        {searchQuery && filteredItems.length === 0 && (
+        {searchQuery && filteredVideos.length === 0 && (
           <section className="px-4 py-32">
             <div className="container mx-auto max-w-4xl text-center text-white">
               <Card className="p-12 bg-black/20 backdrop-blur-sm border-white/20">
-                <div className="space-y-6">
+                <motion.div 
+                  className="space-y-6"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
                   <div className="w-24 h-24 bg-orange-500/20 rounded-full mx-auto flex items-center justify-center">
                     <Search className="h-12 w-12 text-orange-300" />
                   </div>
-                  <h2 className="text-3xl">No items found</h2>
+                  <h2 className="text-3xl">No videos found</h2>
                   <p className="text-xl text-gray-300">
-                    We couldn't find any items matching "{searchQuery}". 
+                    We couldn't find any videos matching "{searchQuery}". 
                     Try searching for destinations like "Kandy", "Sigiriya", or activities like "safari", "temple".
                   </p>
                   <Button 
                     onClick={clearSearch}
-                    className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl"
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
                   >
-                    Show All Items
+                    Show All Videos
                   </Button>
-                </div>
+                </motion.div>
               </Card>
             </div>
           </section>
         )}
 
-        {/* Featured Items Section */}
-        {featuredItems.length > 0 && (
+        {/* Featured Videos Section */}
+        {featuredVideos.length > 0 && (
           <section className="px-4 py-32">
             <div className="container mx-auto max-w-7xl">
               <motion.div 
@@ -234,56 +239,47 @@ const Gallery = () => {
                 viewport={{ once: true }}
               >
                 <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30">
-                  {searchQuery ? 'Featured Search Results' : 'Featured Items'}
+                  {searchQuery ? 'Featured Search Results' : 'Featured Videos'}
                 </Badge>
                 <h2 className="text-5xl leading-tight">
-                  Must-See
+                  Must-Watch
                   <span className="block text-orange-400">Sri Lankan Experiences</span>
                 </h2>
               </motion.div>
 
               <div className="grid lg:grid-cols-2 gap-8 mb-16">
-                {featuredItems.map((item, index) => (
+                {featuredVideos.map((item, index) => (
                   <motion.div
                     key={item._id}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     viewport={{ once: true }}
+                    whileHover={{ 
+                      scale: 1.05,
+                      y: -10,
+                      transition: { duration: 0.3, ease: "easeOut" }
+                    }}
+                    className="cursor-pointer"
                   >
-                    <Card className="bg-black/20 backdrop-blur-sm border-white/20 overflow-hidden group cursor-pointer">
+                    <Card 
+                      className="bg-black/20 backdrop-blur-sm border-white/20 overflow-hidden hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20"
+                    >
                       <div className="relative aspect-video overflow-hidden">
-                        {item.type === 'image' ? (
+                        {item.type === 'video' ? (
+                          <iframe
+                            src={getYouTubeEmbedUrl(item.video.videoId)}
+                            title={item.title}
+                            className="w-full h-full transition-transform duration-500 hover:scale-105"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          ></iframe>
+                        ) : (
                           <img
                             src={item.image.url}
                             alt={item.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                           />
-                        ) : (
-                          <div className="relative w-full h-full">
-                            <iframe
-                              src={getYouTubeEmbedUrl(item.video.videoId)}
-                              title={item.title}
-                              className="w-full h-full group-hover:scale-110 transition-transform duration-500 ease-out border-2 border-orange-400/30 rounded-lg"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            ></iframe>
-                            
-                            {/* Video Hover Overlay */}
-                            <motion.div 
-                              className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
-                              whileHover={{ scale: 1.05 }}
-                            >
-                              <motion.div 
-                                className="w-20 h-20 bg-orange-500/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl"
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                whileHover={{ scale: 1.1 }}
-                                transition={{ duration: 0.3 }}
-                              >
-                                <Play className="w-8 h-8 text-white ml-1" />
-                              </motion.div>
-                            </motion.div>
-                          </div>
                         )}
                         
                         <div className="absolute bottom-4 right-4 bg-black/80 text-white px-2 py-1 rounded text-sm">
@@ -304,7 +300,7 @@ const Gallery = () => {
                               <Badge 
                                 key={tagIndex} 
                                 variant="outline" 
-                                className="text-xs border-orange-400/50 text-orange-300 hover:bg-orange-400/20 cursor-pointer"
+                                className="text-xs border-orange-400/50 text-orange-300 hover:bg-orange-400/20 cursor-pointer transition-all duration-200 hover:scale-105"
                                 onClick={() => setSearchQuery(tag)}
                               >
                                 {tag}
@@ -325,10 +321,10 @@ const Gallery = () => {
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button size="sm" variant="ghost" className="text-gray-400 rounded-xl">
+                            <Button size="sm" variant="ghost" className="text-gray-400 hover:text-orange-300 transition-colors duration-200">
                               <Heart className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="ghost" className="text-gray-400 rounded-xl">
+                            <Button size="sm" variant="ghost" className="text-gray-400 hover:text-orange-300 transition-colors duration-200">
                               <Share2 className="h-4 w-4" />
                             </Button>
                           </div>
@@ -342,8 +338,8 @@ const Gallery = () => {
           </section>
         )}
 
-        {/* Instagram-style Media Grid */}
-        {regularItems.length > 0 && (
+        {/* Instagram-style Video Grid */}
+        {regularVideos.length > 0 && (
           <section className="px-4 py-32">
             <div className="container mx-auto max-w-7xl">
               <motion.div 
@@ -359,15 +355,15 @@ const Gallery = () => {
                 </h2>
                 <p className="text-xl text-gray-200 max-w-3xl mx-auto">
                   {searchQuery 
-                    ? `Discover more items matching "${searchQuery}"`
-                    : 'Discover hidden gems, cultural treasures, and natural wonders through our growing collection of media.'
+                    ? `Discover more videos matching "${searchQuery}"`
+                    : 'Discover hidden gems, cultural treasures, and natural wonders through our growing collection of travel videos.'
                   }
                 </p>
               </motion.div>
 
               {/* Instagram-style Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {regularItems.map((item, index) => {
+                {regularVideos.map((item, index) => {
                   // Create varied heights for Instagram-like layout
                   const isLarge = index % 5 === 0 || index % 7 === 0;
                   
@@ -378,40 +374,31 @@ const Gallery = () => {
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                       viewport={{ once: true }}
+                      whileHover={{ 
+                        scale: 1.08,
+                        y: -15,
+                        transition: { duration: 0.4, ease: "easeOut" }
+                      }}
+                      className="cursor-pointer"
                     >
-                      <Card className={`bg-black/20 backdrop-blur-sm border-white/20 overflow-hidden group cursor-pointer ${isLarge ? "lg:row-span-2" : ""}`}>
+                      <Card 
+                        className={`bg-black/20 backdrop-blur-sm border-white/20 overflow-hidden hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 ${isLarge ? "lg:row-span-2" : ""}`}
+                      >
                         <div className={`relative ${isLarge ? 'aspect-[4/5]' : 'aspect-video'} overflow-hidden`}>
-                          {item.type === 'image' ? (
+                          {item.type === 'video' ? (
+                            <iframe
+                              src={getYouTubeEmbedUrl(item.video.videoId)}
+                              title={item.title}
+                              className="w-full h-full transition-transform duration-500 hover:scale-110"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            ></iframe>
+                          ) : (
                             <img
                               src={item.image.url}
                               alt={item.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                             />
-                          ) : (
-                            <div className="relative w-full h-full">
-                              <iframe
-                                src={getYouTubeEmbedUrl(item.video.videoId)}
-                                title={item.title}
-                                className="w-full h-full group-hover:scale-110 transition-transform duration-500 ease-out border-2 border-orange-400/30 rounded-lg"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                              ></iframe>
-                              
-                              {/* Video Hover Overlay */}
-                              <motion.div 
-                                className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
-                                whileHover={{ scale: 1.05 }}
-                              >
-                                <motion.div 
-                                  className="w-16 h-16 bg-orange-500/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl"
-                                  initial={{ scale: 0.8, opacity: 0 }}
-                                  whileHover={{ scale: 1.1 }}
-                                  transition={{ duration: 0.3 }}
-                                >
-                                  <Play className="w-6 h-6 text-white ml-1" />
-                                </motion.div>
-                              </motion.div>
-                            </div>
                           )}
                           
                           <div className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 rounded text-xs">
@@ -436,7 +423,7 @@ const Gallery = () => {
                                 <Badge 
                                   key={tagIndex} 
                                   variant="outline" 
-                                  className="text-xs border-orange-400/50 text-orange-300 hover:bg-orange-400/20 cursor-pointer"
+                                  className="text-xs border-orange-400/50 text-orange-300 hover:bg-orange-400/20 cursor-pointer transition-all duration-200 hover:scale-105"
                                   onClick={() => setSearchQuery(tag)}
                                 >
                                   {tag}
@@ -458,54 +445,6 @@ const Gallery = () => {
                   );
                 })}
               </div>
-
-              {/* Pagination */}
-              {pagination.totalPages > 1 && (
-                <motion.div 
-                  className="flex justify-center items-center mt-16"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  viewport={{ once: true }}
-                >
-                  <nav className="flex items-center space-x-3 bg-black/20 backdrop-blur-sm rounded-2xl border border-white/20 p-2">
-                    <Button
-                      onClick={() => handlePageChange(pagination.currentPage - 1)}
-                      disabled={!pagination.hasPrevPage}
-                      variant="ghost"
-                      size="sm"
-                      className="text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
-                    >
-                      ← Previous
-                    </Button>
-                    
-                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
-                      <Button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        variant={page === pagination.currentPage ? "default" : "ghost"}
-                        size="sm"
-                        className={page === pagination.currentPage 
-                          ? "bg-orange-500 hover:bg-orange-600 text-white rounded-xl" 
-                          : "text-white hover:bg-white/20 rounded-xl"
-                        }
-                      >
-                        {page}
-                      </Button>
-                    ))}
-                    
-                    <Button
-                      onClick={() => handlePageChange(pagination.currentPage + 1)}
-                      disabled={!pagination.hasNextPage}
-                      variant="ghost"
-                      size="sm"
-                      className="text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
-                    >
-                      Next →
-                    </Button>
-                  </nav>
-                </motion.div>
-              )}
             </div>
           </section>
         )}
@@ -516,22 +455,31 @@ const Gallery = () => {
             <div className="container mx-auto max-w-4xl text-center">
               <motion.div 
                 className="text-white space-y-6"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.6 }}
                 viewport={{ once: true }}
               >
                 <h3 className="text-2xl">Popular Searches</h3>
                 <div className="flex flex-wrap justify-center gap-3">
-                  {categories.slice(0, 8).map((category) => (
-                    <Badge 
-                      key={category}
-                      variant="outline" 
-                      className="border-orange-400/50 text-orange-300 hover:bg-orange-400/20 cursor-pointer px-4 py-2 text-sm"
-                      onClick={() => setSearchQuery(category)}
+                  {['temple', 'safari', 'kandy', 'food', 'beach', 'mountain', 'heritage', 'festival'].map((tag) => (
+                    <motion.div
+                      key={tag}
+                      whileHover={{ 
+                        scale: 1.1,
+                        y: -5,
+                        transition: { duration: 0.2, ease: "easeOut" }
+                      }}
+                      whileTap={{ scale: 0.95 }}
                     >
-                      {category}
-                    </Badge>
+                      <Badge 
+                        variant="outline" 
+                        className="border-orange-400/50 text-orange-300 hover:bg-orange-400/20 cursor-pointer px-4 py-2 text-sm transition-all duration-200"
+                        onClick={() => setSearchQuery(tag)}
+                      >
+                        {tag}
+                      </Badge>
+                    </motion.div>
                   ))}
                 </div>
               </motion.div>
@@ -550,17 +498,17 @@ const Gallery = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-5xl leading-tight">
-                Our Media
+                Our Video
                 <span className="block text-orange-400">Journey So Far</span>
               </h2>
             </motion.div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               {[
-                { number: `${galleryItems.length}+`, label: "Total Items", icon: Eye },
-                { number: `${categories.length}+`, label: "Categories Covered", icon: MapPin },
-                { number: "24/7", label: "Available", icon: Play },
-                { number: "100%", label: "Sri Lankan", icon: Users }
+                { number: "500K+", label: "Total Views", icon: Eye },
+                { number: "25+", label: "Destinations Covered", icon: MapPin },
+                { number: "50+", label: "Videos Created", icon: Play },
+                { number: "10K+", label: "Subscribers", icon: Users }
               ].map((stat, index) => (
                 <motion.div
                   key={index}
@@ -568,8 +516,16 @@ const Gallery = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    y: -10,
+                    transition: { duration: 0.3, ease: "easeOut" }
+                  }}
+                  className="cursor-pointer"
                 >
-                  <Card className="p-8 bg-white/10 backdrop-blur-sm border-white/20 text-center">
+                  <Card 
+                    className="p-8 bg-white/10 backdrop-blur-sm border-white/20 text-center hover:bg-white/15 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20"
+                  >
                     <div className="flex justify-center mb-6">
                       <div className="p-4 bg-orange-500/20 rounded-full">
                         <stat.icon className="h-10 w-10 text-orange-300" />
@@ -584,7 +540,118 @@ const Gallery = () => {
           </div>
         </section>
 
-        
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <section className="px-4 py-16">
+            <div className="container mx-auto max-w-4xl">
+              <motion.div 
+                className="flex justify-center items-center"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+              >
+                <nav className="flex items-center space-x-3 bg-black/30 backdrop-blur-md rounded-2xl border border-white/20 p-2">
+                  <Button
+                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                    disabled={!pagination.hasPrevPage}
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
+                  >
+                    ← Previous
+                  </Button>
+                  
+                  {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                    <motion.div
+                      key={page}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        onClick={() => handlePageChange(page)}
+                        variant={page === pagination.currentPage ? "default" : "ghost"}
+                        size="sm"
+                        className={page === pagination.currentPage 
+                          ? "bg-orange-500 hover:bg-orange-600 text-white" 
+                          : "text-white hover:bg-white/20"
+                        }
+                      >
+                        {page}
+                      </Button>
+                    </motion.div>
+                  ))}
+                  
+                  <Button
+                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                    disabled={!pagination.hasNextPage}
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
+                  >
+                    Next →
+                  </Button>
+                </nav>
+              </motion.div>
+            </div>
+          </section>
+        )}
+
+        {/* Call to Action */}
+        <section className="px-4 py-32">
+          <div className="container mx-auto max-w-4xl text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              whileHover={{ 
+                scale: 1.02,
+                transition: { duration: 0.3, ease: "easeOut" }
+              }}
+            >
+              <Card className="p-12 bg-white/95 backdrop-blur-lg border-white/20 shadow-2xl">
+                <div className="space-y-8">
+                  <div className="space-y-4">
+                    <h3 className="text-gray-800 text-4xl">Ready to Experience Sri Lanka?</h3>
+                    <p className="text-gray-600 text-xl leading-relaxed">
+                      Let these videos inspire your next adventure. Contact us to plan 
+                      your personalized Sri Lankan journey and create your own unforgettable memories.
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button className="h-16 px-8 text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
+                        <Heart className="mr-3 h-6 w-6" />
+                        Plan Your Journey
+                      </Button>
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button variant="outline" className="h-16 px-8 text-lg border-orange-400 text-orange-600">
+                        <Play className="mr-3 h-6 w-6" />
+                        Subscribe for More
+                      </Button>
+                    </motion.div>
+                  </div>
+
+                  <div className="pt-6 border-t border-gray-200">
+                    <p className="text-gray-500">
+                      🎥 New videos every week • 📧 hello@srilankandreams.com
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Bottom Spacer */}
         <div className="h-32"></div>
       </div>
