@@ -72,7 +72,7 @@ const Home = () => {
   // Parallax scroll state
   const [scrollY, setScrollY] = useState(0);
   const { scrollYProgress } = useScroll();
-
+  
 
 
   // Parallax scroll effect

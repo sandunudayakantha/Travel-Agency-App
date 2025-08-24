@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useSiteSettings } from '../../contexts/SiteSettingsContext';
 import { 
   GlobeAltIcon,
   EnvelopeIcon,
   PhoneIcon,
-  MapPinIcon 
+  MapPinIcon,
+  ArrowRightIcon
 } from '@heroicons/react/24/outline';
 
 const Footer = () => {
@@ -66,97 +68,211 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
-        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
+    <footer className="bg-gray-900 text-white relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='37' cy='7' r='1'/%3E%3Ccircle cx='7' cy='37' r='1'/%3E%3Ccircle cx='37' cy='37' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }}></div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           {/* Brand Section */}
-          <div className="space-y-8 xl:col-span-1">
-            <div className="flex items-center space-x-2">
-              <GlobeAltIcon className="h-8 w-8 text-primary-400" />
-              <span className="text-xl font-bold">{settings?.companyInfo?.name || 'Wanderlust'}</span>
+          <motion.div 
+            className="lg:col-span-2"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+                <GlobeAltIcon className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  {settings?.companyInfo?.name || 'Wanderlust'}
+                </h2>
+                <p className="text-sm text-gray-400">Travel Agency</p>
+              </div>
             </div>
-            <p className="text-gray-300 text-base">
+            
+            <p className="text-gray-300 text-lg leading-relaxed mb-8 max-w-md">
               {settings?.companyInfo?.description || 'Discover amazing destinations and create unforgettable memories with our premium travel packages. Your journey starts here.'}
             </p>
             
             {/* Contact Info */}
             <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <PhoneIcon className="h-5 w-5 text-primary-400" />
-                <span className="text-gray-300">{settings?.contactInfo?.phone || '+1 (555) 123-4567'}</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <EnvelopeIcon className="h-5 w-5 text-primary-400" />
-                <span className="text-gray-300">{settings?.contactInfo?.email || 'info@wanderlust.com'}</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <MapPinIcon className="h-5 w-5 text-primary-400" />
-                <span className="text-gray-300">{settings?.contactInfo?.address || '123 Travel Street, Adventure City, AC 12345'}</span>
-              </div>
+              <motion.div 
+                className="flex items-center space-x-4 group"
+                whileHover={{ x: 5 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="p-2 bg-gray-800 rounded-lg group-hover:bg-gray-700 transition-colors">
+                  <PhoneIcon className="h-5 w-5 text-primary-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Phone</p>
+                  <p className="text-gray-300 font-medium">{settings?.contactInfo?.phone || '+1 (555) 123-4567'}</p>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                className="flex items-center space-x-4 group"
+                whileHover={{ x: 5 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="p-2 bg-gray-800 rounded-lg group-hover:bg-gray-700 transition-colors">
+                  <EnvelopeIcon className="h-5 w-5 text-primary-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Email</p>
+                  <p className="text-gray-300 font-medium">{settings?.contactInfo?.email || 'info@wanderlust.com'}</p>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                className="flex items-center space-x-4 group"
+                whileHover={{ x: 5 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="p-2 bg-gray-800 rounded-lg group-hover:bg-gray-700 transition-colors">
+                  <MapPinIcon className="h-5 w-5 text-primary-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Address</p>
+                  <p className="text-gray-300 font-medium">{settings?.contactInfo?.address || '123 Travel Street, Adventure City, AC 12345'}</p>
+                </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Navigation Links */}
-          <div className="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
-                  Navigation
-                </h3>
-                <ul className="mt-4 space-y-4">
-                  {navigation.main.map((item) => (
-                    <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className="text-base text-gray-300 hover:text-white transition-colors"
-                      >
-                        {item.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold text-gray-400 tracking-wider uppercase">
-                  Support
-                </h3>
-                <ul className="mt-4 space-y-4">
-                  {navigation.support.map((item) => (
-                    <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className="text-base text-gray-300 hover:text-white transition-colors"
-                      >
-                        {item.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+          <motion.div 
+            className="lg:col-span-1"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            viewport={{ once: true }}
+          >
+            <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
+              <span className="w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 mr-3"></span>
+              Navigation
+            </h3>
+            <ul className="space-y-3">
+              {navigation.main.map((item, index) => (
+                <motion.li 
+                  key={item.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Link
+                    to={item.href}
+                    className="flex items-center text-gray-300 hover:text-white transition-all duration-300 group"
+                  >
+                    <ArrowRightIcon className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                    {item.name}
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Support Links */}
+          <motion.div 
+            className="lg:col-span-1"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
+              <span className="w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 mr-3"></span>
+              Support
+            </h3>
+            <ul className="space-y-3">
+              {navigation.support.map((item, index) => (
+                <motion.li 
+                  key={item.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Link
+                    to={item.href}
+                    className="flex items-center text-gray-300 hover:text-white transition-all duration-300 group"
+                  >
+                    <ArrowRightIcon className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                    {item.name}
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+        </div>
+
+        {/* Newsletter Section */}
+        <motion.div 
+          className="mt-16 pt-8 border-t border-gray-800"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          viewport={{ once: true }}
+        >
+          <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-white mb-2">Stay Updated</h3>
+              <p className="text-gray-300 mb-6">Subscribe to our newsletter for travel tips and exclusive offers</p>
+              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="flex-1 px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105">
+                  Subscribe
+                </button>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Social Links and Copyright */}
-        <div className="mt-12 border-t border-gray-700 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-base text-gray-400">
+        <motion.div 
+          className="mt-12 pt-8 border-t border-gray-800"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+        >
+          <div className="flex flex-col lg:flex-row justify-between items-center space-y-6 lg:space-y-0">
+            <p className="text-gray-400 text-center lg:text-left">
               {settings?.footer?.copyright || `&copy; ${currentYear} Wanderlust Travel Agency. All rights reserved.`}
             </p>
-            <div className="mt-6 md:mt-0 flex space-x-6">
-              {navigation.social.map((item) => (
-                <a
+            <div className="flex space-x-4">
+              {navigation.social.map((item, index) => (
+                <motion.a
                   key={item.name}
                   href={item.href}
-                  className="text-gray-400 hover:text-gray-300 transition-colors"
+                  className="p-3 bg-gray-800 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-all duration-300 transform hover:scale-110"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ y: -2 }}
                 >
                   <span className="sr-only">{item.name}</span>
-                  <item.icon className="h-6 w-6" aria-hidden="true" />
-                </a>
+                  <item.icon className="h-5 w-5" aria-hidden="true" />
+                </motion.a>
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </footer>
   );

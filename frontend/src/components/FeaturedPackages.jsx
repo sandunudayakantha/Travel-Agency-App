@@ -57,10 +57,8 @@ const FeaturedPackages = () => {
     );
   }
 
-  // Get the first package image for background, or use a default
-  const backgroundImage = featuredPackages.length > 0 && featuredPackages[0].image?.url 
-    ? featuredPackages[0].image.url 
-    : "https://images.unsplash.com/photo-1704797390901-e1d20bd46647?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzaWdpcml5YSUyMHJvY2slMjBzcmklMjBsYW5rYXxlbnwxfHx8fDE3NTYwMTYyNTd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
+  // Use a different Ella Nine Arch Bridge image as the background
+  const backgroundImage = "https://images.unsplash.com/photo-1704797389166-c7dac99fc633?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGxhJTIwYnJpZGdlJTIwc3JpJTIwbGFua2F8ZW58MXx8fHwxNzU2MDE2MjU5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
   return (
     <section className="relative min-h-screen overflow-hidden">
@@ -71,7 +69,7 @@ const FeaturedPackages = () => {
           backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url(${backgroundImage})`
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/20 to-slate-900" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent via-slate-900/20 to-slate-900" />
 
       {/* Content */}
       <div className="relative z-10 pt-20 pb-16">
@@ -89,7 +87,7 @@ const FeaturedPackages = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
           >
-            Discover Paradise
+            Discover Sri Lanka's Treasures
           </motion.h1>
           <motion.p 
             className="text-white/90 max-w-3xl mx-auto leading-relaxed"
@@ -98,8 +96,8 @@ const FeaturedPackages = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            Embark on extraordinary journeys through Sri Lanka's most breathtaking destinations. 
-            From ancient fortresses to pristine beaches, create memories that last a lifetime.
+            From the iconic Nine Arch Bridge in Ella to ancient fortresses and pristine beaches, 
+            embark on extraordinary journeys through Sri Lanka's most breathtaking destinations.
           </motion.p>
         </motion.div>
 
@@ -332,14 +330,14 @@ const FeaturedPackages = () => {
             className="text-white mb-6"
             style={{ fontSize: '2.25rem', fontWeight: 'bold' }}
           >
-            Ready for Your Sri Lankan Adventure?
+            Ready to Cross the Nine Arch Bridge?
           </h2>
           <p 
             className="text-white/80 mb-8 max-w-2xl mx-auto"
             style={{ fontSize: '1.125rem' }}
           >
             Let our expert guides take you on a journey through the pearl of the Indian Ocean. 
-            Every package is carefully crafted to give you an authentic experience.
+            From the misty hills of Ella to pristine beaches, every package is carefully crafted for an authentic experience.
           </p>
           <motion.button
             className="bg-white text-slate-900 px-8 py-4 rounded-full hover:bg-white/90 transition-all duration-300 shadow-2xl"

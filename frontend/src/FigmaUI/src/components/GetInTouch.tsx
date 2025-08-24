@@ -1,22 +1,47 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Send, 
-  Facebook, 
-  Instagram, 
-  Twitter, 
-  MessageCircle 
-} from 'lucide-react';
-import { useSiteSettings } from '../contexts/SiteSettingsContext';
+"use client";
 
-const GetInTouchSection = () => {
-  const { settings } = useSiteSettings();
-  const sectionRef = useRef(null);
-  const [mounted, setMounted] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+import { motion } from "motion/react";
+import { Mail, Phone, MapPin, Clock, Send, Facebook, Instagram, Twitter, MessageCircle } from "lucide-react";
+import { useState } from "react";
+
+const contactInfo = [
+  {
+    icon: Phone,
+    title: "Call Us",
+    details: ["+94 11 234 5678", "+94 77 123 4567"],
+    description: "Available 24/7 for your travel needs",
+    actionType: "phone"
+  },
+  {
+    icon: MessageCircle,
+    title: "WhatsApp",
+    details: ["+94 77 123 4567"],
+    description: "Instant messaging for quick support",
+    actionType: "whatsapp"
+  },
+  {
+    icon: Mail,
+    title: "Email Us",
+    details: ["info@srilankaparadise.com", "bookings@srilankaparadise.com"],
+    description: "We'll respond within 2 hours",
+    actionType: "email"
+  },
+  {
+    icon: MapPin,
+    title: "Visit Us",
+    details: ["123 Galle Road, Colombo 03", "Sri Lanka"],
+    description: "Mon-Sat 9:00 AM - 6:00 PM",
+    actionType: "location"
+  }
+];
+
+const socialLinks = [
+  { icon: Facebook, name: "Facebook", url: "#", color: "#1877F2" },
+  { icon: Instagram, name: "Instagram", url: "#", color: "#E4405F" },
+  { icon: Twitter, name: "Twitter", url: "#", color: "#1DA1F2" }
+];
+
+export default function GetInTouch() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,82 +49,21 @@ const GetInTouchSection = () => {
     subject: "",
     message: ""
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-
-    const checkVisibility = () => {
-      if (sectionRef.current && typeof window !== 'undefined') {
-        const rect = sectionRef.current.getBoundingClientRect();
-        const isInView = rect.top < window.innerHeight * 0.8 && rect.bottom > 0;
-        setIsVisible(isInView);
-      }
-    };
-
-    if (typeof window !== 'undefined') {
-      checkVisibility();
-      const handleScroll = () => checkVisibility();
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      return () => window.removeEventListener('scroll', handleScroll);
-    }
-  }, []);
-
-  const contactInfo = [
-    {
-      icon: Phone,
-      title: "Call Us",
-      details: [settings?.contactInfo?.phone || "+94 11 234 5678"],
-      description: "Available 24/7 for your travel needs",
-      actionType: "phone"
-    },
-    {
-      icon: MessageCircle,
-      title: "WhatsApp",
-      details: [settings?.contactInfo?.phone || "+94 77 123 4567"],
-      description: "Instant messaging for quick support",
-      actionType: "whatsapp"
-    },
-    {
-      icon: Mail,
-      title: "Email Us",
-      details: [settings?.contactInfo?.email || "info@srilankaparadise.com"],
-      description: "We'll respond within 2 hours",
-      actionType: "email"
-    },
-    {
-      icon: MapPin,
-      title: "Visit Us",
-      details: [settings?.contactInfo?.address || "123 Galle Road, Colombo 03"],
-      description: "Mon-Sat 9:00 AM - 6:00 PM",
-      actionType: "location"
-    }
-  ];
-
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsSubmitted(true);
-      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-      setTimeout(() => setIsSubmitted(false), 5000);
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Handle form submission here
+    console.log("Form submitted:", formData);
   };
 
-  const handleContactAction = (actionType, detail) => {
+  const handleContactAction = (actionType: string, detail: string) => {
     switch (actionType) {
       case "phone":
         window.open(`tel:${detail}`, '_self');
@@ -117,21 +81,8 @@ const GetInTouchSection = () => {
     }
   };
 
-  if (!mounted) {
-    return (
-      <section className="relative min-h-screen overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white"></div>
-        <div className="relative z-10 pt-20 pb-16">
-          <div className="text-center">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">Get in Touch</h2>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section ref={sectionRef} className="relative min-h-screen overflow-hidden">
+    <section className="relative min-h-screen overflow-hidden">
       {/* Background with fixed parallax effect */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
@@ -147,14 +98,14 @@ const GetInTouchSection = () => {
         <motion.div 
           className="text-center mb-16 px-4"
           initial={{ opacity: 0, y: 30 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
           <motion.h1 
             className="text-white mb-6 tracking-wide"
             style={{ fontSize: '3rem', fontWeight: 'bold', lineHeight: '1.2' }}
             initial={{ opacity: 0, y: 50 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
           >
             Get In Touch
@@ -163,7 +114,7 @@ const GetInTouchSection = () => {
             className="text-white/90 max-w-3xl mx-auto leading-relaxed"
             style={{ fontSize: '1.25rem' }}
             initial={{ opacity: 0, y: 30 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             Ready to embark on your Sri Lankan adventure? Contact our travel experts to plan 
@@ -182,11 +133,14 @@ const GetInTouchSection = () => {
                 border: '1px solid rgba(255,255,255,0.2)'
               }}
               initial={{ opacity: 0, x: -50 }}
-              animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
               <div className="mb-6">
-                <h2 className="text-white mb-2" style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>
+                <h2 
+                  className="text-white mb-2"
+                  style={{ fontSize: '1.875rem', fontWeight: 'bold' }}
+                >
                   Send us a Message
                 </h2>
                 <p className="text-white/80" style={{ fontSize: '1rem' }}>
@@ -194,81 +148,16 @@ const GetInTouchSection = () => {
                 </p>
               </div>
 
-              {isSubmitted ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Send className="w-8 h-8 text-white" />
-                  </div>
-                  <h4 className="text-xl font-semibold text-white mb-2">Message Sent Successfully!</h4>
-                  <p className="text-white/80">Thank you for contacting us. We'll get back to you within 24 hours.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <motion.div 
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                    transition={{ duration: 0.6, delay: 0.8 }}
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                      transition={{ duration: 0.5, delay: 0.9 }}
-                    >
-                      <label className="block text-white mb-2" style={{ fontSize: '0.875rem', fontWeight: '500' }}>
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 rounded-xl text-white placeholder-white/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30"
-                        style={{
-                          background: 'rgba(255,255,255,0.1)',
-                          backdropFilter: 'blur(10px)',
-                          border: '1px solid rgba(255,255,255,0.2)'
-                        }}
-                        placeholder="Enter your full name"
-                      />
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
-                      transition={{ duration: 0.5, delay: 1.0 }}
-                    >
-                      <label className="block text-white mb-2" style={{ fontSize: '0.875rem', fontWeight: '500' }}>
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 rounded-xl text-white placeholder-white/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30"
-                        style={{
-                          background: 'rgba(255,255,255,0.1)',
-                          backdropFilter: 'blur(10px)',
-                          border: '1px solid rgba(255,255,255,0.2)'
-                        }}
-                        placeholder="Your phone number"
-                      />
-                    </motion.div>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                    transition={{ duration: 0.6, delay: 1.1 }}
-                  >
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
                     <label className="block text-white mb-2" style={{ fontSize: '0.875rem', fontWeight: '500' }}>
-                      Email Address *
+                      Full Name *
                     </label>
                     <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
+                      type="text"
+                      name="name"
+                      value={formData.name}
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 rounded-xl text-white placeholder-white/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30"
@@ -277,97 +166,114 @@ const GetInTouchSection = () => {
                         backdropFilter: 'blur(10px)',
                         border: '1px solid rgba(255,255,255,0.2)'
                       }}
-                      placeholder="your.email@example.com"
+                      placeholder="Enter your full name"
                     />
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                    transition={{ duration: 0.6, delay: 1.2 }}
-                  >
+                  </div>
+                  <div>
                     <label className="block text-white mb-2" style={{ fontSize: '0.875rem', fontWeight: '500' }}>
-                      Subject
+                      Phone Number
                     </label>
-                    <select
-                      name="subject"
-                      value={formData.subject}
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-xl text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30"
+                      className="w-full px-4 py-3 rounded-xl text-white placeholder-white/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30"
                       style={{
                         background: 'rgba(255,255,255,0.1)',
                         backdropFilter: 'blur(10px)',
                         border: '1px solid rgba(255,255,255,0.2)'
                       }}
-                    >
-                      <option value="" style={{ background: '#1e293b', color: 'white' }}>Select a subject</option>
-                      <option value="general" style={{ background: '#1e293b', color: 'white' }}>General Inquiry</option>
-                      <option value="booking" style={{ background: '#1e293b', color: 'white' }}>Package Booking</option>
-                      <option value="custom" style={{ background: '#1e293b', color: 'white' }}>Custom Tour</option>
-                      <option value="support" style={{ background: '#1e293b', color: 'white' }}>Customer Support</option>
-                    </select>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                    transition={{ duration: 0.6, delay: 1.3 }}
-                  >
-                    <label className="block text-white mb-2" style={{ fontSize: '0.875rem', fontWeight: '500' }}>
-                      Message *
-                    </label>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      required
-                      rows={5}
-                      className="w-full px-4 py-3 rounded-xl text-white placeholder-white/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30 resize-none"
-                      style={{
-                        background: 'rgba(255,255,255,0.1)',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255,255,255,0.2)'
-                      }}
-                      placeholder="Tell us about your travel plans, preferences, or any questions you have..."
+                      placeholder="Your phone number"
                     />
-                  </motion.div>
+                  </div>
+                </div>
 
-                  <motion.button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-white transition-all duration-300 hover:bg-white hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                <div>
+                  <label className="block text-white mb-2" style={{ fontSize: '0.875rem', fontWeight: '500' }}>
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl text-white placeholder-white/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30"
                     style={{
-                      background: 'rgba(255,255,255,0.2)',
+                      background: 'rgba(255,255,255,0.1)',
                       backdropFilter: 'blur(10px)',
-                      fontWeight: '600'
+                      border: '1px solid rgba(255,255,255,0.2)'
                     }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                    transition={{ duration: 0.6, delay: 1.4 }}
-                    whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                    whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                    placeholder="your.email@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white mb-2" style={{ fontSize: '0.875rem', fontWeight: '500' }}>
+                    Subject
+                  </label>
+                  <select
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 rounded-xl text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30"
+                    style={{
+                      background: 'rgba(255,255,255,0.1)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255,255,255,0.2)'
+                    }}
                   >
-                    {isSubmitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Sending Message...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-5 h-5" />
-                        Send Message
-                      </>
-                    )}
-                  </motion.button>
-                </form>
-              )}
+                    <option value="" style={{ background: '#1e293b', color: 'white' }}>Select a subject</option>
+                    <option value="general" style={{ background: '#1e293b', color: 'white' }}>General Inquiry</option>
+                    <option value="booking" style={{ background: '#1e293b', color: 'white' }}>Package Booking</option>
+                    <option value="custom" style={{ background: '#1e293b', color: 'white' }}>Custom Tour</option>
+                    <option value="support" style={{ background: '#1e293b', color: 'white' }}>Customer Support</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-white mb-2" style={{ fontSize: '0.875rem', fontWeight: '500' }}>
+                    Message *
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                    rows={5}
+                    className="w-full px-4 py-3 rounded-xl text-white placeholder-white/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30 resize-none"
+                    style={{
+                      background: 'rgba(255,255,255,0.1)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255,255,255,0.2)'
+                    }}
+                    placeholder="Tell us about your travel plans, preferences, or any questions you have..."
+                  />
+                </div>
+
+                <motion.button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-white transition-all duration-300 hover:bg-white hover:text-slate-900"
+                  style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    backdropFilter: 'blur(10px)',
+                    fontWeight: '600'
+                  }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Send className="w-5 h-5" />
+                  Send Message
+                </motion.button>
+              </form>
             </motion.div>
 
             {/* Contact Information */}
             <motion.div
               className="space-y-6"
               initial={{ opacity: 0, x: 50 }}
-              animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
             >
               {/* Contact Info Cards */}
@@ -382,7 +288,7 @@ const GetInTouchSection = () => {
                       border: '1px solid rgba(255,255,255,0.1)'
                     }}
                     initial={{ opacity: 0, y: 30 }}
-                    animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 1 + index * 0.1 }}
                     whileHover={{ scale: 1.02, y: -4 }}
                   >
@@ -397,7 +303,10 @@ const GetInTouchSection = () => {
                         <info.icon className="w-6 h-6 text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-white mb-2" style={{ fontSize: '1.125rem', fontWeight: '600' }}>
+                        <h3 
+                          className="text-white mb-2"
+                          style={{ fontSize: '1.125rem', fontWeight: '600' }}
+                        >
                           {info.title}
                         </h3>
                         {info.details.map((detail, idx) => (
@@ -437,15 +346,18 @@ const GetInTouchSection = () => {
                   border: '1px solid rgba(255,255,255,0.1)'
                 }}
                 initial={{ opacity: 0, y: 30 }}
-                animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 1.4 }}
               >
-                <h3 className="text-white mb-4" style={{ fontSize: '1.125rem', fontWeight: '600' }}>
+                <h3 
+                  className="text-white mb-4"
+                  style={{ fontSize: '1.125rem', fontWeight: '600' }}
+                >
                   Quick Contact
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <motion.button
-                    onClick={() => handleContactAction('phone', contactInfo[0].details[0])}
+                    onClick={() => handleContactAction('phone', '+94771234567')}
                     className="flex items-center justify-center gap-2 p-3 rounded-xl transition-all duration-300 hover:bg-blue-500/20"
                     style={{
                       background: 'rgba(59, 130, 246, 0.1)',
@@ -460,7 +372,7 @@ const GetInTouchSection = () => {
                   </motion.button>
 
                   <motion.button
-                    onClick={() => handleContactAction('whatsapp', contactInfo[1].details[0])}
+                    onClick={() => handleContactAction('whatsapp', '+94771234567')}
                     className="flex items-center justify-center gap-2 p-3 rounded-xl transition-all duration-300 hover:bg-green-500/20"
                     style={{
                       background: 'rgba(37, 211, 102, 0.1)',
@@ -475,7 +387,7 @@ const GetInTouchSection = () => {
                   </motion.button>
 
                   <motion.button
-                    onClick={() => handleContactAction('email', contactInfo[2].details[0])}
+                    onClick={() => handleContactAction('email', 'info@srilankaparadise.com')}
                     className="flex items-center justify-center gap-2 p-3 rounded-xl transition-all duration-300 hover:bg-purple-500/20"
                     style={{
                       background: 'rgba(147, 51, 234, 0.1)',
@@ -491,6 +403,51 @@ const GetInTouchSection = () => {
                 </div>
               </motion.div>
 
+              {/* Social Links */}
+              <motion.div
+                className="relative overflow-hidden rounded-2xl backdrop-blur-sm p-6"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+                  backdropFilter: 'blur(15px)',
+                  border: '1px solid rgba(255,255,255,0.1)'
+                }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.6 }}
+              >
+                <h3 
+                  className="text-white mb-4"
+                  style={{ fontSize: '1.125rem', fontWeight: '600' }}
+                >
+                  Follow Our Journey
+                </h3>
+                <p className="text-white/80 mb-4" style={{ fontSize: '0.875rem' }}>
+                  Stay updated with the latest travel tips, destinations, and special offers.
+                </p>
+                <div className="flex gap-3">
+                  {socialLinks.map((social, index) => (
+                    <motion.a
+                      key={index}
+                      href={social.url}
+                      className="p-3 rounded-xl transition-all duration-300"
+                      style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255,255,255,0.2)'
+                      }}
+                      whileHover={{ 
+                        scale: 1.1, 
+                        backgroundColor: social.color + '20',
+                        borderColor: social.color + '40'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <social.icon className="w-5 h-5 text-white" />
+                    </motion.a>
+                  ))}
+                </div>
+              </motion.div>
+
               {/* Emergency Contact */}
               <motion.div
                 className="relative overflow-hidden rounded-2xl backdrop-blur-sm p-6"
@@ -500,10 +457,13 @@ const GetInTouchSection = () => {
                   border: '1px solid rgba(220,38,38,0.3)'
                 }}
                 initial={{ opacity: 0, y: 30 }}
-                animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 1.8 }}
               >
-                <h3 className="text-white mb-2" style={{ fontSize: '1.125rem', fontWeight: '600' }}>
+                <h3 
+                  className="text-white mb-2"
+                  style={{ fontSize: '1.125rem', fontWeight: '600' }}
+                >
                   Emergency Support
                 </h3>
                 <p className="text-white/90 mb-2" style={{ fontSize: '0.875rem' }}>
@@ -530,19 +490,25 @@ const GetInTouchSection = () => {
         <motion.div 
           className="text-center mt-20 px-4"
           initial={{ opacity: 0, y: 30 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 2 }}
         >
-          <h2 className="text-white mb-4" style={{ fontSize: '2rem', fontWeight: 'bold' }}>
+          <h2 
+            className="text-white mb-4"
+            style={{ fontSize: '2rem', fontWeight: 'bold' }}
+          >
             Let's Plan Your Dream Trip
           </h2>
-          <p className="text-white/80 mb-8 max-w-2xl mx-auto" style={{ fontSize: '1.125rem' }}>
+          <p 
+            className="text-white/80 mb-8 max-w-2xl mx-auto"
+            style={{ fontSize: '1.125rem' }}
+          >
             Our travel experts are here to help you create unforgettable memories in Sri Lanka. 
             Get in touch today and let the adventure begin!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <motion.button
-              onClick={() => handleContactAction('whatsapp', contactInfo[1].details[0])}
+              onClick={() => handleContactAction('whatsapp', '+94771234567')}
               className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full transition-all duration-300 shadow-2xl"
               style={{ fontWeight: '600' }}
               whileHover={{ scale: 1.05, y: -2 }}
@@ -552,7 +518,7 @@ const GetInTouchSection = () => {
               Chat on WhatsApp
             </motion.button>
             <motion.button
-              onClick={() => handleContactAction('phone', contactInfo[0].details[0])}
+              onClick={() => handleContactAction('phone', '+94771234567')}
               className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full transition-all duration-300 shadow-2xl"
               style={{ fontWeight: '600' }}
               whileHover={{ scale: 1.05, y: -2 }}
@@ -566,6 +532,4 @@ const GetInTouchSection = () => {
       </div>
     </section>
   );
-};
-
-export default GetInTouchSection;
+}
