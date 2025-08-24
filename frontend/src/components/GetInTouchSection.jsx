@@ -492,36 +492,7 @@ const GetInTouchSection = () => {
               </motion.div>
 
               {/* Emergency Contact */}
-              <motion.div
-                className="relative overflow-hidden rounded-2xl backdrop-blur-sm p-6"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(220,38,38,0.2), rgba(220,38,38,0.1))',
-                  backdropFilter: 'blur(15px)',
-                  border: '1px solid rgba(220,38,38,0.3)'
-                }}
-                initial={{ opacity: 0, y: 30 }}
-                animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                transition={{ duration: 0.6, delay: 1.8 }}
-              >
-                <h3 className="text-white mb-2" style={{ fontSize: '1.125rem', fontWeight: '600' }}>
-                  Emergency Support
-                </h3>
-                <p className="text-white/90 mb-2" style={{ fontSize: '0.875rem' }}>
-                  24/7 Emergency Hotline
-                </p>
-                <motion.button
-                  onClick={() => handleContactAction('phone', '+94709111234')}
-                  className="text-white hover:text-white/90 transition-colors duration-200"
-                  style={{ fontSize: '1.25rem', fontWeight: '700' }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  +94 70 911 HELP
-                </motion.button>
-                <p className="text-white/70 mt-1" style={{ fontSize: '0.75rem' }}>
-                  Available round the clock for any travel emergencies
-                </p>
-              </motion.div>
+              
             </motion.div>
           </div>
         </div>

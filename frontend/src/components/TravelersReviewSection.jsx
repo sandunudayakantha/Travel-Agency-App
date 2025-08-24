@@ -223,7 +223,7 @@ const TravelersReviewSection = () => {
               onClick={() => setShowAllReviews(true)}
               variant="outline"
               size="lg"
-              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300 px-8 py-3"
+              className="border-2 border-blue-600 rounded-3xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300 px-8 py-3"
             >
               <MessageSquare className="h-5 w-5 mr-2" />
               See All {reviews.length} Reviews
@@ -238,7 +238,7 @@ const TravelersReviewSection = () => {
               onClick={() => setShowAllReviews(false)}
               variant="outline"
               size="lg"
-              className="border-2 border-gray-600 text-gray-600 hover:bg-gray-600 hover:text-white transition-all duration-300 px-8 py-3"
+              className="border-2 border-gray-600 text-gray-600 rounded-3xl hover:bg-gray-600 hover:text-white transition-all duration-300 px-8 py-3"
             >
               Show Less Reviews
             </Button>
