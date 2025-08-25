@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePlace } from '../contexts/PlaceContext';
 import { useCustomInquiry } from '../contexts/CustomInquiryContext';
@@ -9,7 +9,22 @@ import { useVehicle } from '../contexts/VehicleContext';
 import { useTourGuide } from '../contexts/TourGuideContext';
 import { useDriver } from '../contexts/DriverContext';
 import InteractiveTripMap from '../components/InteractiveTripMap';
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { 
+  MagnifyingGlassIcon, 
+  XMarkIcon, 
+  MapIcon, 
+  CalendarIcon, 
+  UsersIcon, 
+  HeartIcon,
+  SparklesIcon,
+  GlobeAltIcon
+} from '@heroicons/react/24/outline';
+// FigmaUI Components
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 
 const CustomPackage = () => {
   const { places, getPlaces, loading: placesLoading } = usePlace();
@@ -20,6 +35,13 @@ const CustomPackage = () => {
   const { tourGuides: availableTourGuides, getTourGuides, loading: tourGuidesLoading } = useTourGuide();
   const { drivers: availableDrivers, getDrivers, loading: driversLoading } = useDriver();
   const navigate = useNavigate();
+  
+  // Gallery-style setup
+  const sectionRef = useRef(null);
+  const isSectionInView = useInView(sectionRef, { once: true, amount: 0.3 });
+
+  // Sri Lankan elephant family background
+  const backgroundImage = "https://images.unsplash.com/photo-1549366021-9f761d450615?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGVwaGFudCUyMGZhbWlseSUyMHNyaSUyMGxhbmthfGVufDF8fHx8MTc1NjAzNDgyNXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
   const hotels = [
     { id: '3s', name: 'Comfort (3★)', stars: 3, pricePerNight: 45 },
@@ -386,127 +408,346 @@ const CustomPackage = () => {
     }
   };
 
+  // Typing Animation State
+  const [typingText1, setTypingText1] = useState('');
+  const [typingText2, setTypingText2] = useState('');
+  const [typingText3, setTypingText3] = useState('');
+  const [showCursor, setShowCursor] = useState(true);
+
+  // Typing animation effects
+  useEffect(() => {
+    const text1 = "Build Your";
+    const text2 = "Custom Trip";
+    const text3 = "From Scratch";
+    
+    let index1 = 0, index2 = 0, index3 = 0;
+    
+    // First line typing
+    const timer1 = setTimeout(() => {
+      const interval1 = setInterval(() => {
+        if (index1 < text1.length) {
+          setTypingText1(prev => prev + text1[index1]);
+          index1++;
+        } else {
+          clearInterval(interval1);
+        }
+      }, 150);
+      return () => clearInterval(interval1);
+    }, 800);
+
+    // Second line typing
+    const timer2 = setTimeout(() => {
+      const interval2 = setInterval(() => {
+        if (index2 < text2.length) {
+          setTypingText2(prev => prev + text2[index2]);
+          index2++;
+        } else {
+          clearInterval(interval2);
+        }
+      }, 150);
+      return () => clearInterval(interval2);
+    }, 2000);
+
+    // Third line typing
+    const timer3 = setTimeout(() => {
+      const interval3 = setInterval(() => {
+        if (index3 < text3.length) {
+          setTypingText3(prev => prev + text3[index3]);
+          index3++;
+        } else {
+          clearInterval(interval3);
+        }
+      }, 150);
+      return () => clearInterval(interval3);
+    }, 3200);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, []);
+
+  // Blinking cursor effect
+  useEffect(() => {
+    const cursorInterval = setInterval(() => {
+      setShowCursor(prev => !prev);
+    }, 500);
+    return () => clearInterval(cursorInterval);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50 py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Hero */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Build Your Custom Trip</h1>
-          <p className="text-gray-600 text-lg">Choose destinations, hotels, vehicles and guides to craft your own experience.</p>
-        </div>
+    <div ref={sectionRef} className="relative min-h-screen overflow-hidden">
+      {/* Static Background */}
+      <div className="fixed inset-0 z-0">
+        <ImageWithFallback
+          src={backgroundImage}
+          alt="Sri Lankan Elephant Family - Majestic wildlife in natural habitat"
+          className="w-full h-full object-cover"
+        />
+        
+        {/* Cinematic Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-orange-900/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"></div>
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-20">
+        
+        {/* Hero Section */}
+        <section className="min-h-screen flex items-center justify-center text-center text-white px-4">
+          <motion.div 
+            className="max-w-5xl space-y-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <motion.div 
+              className="flex items-center justify-center gap-2 text-orange-300"
+              initial={{ opacity: 0, x: -20 }}
+              animate={isSectionInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <SparklesIcon className="h-8 w-8" />
+              <span className="text-xl">Design Your Perfect Sri Lankan Journey</span>
+            </motion.div>
+            
+            <motion.h1 
+              className="text-6xl lg:text-8xl leading-tight"
+              initial={{ opacity: 0, y: 50 }}
+              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+              transition={{ duration: 1, delay: 0.5 }}
+            >
+              <span className="block">
+                {typingText1}
+                {showCursor && typingText1.length < "Build Your".length && <span className="animate-pulse">|</span>}
+              </span>
+              <span className="block text-orange-400">
+                {typingText2}
+                {showCursor && typingText2.length < "Custom Trip".length && <span className="animate-pulse">|</span>}
+              </span>
+              <span className="block">
+                {typingText3}
+                {showCursor && typingText3.length < "From Scratch".length && <span className="animate-pulse">|</span>}
+              </span>
+            </motion.h1>
+            
+            <motion.p 
+              className="text-2xl text-gray-200 leading-relaxed max-w-4xl mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+            >
+              Choose destinations, hotels, vehicles, and guides to craft your own 
+              personalized Sri Lankan adventure. Every detail, your way.
+            </motion.p>
+
+            <motion.div 
+              className="flex justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.5, delay: 0.9 }}
+            >
+              <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30 px-6 py-3 text-lg">
+                🎯 100% Customizable • 🗺️ Interactive Planning • 💎 Premium Experience
+              </Badge>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        {/* Main Content Container */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: Destination selection and itinerary planning */}
           <div className="lg:col-span-2 space-y-8">
             {/* Destination Selection */}
-            <section className="bg-white rounded-xl shadow-soft border border-gray-100 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Available Destinations</h2>
-              <p className="text-sm text-gray-600 mb-4">
-                {showSearchResults ? 'Search results' : 'Featured destinations'} - Browse and select destinations for your custom trip.
-              </p>
+            <section className="py-16">
+              <motion.div 
+                className="text-center text-white space-y-8 mb-16"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30">
+                  Choose Your Destinations
+                </Badge>
+                <h2 className="text-5xl leading-tight">
+                  Available
+                  <span className="block text-orange-400">Destinations</span>
+                </h2>
+                <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+                  {showSearchResults ? 'Search results' : 'Featured destinations'} - Browse and select destinations for your custom trip.
+                </p>
+              </motion.div>
               
               {/* Search Bar */}
-              <div className="mb-6">
-                <div className="relative">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
+              <motion.div 
+                className="max-w-2xl mx-auto mb-12"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <MagnifyingGlassIcon className="h-6 w-6 text-orange-300" />
+                  </div>
+                  <Input
                     type="text"
-                    placeholder="Search for places, destinations, attractions..."
+                    placeholder="Search for places, destinations, attractions... (e.g., 'temple', 'beach', 'kandy')"
                     value={searchTerm}
                     onChange={handleSearchChange}
                     onKeyPress={handleSearchKeyPress}
-                    className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900"
+                    className="w-full h-16 pl-12 pr-12 text-lg bg-black/30 backdrop-blur-md border-white/30 text-white placeholder:text-gray-300 focus:border-orange-400 focus:ring-orange-400/30 rounded-xl transition-all duration-300 hover:bg-black/40 hover:border-white/40"
                   />
                   {searchTerm && (
                     <button
+                      type="button"
                       onClick={closeSearchResults}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-orange-300 transition-colors duration-200"
                     >
-                      <XMarkIcon className="h-5 w-5" />
+                      <XMarkIcon className="h-6 w-6" />
                     </button>
                   )}
-                </div>
+                </form>
+                
+                {/* Search Status */}
                 {isSearching && (
-                  <div className="mt-2 flex items-center text-sm text-gray-500">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600 mr-2"></div>
-                    Searching...
-                  </div>
+                  <motion.div 
+                    className="mt-4 text-center"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-300 mr-2"></div>
+                      Searching...
+                    </Badge>
+                  </motion.div>
                 )}
+                
                 {showSearchResults && searchResults.length === 0 && !isSearching && (
-                  <div className="mt-2 text-sm text-gray-500">
-                    No places found for "{searchTerm}". Try a different search term.
-                  </div>
+                  <motion.div 
+                    className="mt-4 text-center"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30">
+                      No places found for "{searchTerm}". Try a different search term.
+                    </Badge>
+                  </motion.div>
                 )}
-              </div>
+              </motion.div>
               
               {placesLoading ? (
-                <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                <div className="flex justify-center py-12">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500"></div>
                 </div>
               ) : displayPlaces.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <p>
-                    {showSearchResults 
-                      ? 'No search results found.' 
-                      : 'No featured destinations available.'
-                    }
-                  </p>
-                  <p className="text-sm">
-                    {showSearchResults 
-                      ? 'Try a different search term or browse featured destinations.' 
-                      : 'Please check back later or search for specific destinations.'
-                    }
-                  </p>
+                <div className="text-center py-12 text-white">
+                  <Card className="p-12 bg-black/20 backdrop-blur-sm border-white/20 max-w-2xl mx-auto">
+                    <motion.div 
+                      className="space-y-6"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <div className="w-24 h-24 bg-orange-500/20 rounded-full mx-auto flex items-center justify-center">
+                        <MapIcon className="h-12 w-12 text-orange-300" />
+                      </div>
+                      <h3 className="text-3xl">
+                        {showSearchResults ? 'No search results found' : 'No featured destinations available'}
+                      </h3>
+                      <p className="text-xl text-gray-300">
+                        {showSearchResults 
+                          ? 'Try a different search term or browse featured destinations.' 
+                          : 'Please check back later or search for specific destinations.'
+                        }
+                      </p>
+                    </motion.div>
+                  </Card>
                 </div>
               ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {displayPlaces.map((place) => {
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {displayPlaces.map((place, index) => {
                     const active = selectedDestinations.find((x) => x._id === place._id);
-                  return (
-                      <div key={place._id} className={`group relative overflow-hidden rounded-xl border ${active ? 'border-primary-500 ring-2 ring-primary-200' : 'border-gray-200'} bg-white shadow-sm hover:shadow-md transition-all duration-300`}> 
-                        <div className="relative">
-                          <img 
-                            src={place.images?.[0]?.url || place.image?.url || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=60'} 
-                            alt={place.name} 
-                            className="h-40 w-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                          />
-                          {active && (
-                            <div className="absolute top-2 right-2 bg-primary-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-                              ✓
-                            </div>
-                          )}
-                          {isPlaceInItinerary(place._id) && (
-                            <div className="absolute top-2 left-2 bg-orange-500 text-white rounded-full px-2 py-1 text-xs font-bold">
-                              In Itinerary
-                            </div>
-                          )}
-                        </div>
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="text-gray-900 font-medium text-sm">{place.name}</div>
-                              <div className="text-xs text-gray-500 mt-1">{place.location?.formattedAddress || place.location?.city || 'Sri Lanka'}</div>
+                    return (
+                      <motion.div
+                        key={place._id}
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        viewport={{ once: true }}
+                        whileHover={{ 
+                          scale: 1.05,
+                          y: -10,
+                          transition: { duration: 0.3, ease: "easeOut" }
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Card 
+                          className={`bg-black/20 backdrop-blur-sm border-white/20 overflow-hidden hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 ${
+                            active ? 'ring-2 ring-orange-400' : ''
+                          }`}
+                        >
+                          <div className="relative aspect-video overflow-hidden">
+                            <ImageWithFallback
+                              src={place.images?.[0]?.url || place.image?.url || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=60'}
+                              alt={place.name}
+                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                            />
+                            {active && (
+                              <Badge 
+                                variant="secondary" 
+                                className="absolute top-3 right-3 bg-orange-500 text-white border-orange-500"
+                              >
+                                ✓ Selected
+                              </Badge>
+                            )}
+                            {isPlaceInItinerary(place._id) && (
+                              <Badge 
+                                variant="outline" 
+                                className="absolute top-3 left-3 bg-orange-500/20 text-orange-300 border-orange-300"
+                              >
+                                In Itinerary
+                              </Badge>
+                            )}
                           </div>
-                          <button
-                            type="button"
+                          
+                          <CardContent className="p-6 space-y-4">
+                            <div>
+                              <CardTitle className="text-white text-lg">
+                                {place.name}
+                              </CardTitle>
+                              <CardDescription className="text-gray-300 text-sm">
+                                {place.location?.formattedAddress || place.location?.city || 'Sri Lanka'}
+                              </CardDescription>
+                            </div>
+                            
+                            <Button
                               onClick={() => toggleDestination(place)}
                               disabled={isPlaceInItinerary(place._id)}
-                              className={`ml-3 px-3 py-1 text-sm rounded-md transition-colors ${
-                                active 
-                                  ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' 
-                                  : isPlaceInItinerary(place._id)
-                                    ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
-                                    : 'bg-primary-50 text-primary-700 border border-primary-200 hover:bg-primary-100'
+                              variant={active ? "destructive" : "outline"}
+                              size="sm"
+                              className={`w-full ${
+                                isPlaceInItinerary(place._id)
+                                  ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                                  : active
+                                    ? 'bg-red-500 hover:bg-red-600 text-white'
+                                    : 'border-orange-400 text-orange-300 hover:bg-orange-400/20'
                               }`}
-                          >
-                            {active ? 'Remove' : isPlaceInItinerary(place._id) ? 'In Itinerary' : 'Add'}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                            >
+                              {active ? 'Remove' : isPlaceInItinerary(place._id) ? 'In Itinerary' : 'Add to Selection'}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               )}
             </section>
 
@@ -1100,7 +1341,66 @@ const CustomPackage = () => {
             </section>
           </div>
         </div>
+        </div>
       </div>
+      
+      {/* Call to Action */}
+      <section className="px-4 py-32">
+        <div className="container mx-auto max-w-4xl text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            whileHover={{ 
+              scale: 1.02,
+              transition: { duration: 0.3, ease: "easeOut" }
+            }}
+          >
+            <Card className="p-12 bg-white/95 backdrop-blur-lg border-white/20 shadow-2xl">
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <h3 className="text-gray-800 text-4xl">Ready to Create Your Dream Trip?</h3>
+                  <p className="text-gray-600 text-xl leading-relaxed">
+                    Let us craft the perfect Sri Lankan adventure just for you. From ancient temples 
+                    to pristine beaches, every detail will be tailored to your preferences.
+                  </p>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button className="h-16 px-8 text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
+                      <HeartIcon className="mr-3 h-6 w-6" />
+                      Start Planning Now
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button variant="outline" className="h-16 px-8 text-lg border-orange-400 text-orange-600">
+                      <GlobeAltIcon className="mr-3 h-6 w-6" />
+                      Contact Our Experts
+                    </Button>
+                  </motion.div>
+                </div>
+
+                <div className="pt-6 border-t border-gray-200">
+                  <p className="text-gray-500">
+                    🎯 100% Customizable • 🗺️ Interactive Planning • 💎 Premium Experience
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Bottom Spacer */}
+      <div className="h-32"></div>
     </div>
   );
 };
