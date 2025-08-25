@@ -11,9 +11,16 @@ import {
   MessageCircle 
 } from 'lucide-react';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
+import { useMessage } from '../contexts/MessageContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useClerkAuthContext } from '../contexts/ClerkAuthContext';
 
 const GetInTouchSection = () => {
   const { settings } = useSiteSettings();
+  const { submitMessage, loading, error } = useMessage();
+  const { user: authUser } = useAuth();
+  const { clerkUser } = useClerkAuthContext();
+  
   const sectionRef = useRef(null);
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -24,8 +31,7 @@ const GetInTouchSection = () => {
     subject: "",
     message: ""
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [status, setStatus] = useState('idle');
 
   useEffect(() => {
     setMounted(true);
@@ -45,6 +51,18 @@ const GetInTouchSection = () => {
       return () => window.removeEventListener('scroll', handleScroll);
     }
   }, []);
+
+  // Auto-fill user data when component mounts or user changes
+  useEffect(() => {
+    const currentUser = authUser || clerkUser;
+    if (currentUser) {
+      setFormData(prev => ({
+        ...prev,
+        name: currentUser.name || currentUser.firstName || '',
+        email: currentUser.email || ''
+      }));
+    }
+  }, [authUser, clerkUser]);
 
   const contactInfo = [
     {
@@ -86,16 +104,17 @@ const GetInTouchSection = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsSubmitted(true);
+    setStatus('submitting');
+    
+    const result = await submitMessage(formData);
+    
+    if (result.success) {
+      setStatus('success');
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-      setTimeout(() => setIsSubmitted(false), 5000);
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    } finally {
-      setIsSubmitting(false);
+      setTimeout(() => setStatus('idle'), 2500);
+    } else {
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 3000);
     }
   };
 
@@ -194,13 +213,21 @@ const GetInTouchSection = () => {
                 </p>
               </div>
 
-              {isSubmitted ? (
+              {status === 'success' ? (
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Send className="w-8 h-8 text-white" />
                   </div>
                   <h4 className="text-xl font-semibold text-white mb-2">Message Sent Successfully!</h4>
                   <p className="text-white/80">Thank you for contacting us. We'll get back to you within 24 hours.</p>
+                </div>
+              ) : status === 'error' ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Send className="w-8 h-8 text-white" />
+                  </div>
+                  <h4 className="text-xl font-semibold text-white mb-2">Message Failed to Send</h4>
+                  <p className="text-white/80">{error || 'Please try again later or contact us directly.'}</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -334,7 +361,7 @@ const GetInTouchSection = () => {
 
                   <motion.button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={loading || status === 'submitting'}
                     className="w-full flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-white transition-all duration-300 hover:bg-white hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
                       background: 'rgba(255,255,255,0.2)',
@@ -344,10 +371,10 @@ const GetInTouchSection = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                     transition={{ duration: 0.6, delay: 1.4 }}
-                    whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                    whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                    whileHover={{ scale: (loading || status === 'submitting') ? 1 : 1.02 }}
+                    whileTap={{ scale: (loading || status === 'submitting') ? 1 : 0.98 }}
                   >
-                    {isSubmitting ? (
+                    {(loading || status === 'submitting') ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                         Sending Message...

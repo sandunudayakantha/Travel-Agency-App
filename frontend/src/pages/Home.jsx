@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { 
   PlayIcon, 
@@ -68,6 +68,7 @@ const TypewriterText = ({ words, speed = 100, delay = 2000 }) => {
 
 const Home = () => {
   const { settings } = useSiteSettings();
+  const navigate = useNavigate();
   
   // Parallax scroll state
   const [scrollY, setScrollY] = useState(0);
@@ -225,6 +226,7 @@ const Home = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/packages')}
                 className="relative px-8 py-4 bg-white/10 backdrop-blur-md border-2 border-white/30 text-white rounded-2xl hover:bg-white/20 hover:border-white/50 transition-all duration-300 shadow-xl overflow-hidden group"
               >
                 {/* Button glow effect */}

@@ -48,6 +48,7 @@ import AdminTourGuides from './pages/admin/TourGuides';
 import AdminDrivers from './pages/admin/Drivers';
 import AdminPlaces from './pages/admin/Places';
 import AdminPlaceDetail from './pages/admin/PlaceDetail';
+import PlaceDetail from './pages/PlaceDetail';
 import AdminCustomInquiries from './pages/admin/CustomInquiries';
 import AdminReviews from './pages/admin/Reviews';
 import AdminMessages from './pages/admin/Messages';
@@ -107,6 +108,7 @@ function App() {
                           <Route path="/contact" element={<Contact />} />
                           <Route path="/faq" element={<FAQ />} />
                           <Route path="/gallery" element={<Gallery />} />
+                          <Route path="/places/:id" element={<PlaceDetail />} />
                           
                           {/* Auth Routes */}
                           <Route path="/login" element={<Login />} />

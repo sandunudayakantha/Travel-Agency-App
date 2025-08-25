@@ -3,10 +3,11 @@ import { Search, MapPin, Clock, TrendingUp, Image, Video } from 'lucide-react';
 import { Input } from './ui/input.jsx';
 import { Button } from './ui/button.jsx';
 import { usePlace } from '../contexts/PlaceContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SearchSection = () => {
   const { getPlaces, loading: placesLoading } = usePlace();
+  const navigate = useNavigate();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -115,7 +116,8 @@ const SearchSection = () => {
   const handleSearchSelect = (place) => {
     setSearchQuery(place.name);
     setShowResults(false);
-    // You can navigate to place detail or trigger other actions here
+    // Navigate to place detail page
+    navigate(`/places/${place._id}`);
   };
 
   const handlePopularSearch = (search) => {
@@ -161,7 +163,7 @@ const SearchSection = () => {
 
           <div 
             ref={searchContainerRef}
-            className={`max-w-4xl mx-auto mb-12 transition-all duration-700 delay-300 relative ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            className={`max-w-4xl mx-auto mb-12 transition-all duration-700 delay-300 relative z-50 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
           >
             <div className="relative z-[9998]">
               <div className="relative group z-[9998]">
@@ -187,7 +189,7 @@ const SearchSection = () => {
 
               {/* Search Results Dropdown */}
               {showResults && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-[9999]">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-[99999]">
                   <div className="max-h-80 overflow-y-auto">
                     {searchResults.slice(0, 8).map((place) => (
                       <button
@@ -247,7 +249,7 @@ const SearchSection = () => {
 
               {/* No Results */}
               {showResults && searchQuery.length > 0 && searchResults.length === 0 && !isSearching && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-[9999]">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-[99999]">
                   <div className="text-center text-gray-500">
                     <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
                     <p>No places found for "{searchQuery}"</p>
@@ -258,7 +260,7 @@ const SearchSection = () => {
 
               {/* Loading State */}
               {isSearching && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-[9999]">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-[99999]">
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
                     <p className="text-gray-600">Searching for places...</p>
@@ -269,7 +271,7 @@ const SearchSection = () => {
           </div>
 
           {/* Popular Searches */}
-          <div className={`max-w-4xl mx-auto transition-all duration-700 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className={`max-w-4xl mx-auto transition-all duration-700 delay-600 relative z-10 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="text-center mb-6">
               <div className="flex items-center justify-center space-x-2 text-gray-500 mb-4">
                 <Clock className="h-4 w-4" />
