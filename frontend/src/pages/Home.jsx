@@ -214,20 +214,12 @@ const Home = () => {
               transition={{ duration: 1, delay: 1.4 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <motion.button
-                whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(0,0,0,0.3)" }}
-                whileTap={{ scale: 0.95 }}
-                className="relative px-8 py-4 bg-gradient-to-r from-blue-500/80 to-purple-600/80 text-white rounded-2xl hover:from-blue-600/90 hover:to-purple-700/90 transition-all duration-300 shadow-xl backdrop-blur-sm border border-white/20 overflow-hidden group"
-              >
-                {/* Button glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative z-10 font-bold">Start Your Adventure</span>
-              </motion.button>
+              
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/packages')}
-                className="relative px-8 py-4 bg-white/10 backdrop-blur-md border-2 border-white/30 text-white rounded-2xl hover:bg-white/20 hover:border-white/50 transition-all duration-300 shadow-xl overflow-hidden group"
+                className="relative px-8 py-4 bg-white/10 backdrop-blur-md border-2 border-white/30 text-white rounded-full hover:bg-white/20 hover:border-white/50 transition-all duration-300 shadow-xl overflow-hidden group"
               >
                 {/* Button glow effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

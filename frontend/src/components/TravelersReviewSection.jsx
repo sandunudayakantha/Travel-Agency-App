@@ -105,10 +105,7 @@ const TravelersReviewSection = () => {
                 <div className="text-sm text-gray-500">Total Reviews</div>
               </div>
               <Separator orientation="vertical" className="h-16" />
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-900">98%</div>
-                <div className="text-sm text-gray-500">Recommend</div>
-              </div>
+             
             </div>
           )}
 
@@ -150,9 +147,7 @@ const TravelersReviewSection = () => {
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                          {review.user?.name?.charAt(0)?.toUpperCase() || 'A'}
-                        </div>
+                        
                         <div>
                           <h4 className="font-semibold text-gray-900">{review.user?.name || 'Anonymous'}</h4>
                           <div className="flex items-center space-x-2 text-sm text-gray-500">
@@ -196,14 +191,8 @@ const TravelersReviewSection = () => {
                     {/* Review Actions */}
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                       <div className="flex items-center space-x-4">
-                        <button className="flex items-center space-x-1 text-sm text-gray-500 hover:text-blue-600 transition-colors">
-                          <ThumbsUp className="h-4 w-4" />
-                          <span>Helpful</span>
-                        </button>
-                        <button className="flex items-center space-x-1 text-sm text-gray-500 hover:text-blue-600 transition-colors">
-                          <MessageSquare className="h-4 w-4" />
-                          <span>Reply</span>
-                        </button>
+                        
+                        
                       </div>
                       
                       {review.package && (
@@ -268,21 +257,10 @@ const TravelersReviewSection = () => {
                 </Link>
               </Button>
               
-              {isUserLoggedIn && (
-                <Button 
-                  size="lg" 
-                  onClick={() => setShowReviewForm(true)}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all duration-300"
-                >
-                  <MessageSquare className="h-5 w-5 mr-2" />
-                  Share Your Experience
-                </Button>
-              )}
+             
             </div>
             
-            <p className="text-sm text-gray-500">
-              Join {stats.totalReviews}+ travelers who have shared their experiences
-            </p>
+           
           </div>
         )}
       </div>

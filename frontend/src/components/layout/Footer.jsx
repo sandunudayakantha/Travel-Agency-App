@@ -158,7 +158,7 @@ const Footer = () => {
             viewport={{ once: true }}
           >
             <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
-              <span className="w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 mr-3"></span>
+             
               Navigation
             </h3>
             <ul className="space-y-3">
@@ -191,7 +191,7 @@ const Footer = () => {
             viewport={{ once: true }}
           >
             <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
-              <span className="w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-600 mr-3"></span>
+              
               Support
             </h3>
             <ul className="space-y-3">
@@ -224,22 +224,7 @@ const Footer = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
           viewport={{ once: true }}
         >
-          <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8">
-            <div className="text-center">
-              <h3 className="text-2xl font-bold text-white mb-2">Stay Updated</h3>
-              <p className="text-gray-300 mb-6">Subscribe to our newsletter for travel tips and exclusive offers</p>
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105">
-                  Subscribe
-                </button>
-              </div>
-            </div>
-          </div>
+        
         </motion.div>
 
         {/* Social Links and Copyright */}

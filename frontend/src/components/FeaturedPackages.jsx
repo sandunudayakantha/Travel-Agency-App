@@ -191,8 +191,8 @@ const FeaturedPackages = () => {
                       }}
                     >
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-white" style={{ fontSize: '0.875rem' }}>4.8</span>
-                      <span className="text-white/70" style={{ fontSize: '0.875rem' }}>({Math.floor(Math.random() * 200) + 50})</span>
+                     
+                     
                     </div>
 
                     {/* Featured Badge */}
@@ -239,44 +239,16 @@ const FeaturedPackages = () => {
                         <span>{pkg.days} days, {pkg.nights} nights</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>2-8 People</span>
+                       
                       </div>
                     </div>
 
                     {/* Guide and Driver Information */}
-                    {(pkg.guide || pkg.driver) && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {pkg.guide && (
-                          <span 
-                            className="rounded-full text-white/80"
-                            style={{
-                              fontSize: '0.75rem',
-                              padding: '0.25rem 0.5rem',
-                              background: 'rgba(59, 130, 246, 0.3)'
-                            }}
-                          >
-                            Guide: {pkg.guide.name}
-                          </span>
-                        )}
-                        {pkg.driver && (
-                          <span 
-                            className="rounded-full text-white/80"
-                            style={{
-                              fontSize: '0.75rem',
-                              padding: '0.25rem 0.5rem',
-                              background: 'rgba(34, 197, 94, 0.3)'
-                            }}
-                          >
-                            Driver: {pkg.driver.name}
-                          </span>
-                        )}
-                      </div>
-                    )}
+                   
 
                     {/* CTA Button */}
                     <motion.button
-                      className="w-full rounded-xl px-6 py-3 text-white transition-all duration-300 group-hover:bg-white group-hover:text-slate-900"
+                      className="w-full rounded-full px-6 py-3 text-white transition-all duration-300 group-hover:bg-white group-hover:text-slate-900"
                       style={{
                         background: 'rgba(255,255,255,0.2)',
                         backdropFilter: 'blur(10px)',

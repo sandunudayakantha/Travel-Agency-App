@@ -175,11 +175,11 @@ const SearchSection = () => {
                   onChange={handleInputChange}
                   onFocus={handleInputFocus}
                   onKeyDown={handleKeyDown}
-                  className="pl-12 pr-20 py-6 text-lg border-2 border-transparent bg-white shadow-xl hover:shadow-2xl focus:border-blue-500 focus:shadow-2xl transition-all duration-300 rounded-2xl"
+                  className="pl-12 pr-20 py-8 text-lg border-2 border-transparent bg-white shadow-xl hover:shadow-2xl focus:border-blue-500 focus:shadow-2xl transition-all duration-300 rounded-full"
                 />
                 <Button
                   size="lg"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 rounded-xl px-6"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 rounded-full px-6"
                   onClick={() => handleSearch(searchQuery)}
                   disabled={isSearching}
                 >
@@ -294,31 +294,7 @@ const SearchSection = () => {
           </div>
 
           {/* Features Section */}
-          <div className={`max-w-4xl mx-auto mt-16 transition-all duration-700 delay-900 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center group">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <MapPin className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="mb-2 font-semibold text-gray-900">500+ Destinations</h3>
-                <p className="text-gray-600 text-sm">Explore amazing places around Sri Lanka</p>
-              </div>
-              <div className="text-center group">
-                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <TrendingUp className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="mb-2 font-semibold text-gray-900">Real-time Updates</h3>
-                <p className="text-gray-600 text-sm">Get the latest travel information instantly</p>
-              </div>
-              <div className="text-center group">
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <Search className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="mb-2 font-semibold text-gray-900">Smart Search</h3>
-                <p className="text-gray-600 text-sm">Find exactly what you're looking for</p>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
     </section>
