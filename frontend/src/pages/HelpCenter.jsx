@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   QuestionMarkCircleIcon,
@@ -13,11 +13,18 @@ import {
   UserIcon
 } from '@heroicons/react/24/outline';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
+import TravelLoading from '../components/TravelLoading';
+import { useLoading } from '../hooks/useLoading';
 
 const HelpCenter = () => {
   const { settings } = useSiteSettings();
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
   const [activeCategory, setActiveCategory] = useState('general');
   const [openItems, setOpenItems] = useState({});
+
+  useEffect(() => {
+    startLoading("Loading help center...", 1500);
+  }, [startLoading]);
 
   const toggleItem = (itemId) => {
     setOpenItems(prev => ({
@@ -146,7 +153,15 @@ const HelpCenter = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="medium"
+        />
+      )}
+      <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -396,6 +411,7 @@ const HelpCenter = () => {
         </div>
       </section>
     </div>
+    </>
   );
 };
 

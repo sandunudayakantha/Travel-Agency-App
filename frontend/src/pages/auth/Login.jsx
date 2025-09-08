@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useClerkAuthContext } from '../../contexts/ClerkAuthContext.jsx';
 import SocialAuth from '../../components/auth/SocialAuth.jsx';
+import TravelLoading from '../../components/TravelLoading';
+import { useLoading } from '../../hooks/useLoading';
 
 const scenicPhotos = [
   // Galle Fort - Historic Dutch Fortress
@@ -44,6 +46,7 @@ const Login = () => {
     email: '',
     password: ''
   });
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
 
   const phrases = [
     'Explore historic Galle Fort',
@@ -59,9 +62,22 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated || isClerkSignedIn) {
+      // Stop loading if user is already authenticated
+      stopLoading();
       navigate('/');
     }
-  }, [isAuthenticated, isClerkSignedIn, navigate]);
+  }, [isAuthenticated, isClerkSignedIn, navigate, stopLoading]);
+
+  // Handle AuthContext loading state
+  useEffect(() => {
+    if (loading && !pageLoading) {
+      // If AuthContext is loading but our page loading is not active, start it
+      startLoading("Checking authentication...", 1500);
+    } else if (!loading && pageLoading) {
+      // If AuthContext finished loading but our page loading is still active, stop it
+      stopLoading();
+    }
+  }, [loading, pageLoading, startLoading, stopLoading]);
 
   // Typing animation effect
   useEffect(() => {
@@ -125,9 +141,30 @@ const Login = () => {
       return;
     }
     
-    const result = await login(formData);
-    if (result.success) {
-      navigate('/');
+    // Clear any previous errors
+    setLocalError('');
+    clearError();
+    
+    // Start loading animation
+    startLoading("Signing you in...", 3000);
+    
+    try {
+      const result = await login(formData);
+      if (result.success) {
+        // Login successful - loading will continue until navigation
+        setTimeout(() => {
+          navigate('/');
+        }, 1000); // Give time for loading animation to complete
+      } else {
+        // Login failed - stop loading and show error
+        stopLoading();
+        setLocalError(result.error || 'Login failed. Please try again.');
+      }
+    } catch (error) {
+      // Handle unexpected errors
+      stopLoading();
+      setLocalError('An unexpected error occurred. Please try again.');
+      console.error('Login error:', error);
     }
   };
 
@@ -149,7 +186,15 @@ const Login = () => {
   };
 
   return (
-    <section className="relative min-h-[100svh] w-full overflow-hidden">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="medium"
+        />
+      )}
+      <section className="relative min-h-[100svh] w-full overflow-hidden">
       {/* Local styles for subtle animations */}
       <style>{`
         @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -346,6 +391,7 @@ const Login = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 

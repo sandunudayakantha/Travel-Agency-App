@@ -22,11 +22,14 @@ import { GoogleMap, Marker, Polyline, InfoWindow } from '@react-google-maps/api'
 import { getGoogleMapsApiKey, GOOGLE_MAPS_CONFIG, getGoogleMapsMapId } from '../config/maps';
 import ReviewSection from '../components/ReviewSection';
 import BookingForm from '../components/BookingForm';
+import TravelLoading from '../components/TravelLoading';
+import { useLoading } from '../hooks/useLoading';
 
 const PackageDetail = () => {
   const { id } = useParams();
   const { getPackage, currentPackage, loading, error } = usePackage();
   const { getPlaceById } = usePlace();
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
   const [activeDay, setActiveDay] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(false);
@@ -284,9 +287,19 @@ const PackageDetail = () => {
 
   useEffect(() => {
     if (id && getPackage) {
+      startLoading("Loading package details...", 2000);
       getPackage(id);
     }
-  }, [id]); // Remove getPackage from dependencies to prevent infinite loop
+  }, [id, startLoading]); // Remove getPackage from dependencies to prevent infinite loop
+
+  // Handle loading states
+  useEffect(() => {
+    if (loading && !pageLoading) {
+      startLoading("Fetching package information...", 1500);
+    } else if (!loading && pageLoading) {
+      stopLoading();
+    }
+  }, [loading, pageLoading, startLoading, stopLoading]);
 
   // Fetch full place data for each place in the itinerary
   useEffect(() => {
@@ -342,12 +355,11 @@ const PackageDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-          <p className="mt-4 text-gray-600">Loading package details...</p>
-        </div>
-      </div>
+      <TravelLoading 
+        message="Loading package details..."
+        progress={100}
+        size="large"
+      />
     );
   }
 
@@ -411,7 +423,15 @@ const PackageDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="large"
+        />
+      )}
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -974,6 +994,7 @@ const PackageDetail = () => {
         </motion.div>
       </div>
     </div>
+    </>
   );
 };
 

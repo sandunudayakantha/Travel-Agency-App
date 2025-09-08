@@ -14,6 +14,8 @@ import {
 import { usePackage } from '../contexts/PackageContext';
 import { useTourType } from '../contexts/TourTypeContext';
 import StarRating from '../components/StarRating';
+import TravelLoading from '../components/TravelLoading';
+import { useLoading } from '../hooks/useLoading';
 // FigmaUI Components
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/card';
@@ -27,15 +29,28 @@ const Packages = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const sectionRef = useRef(null);
   const isSectionInView = useInView(sectionRef, { once: true, amount: 0.3 });
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
 
   // Sri Lankan landscape background
   const backgroundImage = "https://images.unsplash.com/photo-1526785777381-db1fdcbb0a3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGxhJTIwbmluZSUyYXJjaCUyMGJyaWRnZXxlbnwxfHx8fDE3NTYwMzQ4MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
   useEffect(() => {
+    // Start loading when component mounts
+    startLoading("Discovering amazing packages...", 2000);
+    
     // Fetch tour types and initial packages on component mount
     getTourTypes({ status: 'active' });
     getPackages({}, 1);
-  }, [getTourTypes, getPackages]);
+  }, [getTourTypes, getPackages, startLoading]);
+
+  // Handle loading states
+  useEffect(() => {
+    if (loading && !pageLoading) {
+      startLoading("Loading packages...", 1500);
+    } else if (!loading && pageLoading) {
+      stopLoading();
+    }
+  }, [loading, pageLoading, startLoading, stopLoading]);
 
   useEffect(() => {
     // Fetch packages based on selected tour type (skip initial load)
@@ -43,10 +58,11 @@ const Packages = () => {
       const filters = {};
       if (selectedTourType) {
         filters.tourType = selectedTourType;
+        startLoading("Filtering packages...", 1000);
       }
       getPackages(filters, currentPage);
     }
-  }, [selectedTourType, currentPage, getPackages]);
+  }, [selectedTourType, currentPage, getPackages, startLoading]);
 
   const handleTourTypeClick = (tourTypeId) => {
     setSelectedTourType(tourTypeId);
@@ -84,7 +100,15 @@ const Packages = () => {
   const selectedTourTypeData = tourTypes.find(type => type._id === selectedTourType);
 
   return (
-    <div ref={sectionRef} className="relative min-h-screen overflow-hidden">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="large"
+        />
+      )}
+      <div ref={sectionRef} className="relative min-h-screen overflow-hidden">
       {/* Static Background */}
       <div className="fixed inset-0 z-0">
         <ImageWithFallback
@@ -573,7 +597,8 @@ const Packages = () => {
         {/* Bottom Spacer */}
         <div className="h-32"></div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

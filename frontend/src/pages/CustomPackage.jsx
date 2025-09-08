@@ -9,6 +9,8 @@ import { useVehicle } from '../contexts/VehicleContext';
 import { useTourGuide } from '../contexts/TourGuideContext';
 import { useDriver } from '../contexts/DriverContext';
 import InteractiveTripMap from '../components/InteractiveTripMap';
+import TravelLoading from '../components/TravelLoading';
+import { useLoading } from '../hooks/useLoading';
 import { 
   MagnifyingGlassIcon, 
   XMarkIcon, 
@@ -34,6 +36,7 @@ const CustomPackage = () => {
   const { vehicles: availableVehicles, getVehicles, loading: vehiclesLoading } = useVehicle();
   const { tourGuides: availableTourGuides, getTourGuides, loading: tourGuidesLoading } = useTourGuide();
   const { drivers: availableDrivers, getDrivers, loading: driversLoading } = useDriver();
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
   const navigate = useNavigate();
   
   // Gallery-style setup
@@ -106,11 +109,14 @@ const CustomPackage = () => {
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
+    // Start initial loading
+    startLoading("Preparing your custom trip builder...", 2000);
+    
     // Fetch featured places on component mount
     if (places.length === 0) {
       getPlaces({ featured: true });
     }
-  }, [places.length]);
+  }, [places.length, startLoading, getPlaces]);
 
   useEffect(() => {
     // Fetch vehicles, tour guides, and drivers on component mount
@@ -123,7 +129,17 @@ const CustomPackage = () => {
     if (availableDrivers.length === 0) {
       getDrivers();
     }
-  }, [availableVehicles.length, availableTourGuides.length, availableDrivers.length]);
+  }, [availableVehicles.length, availableTourGuides.length, availableDrivers.length, getVehicles, getTourGuides, getDrivers]);
+
+  // Handle loading states
+  useEffect(() => {
+    const isLoading = placesLoading || vehiclesLoading || tourGuidesLoading || driversLoading;
+    if (isLoading && !pageLoading) {
+      startLoading("Loading trip options...", 1500);
+    } else if (!isLoading && pageLoading) {
+      stopLoading();
+    }
+  }, [placesLoading, vehiclesLoading, tourGuidesLoading, driversLoading, pageLoading, startLoading, stopLoading]);
 
   // Dynamic coordinates from places data
   const mapCoords = useMemo(() => {
@@ -477,7 +493,15 @@ const CustomPackage = () => {
   }, []);
 
   return (
-    <div ref={sectionRef} className="relative min-h-screen overflow-hidden">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="large"
+        />
+      )}
+      <div ref={sectionRef} className="relative min-h-screen overflow-hidden">
       {/* Static Background */}
       <div className="fixed inset-0 z-0">
         <ImageWithFallback
@@ -1402,6 +1426,7 @@ const CustomPackage = () => {
       {/* Bottom Spacer */}
       <div className="h-32"></div>
     </div>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   CubeIcon, 
@@ -14,8 +14,16 @@ import {
   CogIcon,
   PhotoIcon
 } from '@heroicons/react/24/outline';
+import TravelLoading from '../../components/TravelLoading';
+import { useLoading } from '../../hooks/useLoading';
 
 const Dashboard = () => {
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
+
+  useEffect(() => {
+    startLoading("Loading admin dashboard...", 1500);
+  }, [startLoading]);
+
   const adminFeatures = [
     {
       title: 'Packages',
@@ -110,7 +118,15 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="medium"
+        />
+      )}
+      <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -149,6 +165,7 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

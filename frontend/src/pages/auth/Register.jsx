@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useClerkAuthContext } from '../../contexts/ClerkAuthContext.jsx';
 import SocialAuth from '../../components/auth/SocialAuth.jsx';
+import TravelLoading from '../../components/TravelLoading';
+import { useLoading } from '../../hooks/useLoading';
 
 const scenicPhotos = [
   // Galle Fort - Historic Dutch Fortress
@@ -46,6 +48,7 @@ const Register = () => {
     password: '',
     confirmPassword: ''
   });
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
 
   const phrases = [
     'Explore historic Galle Fort',
@@ -61,9 +64,22 @@ const Register = () => {
 
   useEffect(() => {
     if (isAuthenticated || isClerkSignedIn) {
+      // Stop loading if user is already authenticated
+      stopLoading();
       navigate('/');
     }
-  }, [isAuthenticated, isClerkSignedIn, navigate]);
+  }, [isAuthenticated, isClerkSignedIn, navigate, stopLoading]);
+
+  // Handle AuthContext loading state
+  useEffect(() => {
+    if (loading && !pageLoading) {
+      // If AuthContext is loading but our page loading is not active, start it
+      startLoading("Checking authentication...", 1500);
+    } else if (!loading && pageLoading) {
+      // If AuthContext finished loading but our page loading is still active, stop it
+      stopLoading();
+    }
+  }, [loading, pageLoading, startLoading, stopLoading]);
 
   // Typing animation effect
   useEffect(() => {
@@ -137,14 +153,35 @@ const Register = () => {
       return;
     }
     
-    const result = await register({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password
-    });
+    // Clear any previous errors
+    setLocalError('');
+    clearError();
     
-    if (result.success) {
-      navigate('/');
+    // Start loading animation
+    startLoading("Creating your account...", 3000);
+    
+    try {
+      const result = await register({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      });
+      
+      if (result.success) {
+        // Registration successful - loading will continue until navigation
+        setTimeout(() => {
+          navigate('/');
+        }, 1000); // Give time for loading animation to complete
+      } else {
+        // Registration failed - stop loading and show error
+        stopLoading();
+        setLocalError(result.error || 'Registration failed. Please try again.');
+      }
+    } catch (error) {
+      // Handle unexpected errors
+      stopLoading();
+      setLocalError('An unexpected error occurred. Please try again.');
+      console.error('Registration error:', error);
     }
   };
 
@@ -168,7 +205,15 @@ const Register = () => {
   };
 
   return (
-    <section className="relative min-h-[100svh] w-full overflow-hidden">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="medium"
+        />
+      )}
+      <section className="relative min-h-[100svh] w-full overflow-hidden">
       {/* Local styles for subtle animations */}
       <style>{`
         @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -406,6 +451,7 @@ const Register = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 

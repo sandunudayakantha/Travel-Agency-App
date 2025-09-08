@@ -15,6 +15,8 @@ import TravelersReviewSection from '../components/TravelersReviewSection';
 import SearchSection from '../components/SearchSection';
 import FeaturedPackages from '../components/FeaturedPackages';
 import GetInTouchSection from '../components/GetInTouchSection';
+import TravelLoading from '../components/TravelLoading';
+import { useLoading } from '../hooks/useLoading';
 
 
 // Typing effect component
@@ -69,12 +71,18 @@ const TypewriterText = ({ words, speed = 100, delay = 2000 }) => {
 const Home = () => {
   const { settings } = useSiteSettings();
   const navigate = useNavigate();
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
   
   // Parallax scroll state
   const [scrollY, setScrollY] = useState(0);
   const { scrollYProgress } = useScroll();
   
 
+
+  // Initial loading effect
+  useEffect(() => {
+    startLoading("Welcome to Sri Lanka...", 2000);
+  }, [startLoading]);
 
   // Parallax scroll effect
   useEffect(() => {
@@ -136,7 +144,15 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="large"
+        />
+      )}
+      <div className="min-h-screen">
       {/* Enhanced Hero Section with Parallax */}
       <section className="relative h-screen overflow-hidden">
         {/* Parallax Background */}
@@ -270,6 +286,7 @@ const Home = () => {
       {/* Enhanced CTA Section with Parallax */}
 
     </div>
+    </>
   );
 };
 

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import TravelLoading from '../components/TravelLoading';
+import { useLoading } from '../hooks/useLoading';
 
 const faqs = [
   {
@@ -30,13 +32,26 @@ const faqs = [
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
+
+  useEffect(() => {
+    startLoading("Loading frequently asked questions...", 1500);
+  }, [startLoading]);
 
   const toggle = (idx) => {
     setOpenIndex((prev) => (prev === idx ? null : idx));
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="medium"
+        />
+      )}
+      <div className="min-h-screen bg-white">
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
@@ -105,6 +120,7 @@ const FAQ = () => {
         </div>
       </section>
     </div>
+    </>
   );
 };
 

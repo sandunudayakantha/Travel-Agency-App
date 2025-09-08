@@ -8,6 +8,8 @@ import {
   EyeIcon,
   ChatBubbleLeftIcon
 } from '@heroicons/react/24/outline';
+import TravelLoading from '../components/TravelLoading';
+import { useLoading } from '../hooks/useLoading';
 
 const Bookings = () => {
   const { 
@@ -20,14 +22,25 @@ const Bookings = () => {
   } = useBooking();
   
   const { clerkUser: user, loading: authLoading } = useClerkAuthContext();
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     if (user && !authLoading) {
+      startLoading("Loading your bookings...", 1500);
       getBookings();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, startLoading, getBookings]);
+
+  // Handle loading states
+  useEffect(() => {
+    if (loading && !pageLoading) {
+      startLoading("Fetching booking details...", 1000);
+    } else if (!loading && pageLoading) {
+      stopLoading();
+    }
+  }, [loading, pageLoading, startLoading, stopLoading]);
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -63,12 +76,11 @@ const Bookings = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Loading authentication...</p>
-        </div>
-      </div>
+      <TravelLoading 
+        message="Authenticating user..."
+        progress={100}
+        size="medium"
+      />
     );
   }
 
@@ -103,17 +115,24 @@ const Bookings = () => {
 
   if (loading && bookings.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Loading your bookings...</p>
-        </div>
-      </div>
+      <TravelLoading 
+        message="Loading your bookings..."
+        progress={100}
+        size="medium"
+      />
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="medium"
+        />
+      )}
+      <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -315,6 +334,7 @@ const Bookings = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

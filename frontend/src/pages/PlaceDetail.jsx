@@ -16,11 +16,14 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
+import TravelLoading from '../components/TravelLoading';
+import { useLoading } from '../hooks/useLoading';
 
 const PlaceDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentPlace, loading, error, getPlaceById } = usePlace();
+  const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
   
   const [selectedMedia, setSelectedMedia] = useState(null);
   const [mediaType, setMediaType] = useState(null);
@@ -30,9 +33,19 @@ const PlaceDetail = () => {
 
   useEffect(() => {
     if (id) {
+      startLoading("Loading place details...", 2000);
       loadPlace();
     }
-  }, [id]);
+  }, [id, startLoading]);
+
+  // Handle loading states
+  useEffect(() => {
+    if (loading && !pageLoading) {
+      startLoading("Fetching place information...", 1500);
+    } else if (!loading && pageLoading) {
+      stopLoading();
+    }
+  }, [loading, pageLoading, startLoading, stopLoading]);
 
   useEffect(() => {
     if (currentPlace) {
@@ -95,12 +108,11 @@ const PlaceDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading place details...</p>
-        </div>
-      </div>
+      <TravelLoading 
+        message="Loading place details..."
+        progress={100}
+        size="large"
+      />
     );
   }
 
@@ -145,7 +157,15 @@ const PlaceDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      {pageLoading && (
+        <TravelLoading 
+          message={message}
+          progress={progress}
+          size="large"
+        />
+      )}
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -410,6 +430,7 @@ const PlaceDetail = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 
