@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { 
   QuestionMarkCircleIcon,
   PhoneIcon,
@@ -10,21 +10,52 @@ import {
   CalendarIcon,
   MapPinIcon,
   ShieldCheckIcon,
-  UserIcon
+  UserIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  SparklesIcon,
+  GlobeAltIcon,
+  HeartIcon
 } from '@heroicons/react/24/outline';
 import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import TravelLoading from '../components/TravelLoading';
 import { useLoading } from '../hooks/useLoading';
+// FigmaUI Components
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 
 const HelpCenter = () => {
   const { settings } = useSiteSettings();
   const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
   const [activeCategory, setActiveCategory] = useState('general');
   const [openItems, setOpenItems] = useState({});
+  const sectionRef = useRef(null);
+  const isSectionInView = useInView(sectionRef, { once: true, amount: 0.3 });
+
+  // Sri Lankan beach background
+  const backgroundImage = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnYWxsZSUyMGZvcnQlMjBzcmklMjBsYW5rYXxlbnwxfHx8fHwxNzU2MDM0ODI3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
   useEffect(() => {
     startLoading("Loading help center...", 1500);
-  }, [startLoading]);
+    
+    // Auto-stop loading after 2 seconds to ensure page always shows
+    const timer = setTimeout(() => {
+      stopLoading();
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, [startLoading, stopLoading]);
+
+  // Fallback: ensure loading stops after 3 seconds maximum
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      stopLoading();
+    }, 3000);
+    
+    return () => clearTimeout(fallbackTimer);
+  }, [stopLoading]);
 
   const toggleItem = (itemId) => {
     setOpenItems(prev => ({
@@ -146,11 +177,20 @@ const HelpCenter = () => {
   };
 
   const categories = [
-    { id: 'general', name: 'General Questions', icon: QuestionMarkCircleIcon },
-    { id: 'booking', name: 'Booking & Payment', icon: CreditCardIcon },
-    { id: 'travel', name: 'Travel & Accommodation', icon: MapPinIcon },
-    { id: 'technical', name: 'Technical Support', icon: DocumentTextIcon }
+    { id: 'general', name: 'General Questions', icon: '❓', description: 'Basic questions about our services' },
+    { id: 'booking', name: 'Booking & Payment', icon: '💳', description: 'Payment and reservation help' },
+    { id: 'travel', name: 'Travel & Accommodation', icon: '✈️', description: 'Travel tips and requirements' },
+    { id: 'technical', name: 'Technical Support', icon: '🛠️', description: 'Website and account issues' }
   ];
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
 
   return (
     <>
@@ -158,259 +198,306 @@ const HelpCenter = () => {
         <TravelLoading 
           message={message}
           progress={progress}
-          size="medium"
+          size="large"
         />
       )}
-      <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Help Center
-            </h1>
-            <p className="text-xl text-white/90 max-w-2xl mx-auto">
-              Find answers to common questions, get support, and learn everything you need to know about your travel experience.
-            </p>
-          </motion.div>
+      <div ref={sectionRef} className="relative min-h-screen overflow-hidden">
+        {/* Static Background */}
+        <div className="fixed inset-0 z-0">
+          <ImageWithFallback
+            src={backgroundImage}
+            alt="Galle Fort - Historic fort in Sri Lanka"
+            className="w-full h-full object-cover"
+          />
+          
+          {/* Cinematic Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-orange-900/50"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"></div>
         </div>
-      </section>
 
-      {/* Quick Contact */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-center p-6 bg-blue-50 rounded-lg"
+        {/* Main Content */}
+        <div className="relative z-20">
+          {/* Hero Section */}
+          <section className="min-h-screen flex items-center justify-center text-center text-white px-4">
+            <motion.div 
+              className="max-w-5xl space-y-8"
+              initial={{ opacity: 0, y: 30 }}
+              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
             >
-              <PhoneIcon className="w-8 h-8 text-blue-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-2">Call Us</h3>
-              <p className="text-gray-600 mb-3">{settings?.contactInfo?.phone || '+1 (555) 123-4567'}</p>
-              <button
-                onClick={handlePhoneClick}
-                className="text-blue-600 hover:text-blue-700 font-medium"
+              <motion.div 
+                className="flex items-center justify-center gap-2 text-orange-300"
+                initial={{ opacity: 0, x: -20 }}
+                animate={isSectionInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
               >
-                Call Now
-              </button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-center p-6 bg-green-50 rounded-lg"
-            >
-              <ChatBubbleLeftRightIcon className="w-8 h-8 text-green-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-2">WhatsApp</h3>
-              <p className="text-gray-600 mb-3">Quick chat support</p>
-              <button
-                onClick={handleWhatsAppClick}
-                className="text-green-600 hover:text-green-700 font-medium"
-              >
-                Start Chat
-              </button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-center p-6 bg-purple-50 rounded-lg"
-            >
-              <EnvelopeIcon className="w-8 h-8 text-purple-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-2">Email Support</h3>
-              <p className="text-gray-600 mb-3">{settings?.contactInfo?.email || 'info@travelagency.com'}</p>
-              <button
-                onClick={handleEmailClick}
-                className="text-purple-600 hover:text-purple-700 font-medium"
-              >
-                Send Email
-              </button>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-gray-600">
-              Find quick answers to the most common questions about our services.
-            </p>
-          </motion.div>
-
-          {/* Category Tabs */}
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                  activeCategory === category.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <category.icon className="w-5 h-5" />
-                {category.name}
-              </button>
-            ))}
-          </div>
-
-          {/* FAQ Items */}
-          <div className="space-y-4">
-            {faqData[activeCategory].map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * index }}
-                className="bg-white rounded-lg shadow-sm border border-gray-200"
-              >
-                <button
-                  onClick={() => toggleItem(item.id)}
-                  className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
-                >
-                  <span className="font-medium text-gray-900">{item.question}</span>
-                  <svg
-                    className={`w-5 h-5 text-gray-500 transition-transform ${
-                      openItems[item.id] ? 'rotate-180' : ''
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {openItems[item.id] && (
-                  <div className="px-6 pb-4">
-                    <p className="text-gray-600 leading-relaxed">{item.answer}</p>
-                  </div>
-                )}
+                <QuestionMarkCircleIcon className="h-8 w-8" />
+                <span className="text-xl">Get the Support You Need</span>
               </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Additional Resources */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Additional Resources
-            </h2>
-            <p className="text-gray-600">
-              Explore these helpful resources for more information.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="p-6 bg-gray-50 rounded-lg text-center"
-            >
-              <DocumentTextIcon className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="font-semibold text-gray-900 mb-2">Travel Guides</h3>
-              <p className="text-gray-600 mb-4">
-                Comprehensive guides for popular destinations and travel tips.
-              </p>
-              <button className="text-blue-600 hover:text-blue-700 font-medium">
-                Browse Guides
-              </button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="p-6 bg-gray-50 rounded-lg text-center"
-            >
-              <ShieldCheckIcon className="w-12 h-12 text-green-600 mx-auto mb-4" />
-              <h3 className="font-semibold text-gray-900 mb-2">Safety Information</h3>
-              <p className="text-gray-600 mb-4">
-                Important safety tips and travel advisories for your destination.
-              </p>
-              <button className="text-green-600 hover:text-green-700 font-medium">
-                View Safety Info
-              </button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="p-6 bg-gray-50 rounded-lg text-center"
-            >
-              <UserIcon className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-              <h3 className="font-semibold text-gray-900 mb-2">Customer Stories</h3>
-              <p className="text-gray-600 mb-4">
-                Read reviews and experiences from our satisfied customers.
-              </p>
-              <button className="text-purple-600 hover:text-purple-700 font-medium">
-                Read Reviews
-              </button>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact CTA */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
-          >
-            <h2 className="text-3xl font-bold mb-4">
-              Still Need Help?
-            </h2>
-            <p className="text-xl text-white/90 mb-8">
-              Our customer support team is here to help you 24/7. Don't hesitate to reach out!
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={handleWhatsAppClick}
-                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              
+              <motion.h1 
+                className="text-6xl lg:text-8xl leading-tight"
+                initial={{ opacity: 0, y: 50 }}
+                animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ duration: 1, delay: 0.5 }}
               >
-                Chat on WhatsApp
-              </button>
-              <button
-                onClick={handleEmailClick}
-                className="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium transition-colors"
+                Help
+                <span className="block text-orange-400">Center</span>
+                <span className="block">Support</span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-2xl text-gray-200 leading-relaxed max-w-4xl mx-auto"
+                initial={{ opacity: 0, y: 30 }}
+                animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
               >
-                Send Email
-              </button>
+                Find answers to common questions, get expert support, and learn everything 
+                you need to know about your Sri Lankan travel experience.
+              </motion.p>
+
+              <motion.div 
+                className="flex justify-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
+              >
+                <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30 px-6 py-3 text-lg">
+                  24/7 Support • Expert Help
+                </Badge>
+              </motion.div>
+            </motion.div>
+          </section>
+
+          {/* Category Filter */}
+          <section className="px-4 py-32">
+            <div className="container mx-auto max-w-7xl">
+              <motion.div 
+                className="text-center text-white space-y-8 mb-16"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30">
+                  Browse by Category
+                </Badge>
+                <h2 className="text-5xl leading-tight">
+                  Find Help
+                  <span className="block text-orange-400">By Topic</span>
+                </h2>
+                <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+                  Choose a category below to find relevant help articles and support information 
+                  for your specific needs and questions.
+                </p>
+              </motion.div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {categories.map((category, index) => (
+                  <motion.div
+                    key={category.id}
+                    variants={cardVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    transition={{ delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Button
+                      onClick={() => setActiveCategory(category.id)}
+                      variant={activeCategory === category.id ? "default" : "outline"}
+                      className={`h-auto p-6 flex flex-col items-center justify-center bg-black/20 backdrop-blur-sm border-white/20 hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 ${
+                        activeCategory === category.id
+                          ? 'border-orange-400 bg-orange-500/20 text-orange-300 hover:bg-orange-500/30'
+                          : 'border-white/20 bg-black/20 text-white hover:bg-black/30'
+                      }`}
+                    >
+                      <div className="text-3xl mb-3">{category.icon}</div>
+                      <div className="font-medium text-lg">{category.name}</div>
+                    </Button>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </motion.div>
+          </section>
+
+          {/* Help Articles */}
+          <section className="px-4 py-32">
+            <div className="container mx-auto max-w-7xl">
+              <motion.div 
+                className="text-center text-white space-y-8 mb-16"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-5xl leading-tight">
+                  {categories.find(cat => cat.id === activeCategory)?.name || 'Help Articles'}
+                  <span className="block text-orange-400">Support</span>
+                </h2>
+                <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+                  {faqData[activeCategory].length} article{faqData[activeCategory].length !== 1 ? 's' : ''} found
+                </p>
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {faqData[activeCategory].map((item, idx) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: idx * 0.1 }}
+                    viewport={{ once: true }}
+                    whileHover={{ 
+                      scale: 1.05,
+                      y: -10,
+                      transition: { duration: 0.3, ease: "easeOut" }
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Card className="h-full bg-black/20 backdrop-blur-sm border-white/20 overflow-hidden hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20">
+                      {/* Article Icon Header */}
+                      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                        <div className="text-white text-6xl">
+                          {categories.find(cat => cat.id === activeCategory)?.icon || '❓'}
+                        </div>
+                        <Badge 
+                          variant="outline" 
+                          className="absolute top-3 left-3 bg-black/80 text-white border-transparent"
+                        >
+                          {categories.find(cat => cat.id === activeCategory)?.name || 'Help'}
+                        </Badge>
+                      </div>
+
+                      {/* Article Content */}
+                      <CardContent className="p-6 space-y-4">
+                        <CardTitle className="text-white text-xl">
+                          {item.question}
+                        </CardTitle>
+
+                        <AnimatePresence initial={false}>
+                          {openItems[item.id] && (
+                            <motion.div
+                              key="content"
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3, ease: "easeInOut" }}
+                              className="overflow-hidden"
+                            >
+                              <CardDescription className="text-gray-300 leading-relaxed">
+                                {item.answer}
+                              </CardDescription>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+
+                        {/* Action Button */}
+                        <Button 
+                          onClick={() => toggleItem(item.id)}
+                          className="w-full bg-orange-500 hover:bg-orange-600 text-white transition-all duration-300"
+                        >
+                          {openItems[item.id] ? (
+                            <>
+                              <ChevronUpIcon className="mr-2 h-5 w-5" />
+                              Hide Answer
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDownIcon className="mr-2 h-5 w-5" />
+                              Show Answer
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Call to Action */}
+          <section className="px-4 py-32">
+            <div className="container mx-auto max-w-4xl text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+                whileHover={{ 
+                  scale: 1.02,
+                  transition: { duration: 0.3, ease: "easeOut" }
+                }}
+              >
+                <Card className="p-12 bg-white/95 backdrop-blur-lg border-white/20 shadow-2xl">
+                  <div className="space-y-8">
+                    <div className="space-y-4">
+                      <div className="w-20 h-20 bg-orange-500/20 rounded-full mx-auto flex items-center justify-center">
+                        <SparklesIcon className="h-10 w-10 text-orange-500" />
+                      </div>
+                      <h3 className="text-gray-800 text-4xl">Still Need Help?</h3>
+                      <p className="text-gray-600 text-xl leading-relaxed">
+                        Our customer support team is here to help you 24/7. 
+                        Get personalized assistance for your Sri Lankan travel needs.
+                      </p>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button 
+                          onClick={handleWhatsAppClick}
+                          className="h-16 px-8 text-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                        >
+                          <ChatBubbleLeftRightIcon className="mr-3 h-6 w-6" />
+                          Chat on WhatsApp
+                        </Button>
+                      </motion.div>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button 
+                          onClick={handleEmailClick}
+                          variant="outline" 
+                          className="h-16 px-8 text-lg border-orange-400 text-orange-600"
+                        >
+                          <EnvelopeIcon className="mr-3 h-6 w-6" />
+                          Send Email
+                        </Button>
+                      </motion.div>
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button 
+                          onClick={handlePhoneClick}
+                          variant="outline" 
+                          className="h-16 px-8 text-lg border-orange-400 text-orange-600"
+                        >
+                          <PhoneIcon className="mr-3 h-6 w-6" />
+                          Call Us
+                        </Button>
+                      </motion.div>
+                    </div>
+
+                    <div className="pt-6 border-t border-gray-200">
+                      <p className="text-gray-500">
+                        🏢 Colombo Office • 📞 {settings?.contactInfo?.phone || '+94 77 123 4567'} • 📧 {settings?.contactInfo?.email || 'hello@srilankandreams.com'}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Bottom Spacer */}
+          <div className="h-32"></div>
         </div>
-      </section>
-    </div>
+      </div>
     </>
   );
 };

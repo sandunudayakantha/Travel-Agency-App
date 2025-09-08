@@ -24,9 +24,9 @@ const Footer = () => {
     ],
     support: [
       { name: 'Help Center', href: '/help' },
+      { name: 'FAQ', href: '/faq' },
       { name: 'Privacy Policy', href: '/privacy-policy' },
       { name: 'Terms of Service', href: '/terms-of-service' },
-      { name: 'FAQ', href: '/help' },
     ],
     social: [
       {
