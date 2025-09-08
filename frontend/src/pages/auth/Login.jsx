@@ -2,24 +2,29 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { useClerkAuthContext } from '../../contexts/ClerkAuthContext.jsx';
-import { SignIn } from '@clerk/clerk-react';
 import SocialAuth from '../../components/auth/SocialAuth.jsx';
 
 const scenicPhotos = [
-  // Ella - Nine Arch Bridge
-  'https://images.unsplash.com/photo-1704797389166-c7dac99fc633?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGxhJTIwYnJpZGdlJTIwc3JpJTIwbGFua2F8ZW58MXx8fHwxNzU2MDE2MjU5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+  // Galle Fort - Historic Dutch Fortress
+  '/src/pages/Images/galle-fort-1050x700-1.jpg',
   
-  // Beach side Sri Lanka - Mirissa Beach
-  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfG1pcmlzc2ElMjBiZWFjaCUyMHNyaSUyMGxhbmthfGVufDF8fHx8MTc1NjAxNjI2MHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+  // Temple of the Tooth - Kandy
+  '/src/pages/Images/temple-sacred-tooth-relic-kandy-sri-lanka.jpg',
+  
+  // Nuwara Eliya - Tea Plantations & Waterfalls
+  '/src/pages/Images/nuwara-eliya-highlights-waterfall-tea-and-picturesque-train-ride-4058.webp',
+  
+  // Jaffna - Northern Sri Lanka
+  '/src/pages/Images/Jaffna,_srilanka.jpg?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHNpZ2lyaXlhJTIwc3JpJTIwbGFua2F8ZW58MXx8fHwxNzU2MDE2MjYyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+  
+  // Elephant Family - Wildlife
+  '/src/pages/Images/pexels-freestockpro-319879.jpg',
+  
+  // Ella Nine Arch Bridge
+  '/src/pages/Images/Ella-Nine-Arch-Bridge-1-scaled.jpg',
   
   // Anuradhapura - Sacred City
-  'https://images.unsplash.com/photo-1580889240912-c39ecefd3d95?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfGFudXJhZGhhcHVyYSUyMHNyaSUyMGxhbmthfGVufDF8fHx8MTc1NjAxNjI2MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-  
-  // Sigiriya - Lion Rock Fortress
-  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHNpZ2lyaXlhJTIwc3JpJTIwbGFua2F8ZW58MXx8fHwxNzU2MDE2MjYyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-  
-  // Ella - Tea Plantations
-  'https://images.unsplash.com/photo-1559372122-1a97b2d22c22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfGVsbGElMjB0ZWElMjBwbGFudGF0aW9ucyUyMHNyaSUyMGxhbmthfGVufDF8fHx8MTc1NjAxNjI2M3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+  '/src/pages/Images/photo-1580889240912-c39ecefd3d95.jpeg',
 ];
 
 const Login = () => {
@@ -41,11 +46,13 @@ const Login = () => {
   });
 
   const phrases = [
-    'Discover Ella\'s Nine Arch Bridge',
-    'Explore Sigiriya\'s ancient fortress',
-    'Visit Anuradhapura\'s sacred temples',
-    'Relax on Mirissa\'s pristine beaches',
-    'Experience Sri Lanka\'s tea culture'
+    'Explore historic Galle Fort',
+    'Visit the sacred Temple of the Tooth',
+    'Discover Nuwara Eliya\'s tea estates',
+    'Experience Jaffna\'s unique culture',
+    'Meet majestic elephant families',
+    'Cross Ella\'s Nine Arch Bridge',
+    'Wander through ancient Anuradhapura'
   ];
 
   const currentPhrase = phrases[currentPhraseIndex];
@@ -183,7 +190,7 @@ const Login = () => {
           />
         ))}
       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0c1c2e]/40 via-[#0c1c2e]/20 to-white/90" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0c1c2e]/40 via-[#0c1c2e]/20 to-[#0c1c2e]/30" />
 
       {/* Floating travel icons for subtle motion */}
       
@@ -220,24 +227,22 @@ const Login = () => {
               onMouseLeave={handleTiltLeave}
               style={tiltStyle}
             >
-              <div className="rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-8 shadow-2xl min-w-[400px]">
+              <div className="rounded-3xl bg-black/20 backdrop-blur-sm border border-white/20 p-8 shadow-2xl min-w-[400px] hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20">
                 <div className="mb-8 text-center">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white shadow-lg">
-                    🌍
-                  </div>
+
                   <h2 className="text-3xl font-bold text-white mb-2">Sign in</h2>
                   <p className="text-white/80">Welcome back to your journey</p>
                 </div>
 
                 {/* Login Method Toggle */}
-                <div className="mb-8 flex rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-1">
+                <div className="mb-8 flex rounded-xl border border-white/20 bg-black/20 backdrop-blur-sm p-1">
                   <button
                     type="button"
                     onClick={() => setLoginMethod('traditional')}
                     className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-300 ${
                       loginMethod === 'traditional'
-                        ? 'bg-white/10 text-white shadow-lg backdrop-blur-sm'
-                        : 'text-white/70 hover:text-white hover:bg-white/5'
+                        ? 'bg-orange-500/20 text-orange-300 shadow-lg backdrop-blur-sm border border-orange-400/50'
+                        : 'text-white/70 hover:text-white hover:bg-black/30'
                     }`}
                   >
                     Email & Password
@@ -247,8 +252,8 @@ const Login = () => {
                     onClick={() => setLoginMethod('social')}
                     className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-300 ${
                       loginMethod === 'social'
-                        ? 'bg-white/10 text-white shadow-lg backdrop-blur-sm'
-                        : 'text-white/70 hover:text-white hover:bg-white/5'
+                        ? 'bg-orange-500/20 text-orange-300 shadow-lg backdrop-blur-sm border border-orange-400/50'
+                        : 'text-white/70 hover:text-white hover:bg-black/30'
                     }`}
                   >
                     Social Login
@@ -273,7 +278,7 @@ const Login = () => {
                         id="email"
                         value={formData.email}
                         onChange={handleFieldChange('email')}
-                        className="block w-full rounded-xl border border-white/20 bg-white/5 backdrop-blur-md px-4 py-3 text-white placeholder-white/50 shadow-lg outline-none ring-white/20 focus:border-white/30 focus:ring-2 focus:bg-white/10 transition-all duration-300"
+                        className="block w-full rounded-xl border border-white/20 bg-black/20 backdrop-blur-sm px-4 py-3 text-white placeholder-white/50 shadow-lg outline-none ring-white/20 focus:border-orange-400 focus:ring-2 focus:bg-black/30 transition-all duration-300 hover:bg-black/30"
                         placeholder="Enter your email"
                         required
                         style={{
@@ -293,7 +298,7 @@ const Login = () => {
                         id="password"
                         value={formData.password}
                         onChange={handleFieldChange('password')}
-                        className="block w-full rounded-xl border border-white/20 bg-white/5 backdrop-blur-md px-4 py-3 text-white placeholder-white/50 shadow-lg outline-none ring-white/20 focus:border-white/30 focus:ring-2 focus:bg-white/10 transition-all duration-300"
+                        className="block w-full rounded-xl border border-white/20 bg-black/20 backdrop-blur-sm px-4 py-3 text-white placeholder-white/50 shadow-lg outline-none ring-white/20 focus:border-orange-400 focus:ring-2 focus:bg-black/30 transition-all duration-300 hover:bg-black/30"
                         placeholder="Enter your password"
                         required
                         style={{
@@ -307,7 +312,7 @@ const Login = () => {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-3 font-medium text-white shadow-lg hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-not-allowed disabled:opacity-80 transition-all duration-300 transform hover:scale-105"
+                      className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500/20 backdrop-blur-sm border border-orange-400/50 px-6 py-3 font-medium text-orange-300 shadow-lg hover:bg-orange-500/30 focus:outline-none focus:ring-2 focus:ring-orange-400/30 disabled:cursor-not-allowed disabled:opacity-80 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/20"
                     >
                       {loading ? 'Signing in...' : 'Sign in'}
                     </button>
@@ -315,31 +320,7 @@ const Login = () => {
                 ) : (
                   /* Social Login */
                   <div className="space-y-6 min-h-[400px]">
-                    <SignIn 
-                      appearance={{
-                        elements: {
-                          formButtonPrimary: 'group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-3 font-medium text-white shadow-lg hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-not-allowed disabled:opacity-80 transition-all duration-300 transform hover:scale-105',
-                          card: 'shadow-none bg-transparent',
-                          headerTitle: 'text-3xl font-bold text-white mb-2',
-                          headerSubtitle: 'text-white/80',
-                          socialButtonsBlockButton: 'w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-6 py-3 text-white shadow-sm hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300 transform hover:scale-105',
-                          dividerLine: 'bg-white/30',
-                          dividerText: 'bg-transparent px-4 text-white/70 text-sm',
-                          formFieldInput: 'block w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-md pl-12 pr-4 py-3 text-white placeholder-white/50 shadow-lg outline-none ring-white/20 focus:border-white/30 focus:ring-2 focus:bg-white/10 transition-all duration-300',
-                          formFieldLabel: 'mb-2 block text-sm font-medium text-white/90',
-                          footerActionLink: 'font-medium text-white hover:opacity-80',
-                          formFieldInputShowPasswordButton: 'text-white/70 hover:text-white',
-                          formFieldInputShowPasswordButtonIcon: 'text-white/70',
-                          formResendCodeLink: 'text-white hover:opacity-80',
-                          identityPreviewText: 'text-white/90',
-                          identityPreviewEditButton: 'text-white hover:opacity-80',
-                          footer: 'text-white/70',
-                          footerAction: 'text-white hover:opacity-80'
-                        }
-                      }}
-                      redirectUrl="/"
-                      signUpUrl="/register"
-                    />
+                    <SocialAuth />
                   </div>
                 )}
 
