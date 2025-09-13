@@ -21,6 +21,8 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import CategoryGrid from '../components/CategoryGrid';
+import backgroundImageSrc from './Images/shutterstock728445076.avif';
 
 const Packages = () => {
   const { packages, loading, error, getPackages, pagination } = usePackage();
@@ -32,7 +34,7 @@ const Packages = () => {
   const { isLoading: pageLoading, startLoading, stopLoading, progress, message } = useLoading();
 
   // Sri Lankan landscape background
-  const backgroundImage = "https://images.unsplash.com/photo-1526785777381-db1fdcbb0a3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGxhJTIwbmluZSUyYXJjaCUyMGJyaWRnZXxlbnwxfHx8fDE3NTYwMzQ4MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
+  const backgroundImage = backgroundImageSrc;
 
   useEffect(() => {
     // Start loading when component mounts
@@ -202,69 +204,13 @@ const Packages = () => {
               </p>
             </motion.div>
             
-            {tourTypesLoading ? (
-              <div className="flex justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {/* All Packages Option */}
-                <motion.div
-                  variants={cardVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                >
-                  <Button
-                    onClick={handleClearFilter}
-                    variant={!selectedTourType ? "default" : "outline"}
-                    className={`h-auto p-6 flex flex-col items-center justify-center bg-black/20 backdrop-blur-sm border-white/20 hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 ${
-                      !selectedTourType
-                        ? 'border-orange-400 bg-orange-500/20 text-orange-300 hover:bg-orange-500/30'
-                        : 'border-white/20 bg-black/20 text-white hover:bg-black/30'
-                    }`}
-                  >
-                    <div className="text-3xl mb-3">🌍</div>
-                    <div className="font-medium text-lg">All Packages</div>
-                  </Button>
-                </motion.div>
-
-                {/* Tour Type Categories */}
-                {tourTypes.map((tourType, index) => (
-                  <motion.div
-                    key={tourType._id}
-                    variants={cardVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    transition={{ delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                  >
-                    <Button
-                      onClick={() => handleTourTypeClick(tourType._id)}
-                      variant={selectedTourType === tourType._id ? "default" : "outline"}
-                      className={`h-auto p-6 flex flex-col items-center justify-center bg-black/20 backdrop-blur-sm border-white/20 hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 ${
-                        selectedTourType === tourType._id
-                          ? 'border-orange-400 bg-orange-500/20 text-orange-300 hover:bg-orange-500/30'
-                          : 'border-white/20 bg-black/20 text-white hover:bg-black/30'
-                      }`}
-                    >
-                      <div className="text-3xl mb-3">
-                        {tourType.image?.url ? (
-                          <ImageWithFallback
-                            src={tourType.image.url} 
-                            alt={tourType.name}
-                            className="w-12 h-12 mx-auto rounded-full object-cover"
-                          />
-                        ) : (
-                          '🏔️'
-                        )}
-                      </div>
-                      <div className="font-medium text-lg">{tourType.name}</div>
-                    </Button>
-                  </motion.div>
-                ))}
-              </div>
-            )}
+            <CategoryGrid
+              tourTypes={tourTypes}
+              selectedTourType={selectedTourType}
+              onTourTypeSelect={handleTourTypeClick}
+              onClearFilter={handleClearFilter}
+              loading={tourTypesLoading}
+            />
           </div>
         </section>
 
@@ -552,11 +498,17 @@ const Packages = () => {
                 transition: { duration: 0.3, ease: "easeOut" }
               }}
             >
-              <Card className="p-12 bg-white/95 backdrop-blur-lg border-white/20 shadow-2xl">
-                <div className="space-y-8">
+              <div className="relative overflow-hidden rounded-3xl p-12 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl shadow-orange-500/10">
+                {/* Glass morphism background effects */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-400/10 rounded-full -translate-y-16 translate-x-16 blur-xl"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-orange-300/10 rounded-full translate-y-12 -translate-x-12 blur-xl"></div>
+                <div className="absolute top-1/2 left-1/2 w-40 h-40 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-2xl"></div>
+                
+                <div className="relative z-10 space-y-8">
                   <div className="space-y-4">
-                    <h3 className="text-gray-800 text-4xl">Ready for Your Sri Lankan Adventure?</h3>
-                    <p className="text-gray-600 text-xl leading-relaxed">
+                    <h3 className="text-white text-4xl font-bold">Ready for Your Sri Lankan Adventure?</h3>
+                    <p className="text-gray-200 text-xl leading-relaxed">
                       Let us craft the perfect journey for you. From sunrise at Adam's Peak 
                       to candlelit dinners in Galle Fort, your dream vacation awaits.
                     </p>
@@ -567,29 +519,33 @@ const Packages = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Button className="h-16 px-8 text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
-                        <HeartIcon className="mr-3 h-6 w-6" />
-                        Start Your Journey
-                      </Button>
+                      <Link to="/custom-package">
+                        <Button className="h-16 px-8 text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/25 border border-orange-400/20">
+                          <HeartIcon className="mr-3 h-6 w-6" />
+                          Custom Package
+                        </Button>
+                      </Link>
                     </motion.div>
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Button variant="outline" className="h-16 px-8 text-lg border-orange-400 text-orange-600">
-                        <GlobeAltIcon className="mr-3 h-6 w-6" />
-                        Contact Us
-                      </Button>
+                      <Link to="/contact">
+                        <Button variant="outline" className="h-16 px-8 text-lg border-white/30 text-white hover:bg-white/10 backdrop-blur-sm">
+                          <GlobeAltIcon className="mr-3 h-6 w-6" />
+                          Contact Us
+                        </Button>
+                      </Link>
                     </motion.div>
                   </div>
 
-                  <div className="pt-6 border-t border-gray-200">
-                    <p className="text-gray-500">
+                  <div className="pt-6 border-t border-white/20">
+                    <p className="text-gray-300">
                       🏢 Colombo Office • 📞 +94 77 123 4567 • 📧 hello@srilankandreams.com
                     </p>
                   </div>
                 </div>
-              </Card>
+              </div>
             </motion.div>
           </div>
         </section>
