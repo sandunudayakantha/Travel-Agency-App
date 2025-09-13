@@ -14,6 +14,7 @@ import StarRating from '../components/StarRating';
 import TravelersReviewSection from '../components/TravelersReviewSection';
 import SearchSection from '../components/SearchSection';
 import FeaturedPackages from '../components/FeaturedPackages';
+import PinterestGallery from '../components/PinterestGallery';
 import GetInTouchSection from '../components/GetInTouchSection';
 import TravelLoading from '../components/TravelLoading';
 import { useLoading } from '../hooks/useLoading';
@@ -279,6 +280,9 @@ const Home = () => {
 
       {/* FigmaUI Enhanced Travelers Review Section */}
       <TravelersReviewSection />
+
+      {/* Pinterest-style Gallery Section */}
+      <PinterestGallery />
 
       {/* FigmaUI Enhanced Get in Touch Section */}
       <GetInTouchSection />
