@@ -10,6 +10,15 @@ const TravelLoading = ({
 }) => {
   const [currentMessage, setCurrentMessage] = useState(message);
   const [dots, setDots] = useState('');
+  const [currentStep, setCurrentStep] = useState(0);
+
+  // Loading steps for dynamic messaging
+  const loadingSteps = [
+    "Preparing your adventure...",
+    "Loading amazing destinations...",
+    "Gathering travel insights...",
+    "Almost ready to explore..."
+  ];
 
   // Animate dots
   useEffect(() => {
@@ -23,6 +32,16 @@ const TravelLoading = ({
   useEffect(() => {
     setCurrentMessage(message);
   }, [message]);
+
+  // Cycle through loading steps
+  useEffect(() => {
+    if (!message || message === "Loading your journey...") {
+      const stepInterval = setInterval(() => {
+        setCurrentStep(prev => (prev + 1) % loadingSteps.length);
+      }, 2000);
+      return () => clearInterval(stepInterval);
+    }
+  }, [message, loadingSteps.length]);
 
   const sizeClasses = {
     small: 'w-16 h-16',
@@ -95,68 +114,82 @@ const TravelLoading = ({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-[#0c1c2e]/95 via-[#0c1c2e]/90 to-orange-900/80 backdrop-blur-md"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-900/98 via-slate-800/95 to-orange-900/90 backdrop-blur-xl"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
         exit="exit"
       >
-        {/* Background Pattern */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-orange-500/10 to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-blue-500/10 to-transparent rounded-full blur-3xl"></div>
+        {/* Animated Background Grid */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.1)_50%,transparent_100%)] bg-[length:200%_100%] animate-[shimmer_3s_ease-in-out_infinite]"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(251,146,60,0.1)_0%,transparent_50%)]"></div>
         </div>
 
-        {/* Floating Elements */}
+        {/* Floating Geometric Shapes */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(6)].map((_, i) => (
+          {[...Array(8)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-2 h-2 bg-orange-400/30 rounded-full"
+              className="absolute"
               style={{
-                left: `${20 + i * 15}%`,
-                top: `${30 + (i % 3) * 20}%`,
+                left: `${10 + i * 12}%`,
+                top: `${20 + (i % 4) * 20}%`,
               }}
               animate={{
-                y: [0, -20, 0],
-                opacity: [0.3, 0.8, 0.3],
-                scale: [1, 1.2, 1],
+                y: [0, -30, 0],
+                rotate: [0, 180, 360],
+                opacity: [0.1, 0.3, 0.1],
+                scale: [0.8, 1.2, 0.8],
               }}
               transition={{
-                duration: 3 + i * 0.5,
+                duration: 4 + i * 0.3,
                 repeat: Infinity,
-                delay: i * 0.3,
+                delay: i * 0.4,
                 ease: "easeInOut"
               }}
-            />
+            >
+              <div className={`w-3 h-3 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full blur-sm`}></div>
+            </motion.div>
           ))}
         </div>
 
         {/* Main Loading Content */}
-        <div className="relative z-10 text-center">
-          {/* Spinner Container */}
-          <div className="relative mb-8">
-            {/* Outer Ring */}
+        <div className="relative z-10 text-center max-w-md mx-auto px-6">
+          {/* Modern Spinner Container */}
+          <div className="relative mb-12">
+            {/* Outer Glow Ring */}
             <motion.div
-              className={`${sizeClasses[size]} border-4 border-orange-500/20 border-t-orange-500 rounded-full mx-auto`}
+              className={`${sizeClasses[size]} absolute inset-0 bg-gradient-to-r from-orange-400/20 via-orange-500/30 to-orange-600/20 rounded-full blur-lg`}
+              animate={{
+                scale: [1, 1.1, 1],
+                opacity: [0.3, 0.6, 0.3],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            
+            {/* Main Spinner Ring */}
+            <motion.div
+              className={`${sizeClasses[size]} relative border-4 border-transparent bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 rounded-full mx-auto`}
+              style={{
+                background: 'conic-gradient(from 0deg, #fb923c, #f97316, #ea580c, #fb923c)',
+                mask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), black 0)',
+                WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 4px), black 0)',
+              }}
               variants={spinnerVariants}
               animate="animate"
             />
             
-            {/* Inner Pulse */}
-            <motion.div
-              className={`absolute inset-4 bg-gradient-to-br from-orange-400/20 to-orange-600/20 rounded-full`}
-              variants={pulseVariants}
-              animate="animate"
-            />
-            
-            {/* Center Icon */}
+            {/* Inner Content */}
             <div className="absolute inset-0 flex items-center justify-center">
               <motion.div
-                className="text-4xl"
+                className="relative"
                 animate={{
-                  rotate: [0, 10, -10, 0],
-                  scale: [1, 1.1, 1],
+                  scale: [1, 1.05, 1],
                 }}
                 transition={{
                   duration: 2,
@@ -164,75 +197,150 @@ const TravelLoading = ({
                   ease: "easeInOut"
                 }}
               >
-                🌴
+                {/* Center Logo/Icon */}
+                <div className="w-16 h-16 bg-gradient-to-br from-white/10 to-white/5 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20">
+                  <motion.div
+                    className="text-2xl"
+                    animate={{
+                      rotate: [0, 5, -5, 0],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    ✈️
+                  </motion.div>
+                </div>
+                
+                {/* Orbiting Elements */}
+                <motion.div
+                  className="absolute inset-0"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                >
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2">
+                    <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                  </div>
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-2">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  </div>
+                </motion.div>
               </motion.div>
             </div>
           </div>
 
-          {/* Loading Message */}
+          {/* Dynamic Loading Message */}
           <motion.div
-            className={`${textSizeClasses[size]} text-white font-medium mb-6`}
-            variants={messageVariants}
-            animate="animate"
+            className={`${textSizeClasses[size]} text-white font-semibold mb-8 min-h-[2.5rem] flex items-center justify-center`}
+            key={currentStep}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.5 }}
           >
-            <span className="text-orange-300">{currentMessage}</span>
-            <span className="text-orange-400">{dots}</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-orange-400 to-orange-500">
+              {message !== "Loading your journey..." ? currentMessage : loadingSteps[currentStep]}
+            </span>
+            <motion.span 
+              className="text-orange-400 ml-1"
+              animate={{ opacity: [1, 0, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+            >
+              {dots}
+            </motion.span>
           </motion.div>
 
-          {/* Progress Bar */}
+          {/* Modern Progress Bar */}
           {showProgress && (
-            <div className="w-64 mx-auto">
-              <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"
-                  variants={progressVariants}
-                  animate="animate"
-                />
-              </div>
-              <div className="text-sm text-white/70 mt-2">
-                {Math.round(progress)}% Complete
+            <div className="w-80 mx-auto mb-8">
+              <div className="relative">
+                {/* Background */}
+                <div className="w-full bg-white/5 rounded-full h-3 overflow-hidden backdrop-blur-sm border border-white/10">
+                  {/* Animated Background */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                    animate={{
+                      x: ['-100%', '100%'],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
+                  
+                  {/* Progress Fill */}
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 rounded-full relative overflow-hidden"
+                    variants={progressVariants}
+                    animate="animate"
+                  >
+                    {/* Shimmer Effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                      animate={{
+                        x: ['-100%', '100%'],
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  </motion.div>
+                </div>
+                
+                {/* Progress Text */}
+                <motion.div 
+                  className="text-sm text-white/80 mt-3 font-medium"
+                  animate={{ opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  {Math.round(progress)}% Complete
+                </motion.div>
               </div>
             </div>
           )}
 
-          {/* Sri Lankan Elements */}
-          <div className="mt-8 flex justify-center space-x-4 text-2xl opacity-60">
-            <motion.span
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            >
-              🏔️
-            </motion.span>
-            <motion.span
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              🐘
-            </motion.span>
-            <motion.span
-              animate={{ rotate: [0, -360] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            >
-              🏛️
-            </motion.span>
+          {/* Travel Icons */}
+          <div className="flex justify-center space-x-6 text-2xl opacity-70">
+            {['🏔️', '🌊', '🏛️', '🐘', '🌴'].map((icon, i) => (
+              <motion.span
+                key={i}
+                animate={{ 
+                  y: [0, -8, 0],
+                  rotate: [0, i % 2 === 0 ? 5 : -5, 0],
+                }}
+                transition={{ 
+                  duration: 2 + i * 0.2, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  delay: i * 0.1
+                }}
+              >
+                {icon}
+              </motion.span>
+            ))}
           </div>
         </div>
 
-        {/* Bottom Decoration */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-          <div className="flex space-x-2">
-            {[...Array(5)].map((_, i) => (
+        {/* Bottom Loading Dots */}
+        <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2">
+          <div className="flex space-x-3">
+            {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
-                className="w-2 h-2 bg-orange-400/50 rounded-full"
+                className="w-3 h-3 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"
                 animate={{
-                  scale: [1, 1.5, 1],
-                  opacity: [0.5, 1, 0.5],
+                  scale: [1, 1.3, 1],
+                  opacity: [0.6, 1, 0.6],
                 }}
                 transition={{
                   duration: 1.5,
                   repeat: Infinity,
-                  delay: i * 0.2,
+                  delay: i * 0.3,
                   ease: "easeInOut"
                 }}
               />
