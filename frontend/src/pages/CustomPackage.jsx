@@ -43,8 +43,8 @@ const CustomPackage = () => {
   const sectionRef = useRef(null);
   const isSectionInView = useInView(sectionRef, { once: true, amount: 0.3 });
 
-  // Sri Lankan elephant family background
-  const backgroundImage = "https://images.unsplash.com/photo-1549366021-9f761d450615?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGVwaGFudCUyMGZhbWlseSUyMHNyaSUyMGxhbmthfGVufDF8fHx8MTc1NjAzNDgyNXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
+  // Custom package background
+  const backgroundImage = "/src/pages/Images/01.jpg";
 
   const hotels = [
     { id: '3s', name: 'Comfort (3★)', stars: 3, pricePerNight: 45 },
@@ -116,7 +116,7 @@ const CustomPackage = () => {
     if (places.length === 0) {
       getPlaces({ featured: true });
     }
-  }, [places.length, startLoading, getPlaces]);
+  }, []); // Empty dependency array to run only once on mount
 
   useEffect(() => {
     // Fetch vehicles, tour guides, and drivers on component mount
@@ -129,7 +129,7 @@ const CustomPackage = () => {
     if (availableDrivers.length === 0) {
       getDrivers();
     }
-  }, [availableVehicles.length, availableTourGuides.length, availableDrivers.length, getVehicles, getTourGuides, getDrivers]);
+  }, []); // Empty dependency array to run only once on mount
 
   // Handle loading states
   useEffect(() => {
@@ -139,7 +139,7 @@ const CustomPackage = () => {
     } else if (!isLoading && pageLoading) {
       stopLoading();
     }
-  }, [placesLoading, vehiclesLoading, tourGuidesLoading, driversLoading, pageLoading, startLoading, stopLoading]);
+  }, [placesLoading, vehiclesLoading, tourGuidesLoading, driversLoading, pageLoading]); // Removed function dependencies
 
   // Dynamic coordinates from places data
   const mapCoords = useMemo(() => {
@@ -506,7 +506,7 @@ const CustomPackage = () => {
       <div className="fixed inset-0 z-0">
         <ImageWithFallback
           src={backgroundImage}
-          alt="Sri Lankan Elephant Family - Majestic wildlife in natural habitat"
+          alt="Beautiful Sri Lankan landscape - Perfect backdrop for custom travel packages"
           className="w-full h-full object-cover"
         />
         

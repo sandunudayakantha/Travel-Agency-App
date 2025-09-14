@@ -155,7 +155,7 @@ const GetInTouchSection = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(https://images.unsplash.com/photo-1623595289196-007a22dd8560?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvbWJvJTIwc3JpJTIwbGFua2ElMjBzdW5zZXQlMjBza3lsaW5lfGVufDF8fHx8MTc1NjAyMDYyOXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(/src/pages/Images/Pidurangala-Rock-Group-Shot.jpg)`
         }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/20 to-slate-900" />
