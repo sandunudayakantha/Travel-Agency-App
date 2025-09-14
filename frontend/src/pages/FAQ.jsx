@@ -214,7 +214,7 @@ const FAQ = () => {
             </motion.div>
           </section>
 
-          {/* Category Filter */}
+          {/* Category Filter - Cell Layout */}
           <section className="px-4 py-32">
             <div className="container mx-auto max-w-7xl">
               <motion.div 
@@ -237,7 +237,8 @@ const FAQ = () => {
                 </p>
               </motion.div>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {/* Cell-based Grid Layout with consistent padding */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 p-8">
                 {categories.map((category, index) => (
                   <motion.div
                     key={category}
@@ -246,17 +247,18 @@ const FAQ = () => {
                     whileInView="visible"
                     transition={{ delay: index * 0.1 }}
                     viewport={{ once: true }}
+                    className="flex justify-center"
                   >
                     <Button
                       onClick={() => setSelectedCategory(category)}
                       variant={selectedCategory === category ? "default" : "outline"}
-                      className={`h-auto p-6 flex flex-col items-center justify-center bg-black/20 backdrop-blur-sm border-white/20 hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 ${
+                      className={`w-full h-32 p-6 flex flex-col items-center justify-center bg-black/20 backdrop-blur-sm border-white/20 hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 rounded-xl ${
                         selectedCategory === category
                           ? 'border-orange-400 bg-orange-500/20 text-orange-300 hover:bg-orange-500/30'
                           : 'border-white/20 bg-black/20 text-white hover:bg-black/30'
                       }`}
                     >
-                      <div className="text-3xl mb-3">
+                      <div className="text-4xl mb-3">
                         {category === 'All' ? '🌍' : 
                          category === 'Booking' ? '📦' :
                          category === 'Customization' ? '✈️' :
@@ -269,7 +271,7 @@ const FAQ = () => {
                          category === 'Meals' ? '🍽️' :
                          category === 'Guides' ? '🗣️' : '❓'}
                       </div>
-                      <div className="font-medium text-lg">{category}</div>
+                      <div className="font-medium text-sm text-center leading-tight">{category}</div>
                     </Button>
                   </motion.div>
                 ))}
