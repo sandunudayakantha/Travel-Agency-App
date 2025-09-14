@@ -79,6 +79,7 @@ const faqs = [
   }
 ];
 
+
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -86,8 +87,8 @@ const FAQ = () => {
   const sectionRef = useRef(null);
   const isSectionInView = useInView(sectionRef, { once: true, amount: 0.3 });
 
-  // Sri Lankan temple background
-  const backgroundImage = "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZW1wbGUlMjBvZiUyMHRoZSUyMHRvb3RoJTIwc3JpJTIwbGFua2F8ZW58MXx8fHx8MTc1NjAzNDgyNXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
+  // Sri Lankan background image
+  const backgroundImage = "/src/pages/Images/photo-1544750040-4ea9b8a27d38.jpeg";
 
   useEffect(() => {
     startLoading("Loading frequently asked questions...", 1500);
@@ -150,7 +151,7 @@ const FAQ = () => {
         <div className="fixed inset-0 z-0">
           <ImageWithFallback
             src={backgroundImage}
-            alt="Temple of the Tooth - Sacred Buddhist temple in Kandy, Sri Lanka"
+            alt="Beautiful Sri Lankan landscape - Perfect backdrop for FAQ section"
             className="w-full h-full object-cover"
           />
           
@@ -161,58 +162,6 @@ const FAQ = () => {
 
         {/* Main Content */}
         <div className="relative z-20">
-          
-          {/* Hero Section */}
-          <section className="min-h-screen flex items-center justify-center text-center text-white px-4">
-            <motion.div 
-              className="max-w-5xl space-y-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              <motion.div 
-                className="flex items-center justify-center gap-2 text-orange-300"
-                initial={{ opacity: 0, x: -20 }}
-                animate={isSectionInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <QuestionMarkCircleIcon className="h-8 w-8" />
-                <span className="text-xl">Get Your Questions Answered</span>
-              </motion.div>
-              
-              <motion.h1 
-                className="text-6xl lg:text-8xl leading-tight"
-                initial={{ opacity: 0, y: 50 }}
-                animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                transition={{ duration: 1, delay: 0.5 }}
-              >
-                Frequently
-                <span className="block text-orange-400">Asked</span>
-                <span className="block">Questions</span>
-              </motion.h1>
-              
-              <motion.p 
-                className="text-2xl text-gray-200 leading-relaxed max-w-4xl mx-auto"
-                initial={{ opacity: 0, y: 30 }}
-                animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-              >
-                Find quick answers to common questions about bookings, travel tips, 
-                policies, and everything you need to know for your Sri Lankan adventure.
-              </motion.p>
-
-              <motion.div 
-                className="flex justify-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.5, delay: 0.9 }}
-              >
-                <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30 px-6 py-3 text-lg">
-                  {faqs.length} Questions • Expert Answers
-                </Badge>
-              </motion.div>
-            </motion.div>
-          </section>
 
           {/* Category Filter - Cell Layout */}
           <section className="px-4 py-32">
