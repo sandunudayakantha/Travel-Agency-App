@@ -2,7 +2,8 @@ import axios from 'axios';
 
 // Configure axios defaults
 axios.defaults.withCredentials = false;
-axios.defaults.baseURL = 'http://localhost:5005';
+// Use relative URLs for production, localhost for development
+axios.defaults.baseURL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5005';
 
 // Add request interceptor for auth headers
 axios.interceptors.request.use(
