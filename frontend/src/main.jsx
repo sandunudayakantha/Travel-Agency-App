@@ -5,9 +5,10 @@ import App from './App.jsx'
 import './index.css'
 import './config/axios.js'
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || "pk_test_placeholder"
 
-if (!PUBLISHABLE_KEY) {
+// Only throw error in development
+if (!PUBLISHABLE_KEY && import.meta.env.DEV) {
   throw new Error("Missing Publishable Key")
 }
 

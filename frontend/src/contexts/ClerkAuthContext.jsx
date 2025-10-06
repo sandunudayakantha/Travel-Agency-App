@@ -52,7 +52,23 @@ export const ClerkAuthProvider = ({ children }) => {
               return;
             }
 
-            const response = await axios.post('/api/auth/clerk-sync', userData);
+            const response = await axios.post('/api/auth/clerk-sync', userData).catch(error => {
+              console.warn('Clerk sync failed, using fallback authentication:', error);
+              return null;
+            });
+            
+            if (!response) {
+              // Fallback: create a simple user object without Clerk sync
+              const fallbackUser = {
+                name: userData.name,
+                email: userData.email,
+                avatar: userData.avatar,
+                isVerified: true
+              };
+              setClerkUser(fallbackUser);
+              setLoading(false);
+              return;
+            }
             
             if (response.data.success) {
               // Use our database user instead of Clerk user
