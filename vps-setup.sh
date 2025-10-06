@@ -79,7 +79,7 @@ version: '3.8'
 
 services:
   app:
-    image: sandunudayakantha/travel-agency-app:latest
+    image: sandunudayakanthaeg/travel-agency-app:latest
     environment:
       - NODE_ENV=production
     restart: unless-stopped
