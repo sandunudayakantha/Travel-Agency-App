@@ -365,14 +365,14 @@ const FAQ = () => {
                   transition: { duration: 0.3, ease: "easeOut" }
                 }}
               >
-                <Card className="p-12 bg-white/95 backdrop-blur-lg border-white/20 shadow-2xl">
+                <Card className="p-12 bg-white/10 backdrop-blur-lg border border-white/20 shadow-2xl rounded-2xl">
                   <div className="space-y-8">
                     <div className="space-y-4">
-                      <div className="w-20 h-20 bg-orange-500/20 rounded-full mx-auto flex items-center justify-center">
-                        <SparklesIcon className="h-10 w-10 text-orange-500" />
+                      <div className="w-20 h-20 bg-orange-500/20 backdrop-blur-sm rounded-full mx-auto flex items-center justify-center border border-orange-300/30">
+                        <SparklesIcon className="h-10 w-10 text-orange-300" />
                       </div>
-                      <h3 className="text-gray-800 text-4xl">Still Have Questions?</h3>
-                      <p className="text-gray-600 text-xl leading-relaxed">
+                      <h3 className="text-white text-4xl font-bold">Still Have Questions?</h3>
+                      <p className="text-gray-200 text-xl leading-relaxed">
                         Our travel experts are here to help! Get personalized answers 
                         and expert advice for your Sri Lankan adventure.
                       </p>
@@ -383,7 +383,7 @@ const FAQ = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <Button className="h-16 px-8 text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
+                        <Button className="h-16 px-8 text-lg bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 text-orange-200 hover:bg-orange-500/30 hover:border-orange-400/50 transition-all duration-300">
                           <HeartIcon className="mr-3 h-6 w-6" />
                           Contact Our Experts
                         </Button>
@@ -392,17 +392,19 @@ const FAQ = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <Button variant="outline" className="h-16 px-8 text-lg border-orange-400 text-orange-600">
+                        <Button className="h-16 px-8 text-lg bg-white/10 backdrop-blur-sm border border-white/30 text-white hover:bg-white/20 hover:border-white/50 transition-all duration-300">
                           <GlobeAltIcon className="mr-3 h-6 w-6" />
                           Browse Packages
                         </Button>
                       </motion.div>
                     </div>
 
-                    <div className="pt-6 border-t border-gray-200">
-                      <p className="text-gray-500">
-                        🏢 Colombo Office • 📞 +94 77 123 4567 • 📧 hello@srilankandreams.com
-                      </p>
+                    <div className="pt-6 border-t border-white/20">
+                      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                        <p className="text-gray-200">
+                          🏢 Colombo Office • 📞 +94 77 123 4567 • 📧 hello@seekinglanka.com
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </Card>

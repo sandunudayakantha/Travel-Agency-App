@@ -1,6 +1,6 @@
-# 🌍 Wanderlust - Premium Travel Agency App
+# 🌍 SeekingLanka - Premium Sri Lankan Travel Agency
 
-A modern, full-stack travel agency application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) and Tailwind CSS. This Airbnb-style platform allows admins to manage travel packages while users can browse, book, and create custom travel experiences.
+A modern, full-stack Sri Lankan travel agency application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) and Tailwind CSS. This platform allows admins to manage Sri Lankan travel packages while users can browse, book, and create custom Sri Lankan travel experiences.
 
 ## ✨ Features
 
@@ -42,7 +42,7 @@ A modern, full-stack travel agency application built with the MERN stack (MongoD
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd Travel-Agency-App
+   cd SeekingLanka
    ```
 
 2. **Backend Setup**
@@ -75,7 +75,7 @@ PORT=5000
 NODE_ENV=development
 
 # Database Configuration
-MONGODB_URI=mongodb://localhost:27017/travel-agency
+MONGODB_URI=mongodb://localhost:27017/seekinglanka
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
@@ -92,7 +92,7 @@ CLOUDINARY_API_SECRET=your-api-secret
 ## 📁 Project Structure
 
 ```
-Travel-Agency-App/
+SeekingLanka/
 ├── backend/
 │   ├── models/          # MongoDB schemas
 │   ├── routes/          # API routes

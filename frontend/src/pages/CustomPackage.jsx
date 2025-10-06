@@ -44,7 +44,7 @@ const CustomPackage = () => {
   const isSectionInView = useInView(sectionRef, { once: true, amount: 0.3 });
 
   // Custom package background
-  const backgroundImage = "/src/pages/Images/01.jpg";
+  const backgroundImage = "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1920&q=80";
 
   const hotels = [
     { id: '3s', name: 'Comfort (3★)', stars: 3, pricePerNight: 45 },
@@ -519,173 +519,102 @@ const CustomPackage = () => {
       <div className="relative z-20">
         
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center text-center text-white px-4">
-          <motion.div 
-            className="max-w-5xl space-y-8"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
+        <section className="pt-20 pb-16 px-4 relative z-30">
+          <div className="container mx-auto max-w-7xl">
             <motion.div 
-              className="flex items-center justify-center gap-2 text-orange-300"
-              initial={{ opacity: 0, x: -20 }}
-              animate={isSectionInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <SparklesIcon className="h-8 w-8" />
-              <span className="text-xl">Design Your Perfect Sri Lankan Journey</span>
-            </motion.div>
-            
-            <motion.h1 
-              className="text-6xl lg:text-8xl leading-tight"
-              initial={{ opacity: 0, y: 50 }}
-              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 1, delay: 0.5 }}
-            >
-              <span className="block">
-                {typingText1}
-                {showCursor && typingText1.length < "Build Your".length && <span className="animate-pulse">|</span>}
-              </span>
-              <span className="block text-orange-400">
-                {typingText2}
-                {showCursor && typingText2.length < "Custom Trip".length && <span className="animate-pulse">|</span>}
-              </span>
-              <span className="block">
-                {typingText3}
-                {showCursor && typingText3.length < "From Scratch".length && <span className="animate-pulse">|</span>}
-              </span>
-            </motion.h1>
-            
-            <motion.p 
-              className="text-2xl text-gray-200 leading-relaxed max-w-4xl mx-auto"
+              className="text-center text-white space-y-8 mb-16"
               initial={{ opacity: 0, y: 30 }}
-              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              Choose destinations, hotels, vehicles, and guides to craft your own 
-              personalized Sri Lankan adventure. Every detail, your way.
-            </motion.p>
-
-            <motion.div 
-              className="flex justify-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, delay: 0.9 }}
-            >
-              <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30 px-6 py-3 text-lg">
-                🎯 100% Customizable • 🗺️ Interactive Planning • 💎 Premium Experience
-              </Badge>
+              <h1 className="text-5xl lg:text-6xl leading-tight font-bold">
+                Build Your
+                <span className="block text-orange-400">Custom Trip</span>
+              </h1>
+              <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+                Choose destinations, hotels, vehicles, and guides to craft your own personalized Sri Lankan adventure. Every detail, your way.
+              </p>
             </motion.div>
-          </motion.div>
+
+            {/* Search Bar */}
+            <motion.div 
+              className="max-w-2xl mx-auto mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <MagnifyingGlassIcon className="h-6 w-6 text-orange-300" />
+                </div>
+                <Input
+                  type="text"
+                  placeholder="Search for places, destinations, attractions... (e.g., 'Kandy', 'Sigiriya', 'beach', 'temple')"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  onKeyPress={handleSearchKeyPress}
+                  className="w-full h-16 pl-12 pr-12 text-lg bg-black/30 backdrop-blur-md border-white/30 text-white placeholder:text-gray-300 focus:border-orange-400 focus:ring-orange-400/30 rounded-xl transition-all duration-300 hover:bg-black/40 hover:border-white/40"
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={closeSearchResults}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-orange-300 transition-colors duration-200"
+                  >
+                    <XMarkIcon className="h-6 w-6" />
+                  </button>
+                )}
+              </form>
+              
+              {/* Search Results Info */}
+              {searchTerm && (
+                <motion.div 
+                  className="mt-4 text-center"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30">
+                    {searchResults.length} destination{searchResults.length !== 1 ? 's' : ''} found
+                    {searchTerm.trim() && ` for "${searchTerm}"`}
+                  </Badge>
+                </motion.div>
+              )}
+            </motion.div>
+          </div>
         </section>
 
         {/* Main Content Container */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left: Destination selection and itinerary planning */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Destination Selection */}
-            <section className="py-16">
-              <motion.div 
-                className="text-center text-white space-y-8 mb-16"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-              >
-                <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30">
-                  Choose Your Destinations
-                </Badge>
-                <h2 className="text-5xl leading-tight">
-                  Available
-                  <span className="block text-orange-400">Destinations</span>
-                </h2>
-                <p className="text-xl text-gray-200 max-w-3xl mx-auto">
-                  {showSearchResults ? 'Search results' : 'Featured destinations'} - Browse and select destinations for your custom trip.
-                </p>
-              </motion.div>
-              
-              {/* Search Bar */}
-              <motion.div 
-                className="max-w-2xl mx-auto mb-12"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                viewport={{ once: true }}
-              >
-                <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <MagnifyingGlassIcon className="h-6 w-6 text-orange-300" />
-                  </div>
-                  <Input
-                    type="text"
-                    placeholder="Search for places, destinations, attractions... (e.g., 'temple', 'beach', 'kandy')"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    onKeyPress={handleSearchKeyPress}
-                    className="w-full h-16 pl-12 pr-12 text-lg bg-black/30 backdrop-blur-md border-white/30 text-white placeholder:text-gray-300 focus:border-orange-400 focus:ring-orange-400/30 rounded-xl transition-all duration-300 hover:bg-black/40 hover:border-white/40"
-                  />
-                  {searchTerm && (
-                    <button
-                      type="button"
-                      onClick={closeSearchResults}
-                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-orange-300 transition-colors duration-200"
-                    >
-                      <XMarkIcon className="h-6 w-6" />
-                    </button>
-                  )}
-                </form>
-                
-                {/* Search Status */}
-                {isSearching && (
-                  <motion.div 
-                    className="mt-4 text-center"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-300 mr-2"></div>
-                      Searching...
-                    </Badge>
-                  </motion.div>
-                )}
-                
-                {showSearchResults && searchResults.length === 0 && !isSearching && (
-                  <motion.div 
-                    className="mt-4 text-center"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30">
-                      No places found for "{searchTerm}". Try a different search term.
-                    </Badge>
-                  </motion.div>
-                )}
-              </motion.div>
+        {/* New Layout: Left (2x3 grid) + Right (Map) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          {/* Left: Destination Selection Grid (2x3) */}
+          <div className="lg:col-span-2">
+            <section className="py-4">
+
+   
               
               {placesLoading ? (
-                <div className="flex justify-center py-12">
-                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500"></div>
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
                 </div>
               ) : displayPlaces.length === 0 ? (
-                <div className="text-center py-12 text-white">
-                  <Card className="p-12 bg-black/20 backdrop-blur-sm border-white/20 max-w-2xl mx-auto">
+                <div className="text-center py-8 text-white">
+                  <Card className="p-8 bg-black/20 backdrop-blur-sm border-white/20 max-w-xl mx-auto">
                     <motion.div 
-                      className="space-y-6"
+                      className="space-y-4"
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.5 }}
                     >
-                      <div className="w-24 h-24 bg-orange-500/20 rounded-full mx-auto flex items-center justify-center">
-                        <MapIcon className="h-12 w-12 text-orange-300" />
+                      <div className="w-16 h-16 bg-orange-500/20 rounded-full mx-auto flex items-center justify-center">
+                        <MapIcon className="h-8 w-8 text-orange-300" />
                       </div>
-                      <h3 className="text-3xl">
+                      <h3 className="text-2xl">
                         {showSearchResults ? 'No search results found' : 'No featured destinations available'}
                       </h3>
-                      <p className="text-xl text-gray-300">
+                      <p className="text-lg text-gray-300">
                         {showSearchResults 
                           ? 'Try a different search term or browse featured destinations.' 
                           : 'Please check back later or search for specific destinations.'
@@ -695,8 +624,8 @@ const CustomPackage = () => {
                   </Card>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {displayPlaces.map((place, index) => {
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+                  {displayPlaces.slice(0, 6).map((place, index) => {
                     const active = selectedDestinations.find((x) => x._id === place._id);
                     return (
                       <motion.div
@@ -706,27 +635,34 @@ const CustomPackage = () => {
                         transition={{ duration: 0.5, delay: index * 0.1 }}
                         viewport={{ once: true }}
                         whileHover={{ 
-                          scale: 1.05,
-                          y: -10,
+                          scale: 1.08,
+                          y: -8,
                           transition: { duration: 0.3, ease: "easeOut" }
                         }}
-                        className="cursor-pointer"
+                        className="cursor-pointer group"
                       >
                         <Card 
-                          className={`bg-black/20 backdrop-blur-sm border-white/20 overflow-hidden hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 ${
-                            active ? 'ring-2 ring-orange-400' : ''
+                          className={`relative bg-white/10 backdrop-blur-lg border-white/30 overflow-hidden transition-all duration-500 hover:bg-white/15 hover:shadow-2xl hover:shadow-orange-500/30 ${
+                            active ? 'ring-2 ring-orange-400 shadow-orange-500/50' : ''
                           }`}
                         >
-                          <div className="relative aspect-video overflow-hidden">
+                          {/* Card Glow Effect */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-yellow-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                          
+                          <div className="relative aspect-square overflow-hidden">
                             <ImageWithFallback
                               src={place.images?.[0]?.url || place.image?.url || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=60'}
                               alt={place.name}
-                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             />
+                            
+                            {/* Overlay Gradient */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                            
                             {active && (
                               <Badge 
                                 variant="secondary" 
-                                className="absolute top-3 right-3 bg-orange-500 text-white border-orange-500"
+                                className="absolute top-3 right-3 bg-orange-500 text-white border-orange-500 text-xs font-semibold shadow-lg"
                               >
                                 ✓ Selected
                               </Badge>
@@ -734,19 +670,26 @@ const CustomPackage = () => {
                             {isPlaceInItinerary(place._id) && (
                               <Badge 
                                 variant="outline" 
-                                className="absolute top-3 left-3 bg-orange-500/20 text-orange-300 border-orange-300"
+                                className="absolute top-3 left-3 bg-orange-500/20 text-orange-200 border-orange-300 text-xs font-semibold backdrop-blur-sm"
                               >
                                 In Itinerary
                               </Badge>
                             )}
+                            
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 bg-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                              <div className="text-white text-center">
+                                <div className="text-sm font-semibold">Click to {active ? 'Remove' : 'Select'}</div>
+                              </div>
+                            </div>
                           </div>
                           
-                          <CardContent className="p-6 space-y-4">
+                          <CardContent className="p-5 space-y-4 relative z-10">
                             <div>
-                              <CardTitle className="text-white text-lg">
+                              <CardTitle className="text-white text-lg font-bold mb-1">
                                 {place.name}
                               </CardTitle>
-                              <CardDescription className="text-gray-300 text-sm">
+                              <CardDescription className="text-gray-200 text-sm">
                                 {place.location?.formattedAddress || place.location?.city || 'Sri Lanka'}
                               </CardDescription>
                             </div>
@@ -756,12 +699,12 @@ const CustomPackage = () => {
                               disabled={isPlaceInItinerary(place._id)}
                               variant={active ? "destructive" : "outline"}
                               size="sm"
-                              className={`w-full ${
+                              className={`w-full text-sm font-semibold transition-all duration-300 ${
                                 isPlaceInItinerary(place._id)
-                                  ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                                  ? 'bg-gray-500/50 text-gray-300 cursor-not-allowed border-gray-500'
                                   : active
-                                    ? 'bg-red-500 hover:bg-red-600 text-white'
-                                    : 'border-orange-400 text-orange-300 hover:bg-orange-400/20'
+                                    ? 'bg-red-500 hover:bg-red-600 text-white border-red-500 shadow-lg'
+                                    : 'border-orange-400 text-orange-300 hover:bg-orange-400/20 hover:border-orange-300 hover:text-orange-200'
                               }`}
                             >
                               {active ? 'Remove' : isPlaceInItinerary(place._id) ? 'In Itinerary' : 'Add to Selection'}
@@ -774,21 +717,110 @@ const CustomPackage = () => {
                 </div>
               )}
             </section>
+          </div>
 
-            {/* Itinerary Planning */}
-            <section className="bg-white rounded-xl shadow-soft border border-gray-100 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Plan Your Itinerary</h2>
-              <p className="text-sm text-gray-600 mb-4">Define your trip day by day with multiple places and timing.</p>
+          {/* Right: Enhanced Interactive Map */}
+          <div className="lg:col-span-1 flex justify-center">
+            <div className="w-full max-w-md">
+              {/* Map Component */}
+              <section className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6">
+                <div className="text-center mb-6">
+                  <div className="inline-block p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 mb-4">
+                    <h2 className="text-2xl font-bold text-white mb-2">Interactive Map</h2>
+                    <p className="text-sm text-gray-200">See your selected destinations and itinerary on the real map</p>
+                  </div>
+                </div>
+                
+                <div className="relative w-full rounded-xl overflow-hidden border-2 border-white/30 shadow-2xl" style={{ height: '400px' }}>
+                  {/* Map Background Glow */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-yellow-500/20 rounded-xl blur-sm -z-10"></div>
+                  
+                  <InteractiveTripMap
+                    selectedDestinations={selectedDestinations}
+                    itineraryItems={itineraryItems}
+                    mapCoords={mapCoords}
+                    height="100%"
+                  />
+                  
+                  {/* Map Overlay Info */}
+                  <div className="absolute top-4 left-4 right-4">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+                      <div className="text-sm text-gray-700 font-medium">
+                        {selectedDestinations.length === 0 ? (
+                          <span className="flex items-center gap-2">
+                            Select destinations to see them on the map
+                          </span>
+                        ) : itineraryItems.length === 0 ? (
+                          <span className="flex items-center gap-2">
+                            {selectedDestinations.length} destination(s) selected
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2">
+                            {itineraryItems.length} item(s) in itinerary
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
               
-              {/* Day Selection */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-medium text-gray-900">Select Day to Plan</h3>
+              {/* Selection Location Bar - Separate Section */}
+              <section className="mt-6 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6">
+                <div className="text-center mb-4">
+                  <h3 className="text-lg font-semibold text-white mb-2">Selected Locations</h3>
+                </div>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {selectedDestinations.length === 0 ? (
+                    <div className="text-sm text-gray-400 text-center w-full">
+                      No destinations selected yet
+                    </div>
+                  ) : (
+                    selectedDestinations.map((place) => (
+                      <div
+                        key={place._id}
+                        className="flex items-center gap-2 px-3 py-2 bg-orange-500/20 text-orange-200 rounded-full text-sm border border-orange-300/30"
+                      >
+                        <span className="truncate max-w-24">{place.name}</span>
+                        <button
+                          onClick={() => toggleDestination(place)}
+                          className="text-orange-300 hover:text-red-300 transition-colors text-lg"
+                          title="Remove destination"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Content Sections */}
+        <div className="space-y-6">
+
+            {/* Enhanced Itinerary Planning */}
+            <section className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6">
+              <div className="text-center mb-6">
+                <div className="inline-block p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-2">Plan Your Itinerary</h2>
+                  <p className="text-sm text-gray-200">Define your trip day by day with multiple places and timing.</p>
+                </div>
+              </div>
+              
+              {/* Enhanced Day Selection */}
+              <div className="mb-6 p-6 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white">
+                    Select Day to Plan
+                  </h3>
                   <button
                     onClick={addNewDay}
-                    className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                    className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-green-500/25"
                   >
-                    <span>+</span>
+                    <span className="text-lg">+</span>
                     Add Day
                   </button>
                 </div>
@@ -802,12 +834,12 @@ const CustomPackage = () => {
                       <div key={day} className="relative group">
                         <button
                           onClick={() => setNewItemDay(day)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
                             isSelected 
-                              ? 'bg-primary-600 text-white' 
+                              ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/25' 
                               : dayItems.length > 0 
-                                ? 'bg-green-100 text-green-800 border border-green-200' 
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-green-500/20 text-green-300 border border-green-400/30 backdrop-blur-sm hover:bg-green-500/30' 
+                                : 'bg-white/10 text-gray-200 border border-white/20 backdrop-blur-sm hover:bg-white/20 hover:text-white'
                           }`}
                         >
                           Day {day} {dayItems.length > 0 && `(${dayItems.length})`}
@@ -1027,104 +1059,157 @@ const CustomPackage = () => {
 
 
 
-            {/* Preferences */}
-            <section className="bg-white rounded-xl shadow-soft border border-gray-100 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Travel Preferences</h2>
+            {/* Enhanced Travel Preferences */}
+            <section className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6">
+              <div className="text-center mb-6">
+                <div className="inline-block p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 mb-3">
+                  <h2 className="text-2xl font-bold text-white mb-2">Travel Preferences</h2>
+                  <p className="text-sm text-gray-200">Customize your travel experience with our premium options</p>
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Hotel Tier */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Hotel Tier</h3>
-                <div className="space-y-2">
+                {/* Enhanced Hotel Tier */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4">
+                <h3 className="font-semibold text-white mb-4">
+                  Hotel Tier
+                </h3>
+                <div className="space-y-3">
                   {hotels.map((h) => (
-                    <label key={h.id} className={`flex items-center justify-between rounded-md border p-3 cursor-pointer ${hotelTier.id === h.id ? 'border-primary-500 bg-primary-50' : 'border-gray-200'}`}>
+                    <label key={h.id} className={`flex items-center justify-between rounded-xl border p-4 cursor-pointer transition-all duration-300 ${
+                      hotelTier.id === h.id 
+                        ? 'border-orange-400 bg-orange-500/20 shadow-lg shadow-orange-500/25' 
+                        : 'border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30'
+                    }`}>
                       <div>
-                        <div className="font-medium text-gray-900">{h.name}</div>
-                        <div className="text-xs text-gray-500">${h.pricePerNight}/night per person</div>
+                        <div className="font-medium text-white">{h.name}</div>
+                        <div className="text-xs text-gray-300">${h.pricePerNight}/night per person</div>
                       </div>
-                      <input type="radio" name="hotel" checked={hotelTier.id === h.id} onChange={() => setHotelTier(h)} />
+                      <input 
+                        type="radio" 
+                        name="hotel" 
+                        checked={hotelTier.id === h.id} 
+                        onChange={() => setHotelTier(h)}
+                        className="w-4 h-4 text-orange-500"
+                      />
                     </label>
                   ))}
                 </div>
               </div>
 
-                {/* Vehicle Selection */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Vehicle</h3>
+                {/* Enhanced Vehicle Selection */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4">
+                <h3 className="font-semibold text-white mb-4">
+                  Vehicle
+                </h3>
                   {vehiclesLoading ? (
-                    <div className="text-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
-                      <p className="text-sm text-gray-500 mt-2">Loading vehicles...</p>
+                    <div className="text-center py-6">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+                      <p className="text-sm text-gray-300 mt-2">Loading vehicles...</p>
                     </div>
                   ) : availableVehicles.length === 0 ? (
-                    <div className="text-center py-4 text-gray-500">
+                    <div className="text-center py-6 text-gray-300">
                       <p className="text-sm">No vehicles available</p>
                     </div>
                   ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                       {availableVehicles.map((v) => (
-                        <label key={v._id} className={`flex items-center justify-between rounded-md border p-3 cursor-pointer ${selectedVehicle?._id === v._id ? 'border-primary-500 bg-primary-50' : 'border-gray-200'}`}>
+                        <label key={v._id} className={`flex items-center justify-between rounded-xl border p-4 cursor-pointer transition-all duration-300 ${
+                          selectedVehicle?._id === v._id 
+                            ? 'border-orange-400 bg-orange-500/20 shadow-lg shadow-orange-500/25' 
+                            : 'border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30'
+                        }`}>
                       <div>
-                        <div className="font-medium text-gray-900">{v.name}</div>
-                        <div className="text-xs text-gray-500">${v.pricePerDay}/day per group</div>
+                        <div className="font-medium text-white">{v.name}</div>
+                        <div className="text-xs text-gray-300">${v.pricePerDay}/day per group</div>
                             <div className="text-xs text-gray-400">{v.type} • {v.capacity} passengers</div>
                       </div>
-                          <input type="radio" name="vehicle" checked={selectedVehicle?._id === v._id} onChange={() => setSelectedVehicle(v)} />
+                          <input 
+                            type="radio" 
+                            name="vehicle" 
+                            checked={selectedVehicle?._id === v._id} 
+                            onChange={() => setSelectedVehicle(v)}
+                            className="w-4 h-4 text-orange-500"
+                          />
                     </label>
                   ))}
                     </div>
                   )}
                 </div>
 
-                {/* Tour Guide Selection */}
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Tour Guide</h3>
+                {/* Enhanced Tour Guide Selection */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4">
+                  <h3 className="font-semibold text-white mb-4">
+                    Tour Guide
+                  </h3>
                   {tourGuidesLoading ? (
-                    <div className="text-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
-                      <p className="text-sm text-gray-500 mt-2">Loading guides...</p>
+                    <div className="text-center py-6">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+                      <p className="text-sm text-gray-300 mt-2">Loading guides...</p>
                     </div>
                   ) : availableTourGuides.length === 0 ? (
-                    <div className="text-center py-4 text-gray-500">
+                    <div className="text-center py-6 text-gray-300">
                       <p className="text-sm">No guides available</p>
               </div>
                   ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                       {availableTourGuides.map((g) => (
-                        <label key={g._id} className={`flex items-center justify-between rounded-md border p-3 cursor-pointer ${selectedTourGuide?._id === g._id ? 'border-primary-500 bg-primary-50' : 'border-gray-200'}`}>
+                        <label key={g._id} className={`flex items-center justify-between rounded-xl border p-4 cursor-pointer transition-all duration-300 ${
+                          selectedTourGuide?._id === g._id 
+                            ? 'border-orange-400 bg-orange-500/20 shadow-lg shadow-orange-500/25' 
+                            : 'border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30'
+                        }`}>
                       <div>
-                        <div className="font-medium text-gray-900">{g.name}</div>
-                        <div className="text-xs text-gray-500">${g.pricePerDay}/day per group</div>
+                        <div className="font-medium text-white">{g.name}</div>
+                        <div className="text-xs text-gray-300">${g.pricePerDay}/day per group</div>
                             <div className="text-xs text-gray-400">{g.languages?.join(', ')} • {g.rating}★</div>
                           </div>
-                          <input type="radio" name="guide" checked={selectedTourGuide?._id === g._id} onChange={() => setSelectedTourGuide(g)} />
+                          <input 
+                            type="radio" 
+                            name="guide" 
+                            checked={selectedTourGuide?._id === g._id} 
+                            onChange={() => setSelectedTourGuide(g)}
+                            className="w-4 h-4 text-orange-500"
+                          />
                         </label>
                       ))}
                     </div>
                   )}
                 </div>
 
-                {/* Driver Selection */}
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Driver</h3>
+                {/* Enhanced Driver Selection */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-4">
+                  <h3 className="font-semibold text-white mb-4">
+                    Driver
+                  </h3>
                   {driversLoading ? (
-                    <div className="text-center py-4">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
-                      <p className="text-sm text-gray-500 mt-2">Loading drivers...</p>
+                    <div className="text-center py-6">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+                      <p className="text-sm text-gray-300 mt-2">Loading drivers...</p>
                     </div>
                   ) : availableDrivers.length === 0 ? (
-                    <div className="text-center py-4 text-gray-500">
+                    <div className="text-center py-6 text-gray-300">
                       <p className="text-sm">No drivers available</p>
                     </div>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {availableDrivers.map((d) => (
-                        <label key={d._id} className={`flex items-center justify-between rounded-md border p-3 cursor-pointer ${selectedDriver?._id === d._id ? 'border-primary-500 bg-primary-50' : 'border-gray-200'}`}>
+                        <label key={d._id} className={`flex items-center justify-between rounded-xl border p-4 cursor-pointer transition-all duration-300 ${
+                          selectedDriver?._id === d._id 
+                            ? 'border-orange-400 bg-orange-500/20 shadow-lg shadow-orange-500/25' 
+                            : 'border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30'
+                        }`}>
                           <div>
-                            <div className="font-medium text-gray-900">{d.name}</div>
-                            <div className="text-xs text-gray-500">${d.pricePerDay}/day per group</div>
+                            <div className="font-medium text-white">{d.name}</div>
+                            <div className="text-xs text-gray-300">${d.pricePerDay}/day per group</div>
                             <div className="text-xs text-gray-400">{d.licenseType} • {d.rating}★</div>
                       </div>
-                          <input type="radio" name="driver" checked={selectedDriver?._id === d._id} onChange={() => setSelectedDriver(d)} />
+                          <input 
+                            type="radio" 
+                            name="driver" 
+                            checked={selectedDriver?._id === d._id} 
+                            onChange={() => setSelectedDriver(d)}
+                            className="w-4 h-4 text-orange-500"
+                          />
                     </label>
                   ))}
                     </div>
@@ -1133,144 +1218,140 @@ const CustomPackage = () => {
               </div>
             </section>
 
-            {/* Contact Information */}
-            <section className="bg-white rounded-xl shadow-soft border border-gray-100 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h2>
+            {/* Enhanced Contact Information */}
+            <section className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6">
+              <div className="text-center mb-6">
+                <div className="inline-block p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 mb-3">
+                  <h2 className="text-2xl font-bold text-white mb-2">Contact Information</h2>
+                  <p className="text-sm text-gray-200">We'll use this information to contact you about your trip</p>
+                </div>
+              </div>
               {(user || clerkUser) && (
-                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-700">
-                    ✓ Your contact information has been auto-filled from your account
+                <div className="mb-6 p-4 bg-green-500/20 border border-green-400/30 rounded-xl backdrop-blur-sm">
+                  <p className="text-sm text-green-300 flex items-center gap-2">
+                    <span className="text-green-400">✓</span>
+                    Your contact information has been auto-filled from your account
                   </p>
                 </div>
               )}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">Full Name *</label>
+                  <label className="block text-sm text-white mb-2 font-medium">Full Name *</label>
                   <input
                     type="text"
                     value={contactInfo.name}
                     onChange={(e) => handleContactChange('name', e.target.value)}
                     placeholder={(user || clerkUser) ? "Auto-filled from your account" : "Enter your full name"}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-200"
+                    className="w-full rounded-xl border border-white/30 px-4 py-3 text-white bg-white/10 backdrop-blur-sm placeholder:text-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 transition-all duration-300"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">Email *</label>
+                  <label className="block text-sm text-white mb-2 font-medium">Email *</label>
                   <input
                     type="email"
                     value={contactInfo.email}
                     onChange={(e) => handleContactChange('email', e.target.value)}
                     placeholder={(user || clerkUser) ? "Auto-filled from your account" : "Enter your email address"}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-200"
+                    className="w-full rounded-xl border border-white/30 px-4 py-3 text-white bg-white/10 backdrop-blur-sm placeholder:text-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 transition-all duration-300"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">Phone *</label>
+                  <label className="block text-sm text-white mb-2 font-medium">Phone *</label>
                   <input
                     type="tel"
                     value={contactInfo.phone}
                     onChange={(e) => handleContactChange('phone', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-200"
+                    className="w-full rounded-xl border border-white/30 px-4 py-3 text-white bg-white/10 backdrop-blur-sm placeholder:text-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 transition-all duration-300"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">Country</label>
+                  <label className="block text-sm text-white mb-2 font-medium">Country</label>
                   <input
                     type="text"
                     value={contactInfo.country}
                     onChange={(e) => handleContactChange('country', e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-200"
+                    className="w-full rounded-xl border border-white/30 px-4 py-3 text-white bg-white/10 backdrop-blur-sm placeholder:text-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 transition-all duration-300"
                   />
                 </div>
               </div>
             </section>
 
-            {/* Additional Requirements */}
-            <section className="bg-white rounded-xl shadow-soft border border-gray-100 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Additional Requirements</h2>
+            {/* Enhanced Additional Requirements */}
+            <section className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6">
+              <div className="text-center mb-6">
+                <div className="inline-block p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 mb-3">
+                  <h2 className="text-2xl font-bold text-white mb-2">Additional Requirements</h2>
+                  <p className="text-sm text-gray-200">Tell us about any special needs or preferences</p>
+                </div>
+              </div>
+              <div className="relative">
               <textarea
                 value={additionalRequirements}
                 onChange={(e) => setAdditionalRequirements(e.target.value)}
                 placeholder="Any special requirements, dietary restrictions, accessibility needs, or other preferences..."
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-200"
-                rows={4}
+                  className="w-full rounded-xl border border-white/30 px-4 py-4 text-white bg-white/10 backdrop-blur-sm placeholder:text-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 transition-all duration-300 resize-none"
+                  rows={6}
                 maxLength={1000}
               />
-              <div className="text-xs text-gray-500 mt-1">
+                <div className="absolute bottom-3 right-3 text-xs text-gray-400 bg-black/20 px-2 py-1 rounded-lg backdrop-blur-sm">
                 {additionalRequirements.length}/1000 characters
               </div>
-            </section>
-          </div>
-
-          {/* Right: Interactive Map */}
-          <aside className="space-y-6">
-            <section className="bg-white rounded-xl shadow-soft border border-gray-100 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Interactive Map</h2>
-              <p className="text-sm text-gray-600 mb-4">See your selected destinations and itinerary on the real map</p>
-              <div className="relative w-full rounded-lg overflow-hidden border border-gray-200" style={{ height: '400px' }}>
-                <InteractiveTripMap
-                  selectedDestinations={selectedDestinations}
-                  itineraryItems={itineraryItems}
-                  mapCoords={mapCoords}
-                  height="100%"
-                />
-              </div>
-              <div className="mt-3 text-xs text-gray-500">
-                {selectedDestinations.length === 0 ? (
-                  "Select destinations to see them on the interactive map"
-                ) : itineraryItems.length === 0 ? (
-                  `${selectedDestinations.length} destination(s) selected - click markers for details`
-                ) : (
-                  `${itineraryItems.length} item(s) in itinerary - red line shows your route`
-                )}
               </div>
             </section>
-          </aside>
         </div>
 
-        {/* Bottom: Trip Details, Pricing & Submit */}
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Trip Details */}
+
+        {/* Enhanced Bottom: Trip Details, Pricing & Submit */}
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Enhanced Trip Details */}
           <div className="lg:col-span-1">
-            <section className="bg-white rounded-xl shadow-soft border border-gray-100 p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Trip Details</h3>
+            <section className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6">
+              <div className="text-center mb-6">
+                <div className="inline-block p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 mb-3">
+                  <h3 className="font-bold text-white text-lg">
+                    Trip Details
+                  </h3>
+                </div>
+              </div>
               <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">Start date *</label>
+                    <label className="block text-sm text-white mb-2 font-medium">Start date *</label>
                     <input 
                       type="date" 
                       value={startDate} 
                       onChange={(e) => setStartDate(e.target.value)} 
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-200" 
+                      className="w-full rounded-xl border border-white/30 px-4 py-3 text-white bg-white/10 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 transition-all duration-300" 
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-1">Number of Travellers</label>
+                    <label className="block text-sm text-white mb-2 font-medium">Number of Travellers</label>
                     <input 
                       type="number" 
                       min={1} 
                       max={20} 
                       value={travellers} 
                       onChange={(e) => setTravellers(Math.max(1, Number(e.target.value)||1))} 
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-200" 
+                      className="w-full rounded-xl border border-white/30 px-4 py-3 text-white bg-white/10 backdrop-blur-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-400/30 transition-all duration-300" 
                     />
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-sm text-gray-600 mb-2">Selected Destinations</div>
+                  <div className="text-sm text-white mb-3 font-medium">
+                    Selected Destinations
+                  </div>
                   {selectedDestinations.length === 0 ? (
-                    <div className="text-sm text-gray-500">No destinations selected yet.</div>
+                    <div className="text-sm text-gray-300 p-3 bg-white/5 rounded-lg border border-white/10">No destinations selected yet.</div>
                   ) : (
-                    <ul className="text-sm text-gray-800 space-y-1">
+                    <ul className="text-sm text-white space-y-2">
                       {selectedDestinations.map((place) => (
-                        <li key={place._id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                          <span>{place.name}</span>
+                        <li key={place._id} className="flex items-center justify-between p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                          <span className="font-medium">{place.name}</span>
                         </li>
                       ))}
                     </ul>
@@ -1278,23 +1359,25 @@ const CustomPackage = () => {
                 </div>
 
                 <div>
-                  <div className="text-sm text-gray-600 mb-2">Selected Services</div>
+                  <div className="text-sm text-white mb-3 font-medium">
+                    Selected Services
+                  </div>
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <span className="text-sm text-gray-800">Vehicle</span>
-                      <span className="text-sm text-gray-600">
+                    <div className="flex items-center justify-between p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                      <span className="text-sm text-white font-medium">Vehicle</span>
+                      <span className="text-sm text-gray-300">
                         {selectedVehicle ? selectedVehicle.name : 'Not selected'}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <span className="text-sm text-gray-800">Tour Guide</span>
-                      <span className="text-sm text-gray-600">
+                    <div className="flex items-center justify-between p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                      <span className="text-sm text-white font-medium">Tour Guide</span>
+                      <span className="text-sm text-gray-300">
                         {selectedTourGuide ? selectedTourGuide.name : 'Not selected'}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <span className="text-sm text-gray-800">Driver</span>
-                      <span className="text-sm text-gray-600">
+                    <div className="flex items-center justify-between p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                      <span className="text-sm text-white font-medium">Driver</span>
+                      <span className="text-sm text-gray-300">
                         {selectedDriver ? selectedDriver.name : 'Not selected'}
                       </span>
                     </div>
@@ -1304,62 +1387,106 @@ const CustomPackage = () => {
             </section>
           </div>
 
-          {/* Price Summary */}
+          {/* Enhanced Price Summary */}
           <div className="lg:col-span-1">
-            <section className="bg-white rounded-xl shadow-soft border border-gray-100 p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Price Summary</h3>
-              <ul className="space-y-3 text-sm text-gray-700">
-                <li className="flex justify-between items-center">
-                  <span>Hotel ({totalNights} nights × ${hotelTier.pricePerNight} × {travellers} pax)</span>
-                  <span className="font-medium">${hotelCost.toFixed(2)}</span>
+            <section className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6">
+              <div className="text-center mb-6">
+                <div className="inline-block p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 mb-3">
+                  <h3 className="font-bold text-white text-lg">
+                    Price Summary
+                  </h3>
+                </div>
+              </div>
+              <ul className="space-y-3 text-sm text-white">
+                <li className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                  <span>
+                    Hotel ({totalNights} nights × ${hotelTier.pricePerNight} × {travellers} pax)
+                  </span>
+                  <span className="font-semibold text-orange-300">${hotelCost.toFixed(2)}</span>
                 </li>
-                <li className="flex justify-between items-center">
-                  <span>Vehicle ({Math.max(1, totalNights)} day(s))</span>
-                  <span className="font-medium">${transportCost.toFixed(2)}</span>
+                <li className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                  <span>
+                    Vehicle ({Math.max(1, totalNights)} day(s))
+                  </span>
+                  <span className="font-semibold text-orange-300">${transportCost.toFixed(2)}</span>
                 </li>
-                <li className="flex justify-between items-center">
-                  <span>Tour Guide ({Math.max(1, totalNights)} day(s))</span>
-                  <span className="font-medium">${guideCost.toFixed(2)}</span>
+                <li className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                  <span>
+                    Tour Guide ({Math.max(1, totalNights)} day(s))
+                  </span>
+                  <span className="font-semibold text-orange-300">${guideCost.toFixed(2)}</span>
                 </li>
-                <li className="flex justify-between items-center">
-                  <span>Driver ({Math.max(1, totalNights)} day(s))</span>
-                  <span className="font-medium">${driverCost.toFixed(2)}</span>
+                <li className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                  <span>
+                    Driver ({Math.max(1, totalNights)} day(s))
+                  </span>
+                  <span className="font-semibold text-orange-300">${driverCost.toFixed(2)}</span>
                 </li>
-                <li className="flex justify-between items-center text-gray-500">
-                  <span>Taxes (10%)</span>
+                <li className="flex justify-between items-center p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 text-gray-300">
+                  <span>
+                    Taxes (10%)
+                  </span>
                   <span>${taxes.toFixed(2)}</span>
                 </li>
-                <li className="flex justify-between items-center font-semibold text-gray-900 border-t pt-3 text-lg">
-                  <span>Total</span>
-                  <span>${totalCost.toFixed(2)}</span>
+                <li className="flex justify-between items-center font-bold text-white border-t border-white/20 pt-4 text-xl bg-gradient-to-r from-orange-500/20 to-yellow-500/20 p-4 rounded-xl">
+                  <span>
+                    Total
+                  </span>
+                  <span className="text-2xl text-orange-300">${totalCost.toFixed(2)}</span>
                 </li>
               </ul>
-              <p className="text-xs text-gray-500 mt-3">This is an estimate. Our team will review your request and provide a final quote.</p>
+              <div className="mt-4 p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                <p className="text-xs text-gray-300 text-center">This is an estimate. Our team will review your request and provide a final quote.</p>
+              </div>
             </section>
           </div>
 
-          {/* Submit Section */}
+          {/* Enhanced Submit Section */}
           <div className="lg:col-span-1">
-            <section className="bg-white rounded-xl shadow-soft border border-gray-100 p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Submit Inquiry</h3>
-              <div className="space-y-4">
-                <div className="text-sm text-gray-600">
-                  <p>Ready to submit your custom trip request?</p>
-                  <p className="mt-2">Our team will review your itinerary and provide a detailed quote within 24 hours.</p>
+            <section className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6">
+              <div className="text-center mb-6">
+                <div className="inline-block p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 mb-3">
+                  <h3 className="font-bold text-white text-lg">
+                    Submit Inquiry
+                  </h3>
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="text-sm text-gray-200 text-center">
+                  <p className="mb-2">Ready to submit your custom trip request?</p>
+                  <p>Our team will review your itinerary and provide a detailed quote within 24 hours.</p>
                 </div>
                 
                 <button
                   onClick={handleSubmitInquiry}
                   disabled={itineraryItems.length === 0 || !startDate || !contactInfo.name || !contactInfo.email || !contactInfo.phone || inquiryLoading}
-                  className="w-full py-3 px-4 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                  className="w-full py-4 px-6 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all duration-300 shadow-lg hover:shadow-orange-500/25 text-lg"
                 >
-                  {inquiryLoading ? 'Submitting...' : 'Submit Custom Trip Inquiry'}
+                  {inquiryLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Submitting...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      Submit Custom Trip Inquiry
+                    </span>
+                  )}
                 </button>
                 
-                <div className="text-xs text-gray-500">
-                  <p>✓ Free consultation</p>
-                  <p>✓ No booking fees</p>
-                  <p>✓ Flexible payment options</p>
+                <div className="space-y-2 text-xs text-gray-300">
+                  <div className="flex items-center gap-2 p-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                    <span className="text-green-400">✓</span>
+                    <span>Free consultation</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                    <span className="text-green-400">✓</span>
+                    <span>No booking fees</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                    <span className="text-green-400">✓</span>
+                    <span>Flexible payment options</span>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1368,8 +1495,8 @@ const CustomPackage = () => {
         </div>
       </div>
       
-      {/* Call to Action */}
-      <section className="px-4 py-32">
+      {/* Enhanced Call to Action */}
+      <section className="px-4 py-16">
         <div className="container mx-auto max-w-4xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -1381,11 +1508,13 @@ const CustomPackage = () => {
               transition: { duration: 0.3, ease: "easeOut" }
             }}
           >
-            <Card className="p-12 bg-white/95 backdrop-blur-lg border-white/20 shadow-2xl">
-              <div className="space-y-8">
+            <Card className="p-8 bg-white/10 backdrop-blur-lg border-white/20 shadow-2xl">
+              <div className="space-y-6">
                 <div className="space-y-4">
-                  <h3 className="text-gray-800 text-4xl">Ready to Create Your Dream Trip?</h3>
-                  <p className="text-gray-600 text-xl leading-relaxed">
+                  <div className="inline-block p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 mb-4">
+                    <h3 className="text-white text-2xl font-bold">Ready to Create Your Dream Trip?</h3>
+                  </div>
+                  <p className="text-gray-200 text-lg leading-relaxed">
                     Let us craft the perfect Sri Lankan adventure just for you. From ancient temples 
                     to pristine beaches, every detail will be tailored to your preferences.
                   </p>
@@ -1396,8 +1525,8 @@ const CustomPackage = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Button className="h-16 px-8 text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
-                      <HeartIcon className="mr-3 h-6 w-6" />
+                    <Button className="h-12 px-6 text-base bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-orange-500/25">
+                      <HeartIcon className="mr-2 h-5 w-5" />
                       Start Planning Now
                     </Button>
                   </motion.div>
@@ -1405,17 +1534,19 @@ const CustomPackage = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Button variant="outline" className="h-16 px-8 text-lg border-orange-400 text-orange-600">
-                      <GlobeAltIcon className="mr-3 h-6 w-6" />
+                    <Button variant="outline" className="h-12 px-6 text-base border-orange-400 text-orange-300 hover:bg-orange-400/20 backdrop-blur-sm">
+                      <GlobeAltIcon className="mr-2 h-5 w-5" />
                       Contact Our Experts
                     </Button>
                   </motion.div>
                 </div>
 
-                <div className="pt-6 border-t border-gray-200">
-                  <p className="text-gray-500">
-                    🎯 100% Customizable • 🗺️ Interactive Planning • 💎 Premium Experience
-                  </p>
+                <div className="pt-6 border-t border-white/20">
+                  <div className="inline-block p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                    <p className="text-gray-300 text-lg">
+                      100% Customizable • Interactive Planning • Premium Experience
+                    </p>
+                  </div>
                 </div>
               </div>
             </Card>
@@ -1424,7 +1555,7 @@ const CustomPackage = () => {
       </section>
 
       {/* Bottom Spacer */}
-      <div className="h-32"></div>
+      <div className="h-16"></div>
     </div>
     </>
   );

@@ -12,7 +12,7 @@ const siteSettingsSchema = new mongoose.Schema({
       type: String,
       trim: true,
       lowercase: true,
-      default: 'info@travelagency.com'
+      default: 'info@seekinglanka.com'
     },
     address: {
       type: String,
@@ -31,27 +31,27 @@ const siteSettingsSchema = new mongoose.Schema({
     facebook: {
       type: String,
       trim: true,
-      default: 'https://facebook.com/travelagency'
+      default: 'https://facebook.com/seekinglanka'
     },
     twitter: {
       type: String,
       trim: true,
-      default: 'https://twitter.com/travelagency'
+      default: 'https://twitter.com/seekinglanka'
     },
     instagram: {
       type: String,
       trim: true,
-      default: 'https://instagram.com/travelagency'
+      default: 'https://instagram.com/seekinglanka'
     },
     linkedin: {
       type: String,
       trim: true,
-      default: 'https://linkedin.com/company/travelagency'
+      default: 'https://linkedin.com/company/seekinglanka'
     },
     youtube: {
       type: String,
       trim: true,
-      default: 'https://youtube.com/travelagency'
+      default: 'https://youtube.com/seekinglanka'
     }
   },
 
@@ -60,7 +60,7 @@ const siteSettingsSchema = new mongoose.Schema({
     name: {
       type: String,
       trim: true,
-      default: 'Travel Agency'
+      default: 'SeekingLanka'
     },
     tagline: {
       type: String,
@@ -75,7 +75,7 @@ const siteSettingsSchema = new mongoose.Schema({
     website: {
       type: String,
       trim: true,
-      default: 'https://travelagency.com'
+      default: 'https://seekinglanka.com'
     }
   },
 
@@ -84,7 +84,7 @@ const siteSettingsSchema = new mongoose.Schema({
     title: {
       type: String,
       trim: true,
-      default: 'Travel Agency - Your Journey Begins Here'
+      default: 'SeekingLanka - Your Sri Lankan Journey Begins Here'
     },
     description: {
       type: String,
@@ -103,7 +103,7 @@ const siteSettingsSchema = new mongoose.Schema({
     copyright: {
       type: String,
       trim: true,
-      default: '© 2024 Travel Agency. All rights reserved.'
+      default: '© 2024 SeekingLanka. All rights reserved.'
     },
     additionalLinks: [{
       title: {

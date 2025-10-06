@@ -210,7 +210,7 @@ const ContactUs = () => {
                 { 
                   icon: Mail, 
                   title: "Email Us", 
-                  info: settings?.contactInfo?.email || "hello@srilankandreams.com",
+                  info: settings?.contactInfo?.email || "hello@seekinglanka.com",
                   action: handleEmailClick
                 }
               ].map((item, index) => (

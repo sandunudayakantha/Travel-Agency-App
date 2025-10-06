@@ -5,7 +5,8 @@ import { Card } from './ui/card';
 import { Badge } from './ui/badge';
 import { 
   Heart, Users, Award, Camera, MapPin, Star, 
-  Palmtree, Eye, Leaf, TreePine, Waves, Phone
+  Palmtree, Eye, Leaf, TreePine, Waves, Phone,
+  Calendar, DollarSign
 } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Link } from 'react-router-dom';
@@ -164,56 +165,7 @@ const AboutUs = () => {
       <div className="relative z-20">
         
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center text-center text-white px-4">
-          <motion.div 
-            className="max-w-5xl space-y-8"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <motion.div 
-              className="flex items-center justify-center gap-2 text-orange-300"
-              initial={{ opacity: 0, x: -20 }}
-              animate={isSectionInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <Palmtree className="h-8 w-8" />
-              <span className="text-xl">Pearl of the Indian Ocean</span>
-            </motion.div>
-            
-            <motion.h1 
-              className="text-6xl lg:text-8xl leading-tight"
-              initial={{ opacity: 0, y: 50 }}
-              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 1, delay: 0.5 }}
-            >
-              Crafting
-              <span className="block text-orange-400">Sri Lankan</span>
-              <span className="block">Dreams</span>
-            </motion.h1>
-            
-            <motion.p 
-              className="text-2xl text-gray-200 leading-relaxed max-w-4xl mx-auto"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-            >
-              For over 18 years, we've been the bridge between wandering souls and the 
-              mystical island of Sri Lanka. Every journey we craft is a love letter to our homeland.
-            </motion.p>
-
-            <motion.div 
-              className="flex justify-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, delay: 0.9 }}
-            >
-              <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30 px-6 py-3 text-lg">
-                Established 2006 • Colombo, Sri Lanka
-              </Badge>
-            </motion.div>
-          </motion.div>
-        </section>
+        
 
         {/* Our Story Section */}
         <section className="px-4 py-32">
@@ -276,9 +228,9 @@ const AboutUs = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 viewport={{ once: true }}
               >
-                <Card className="p-10 bg-white/95 backdrop-blur-lg border-white/20 shadow-2xl">
+                <Card className="p-10 bg-white/10 backdrop-blur-lg border border-white/20 shadow-2xl rounded-2xl">
                   <div className="space-y-8">
-                    <h3 className="text-gray-800 text-3xl text-center">What Sets Us Apart</h3>
+                    <h3 className="text-white text-3xl text-center font-bold">What Sets Us Apart</h3>
                     
                     <div className="space-y-8">
                       {values.map((value, index) => (
@@ -290,12 +242,12 @@ const AboutUs = () => {
                           transition={{ duration: 0.5, delay: index * 0.1 }}
                           viewport={{ once: true }}
                         >
-                          <div className="p-4 bg-orange-500/10 rounded-full">
-                            <value.icon className="h-8 w-8 text-orange-600" />
+                          <div className="p-4 bg-orange-500/20 backdrop-blur-sm rounded-full border border-orange-300/30">
+                            <value.icon className="h-8 w-8 text-orange-300" />
                           </div>
                           <div>
-                            <h4 className="text-gray-800 text-xl mb-3">{value.title}</h4>
-                            <p className="text-gray-600 leading-relaxed text-lg">{value.description}</p>
+                            <h4 className="text-white text-xl mb-3 font-semibold">{value.title}</h4>
+                            <p className="text-gray-200 leading-relaxed text-lg">{value.description}</p>
                           </div>
                         </motion.div>
                       ))}
@@ -318,32 +270,101 @@ const AboutUs = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-5xl leading-tight">
-                18 Years of
-                <span className="block text-orange-400">Sri Lankan Magic</span>
+                Trip Cost
+                <span className="block text-orange-400">Calculator</span>
               </h2>
+              <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+                Calculate your personalized Sri Lankan adventure costs with our interactive calculator
+              </p>
             </motion.div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <Card className="p-8 bg-white/10 backdrop-blur-sm border-white/20 text-center hover:bg-white/15 transition-all duration-300">
+            {/* Calculation Grid - 3 equal cells with consistent padding */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {/* Cell 1: Duration Calculator */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                viewport={{ once: true }}
+              >
+                <Card className="h-80 bg-white/10 backdrop-blur-sm border-white/20 text-center hover:bg-white/15 transition-all duration-300 flex flex-col justify-center">
+                  <div className="p-6">
                     <div className="flex justify-center mb-6">
                       <div className="p-4 bg-orange-500/20 rounded-full">
-                        <stat.icon className="h-10 w-10 text-orange-300" />
+                        <Calendar className="h-10 w-10 text-orange-300" />
                       </div>
                     </div>
-                    <div className="text-white text-4xl mb-3">{stat.number}</div>
-                    <div className="text-gray-300 text-lg">{stat.label}</div>
-                  </Card>
-                </motion.div>
-              ))}
+                    <h3 className="text-white text-2xl mb-4">Duration</h3>
+                    <div className="space-y-4">
+                      <div className="text-white text-4xl font-bold">7-14</div>
+                      <div className="text-gray-300 text-lg">Days</div>
+                      <div className="text-orange-300 text-sm">Recommended</div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+
+              {/* Cell 2: Group Size Calculator */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                <Card className="h-80 bg-white/10 backdrop-blur-sm border-white/20 text-center hover:bg-white/15 transition-all duration-300 flex flex-col justify-center">
+                  <div className="p-6">
+                    <div className="flex justify-center mb-6">
+                      <div className="p-4 bg-orange-500/20 rounded-full">
+                        <Users className="h-10 w-10 text-orange-300" />
+                      </div>
+                    </div>
+                    <h3 className="text-white text-2xl mb-4">Group Size</h3>
+                    <div className="space-y-4">
+                      <div className="text-white text-4xl font-bold">2-8</div>
+                      <div className="text-gray-300 text-lg">Travelers</div>
+                      <div className="text-orange-300 text-sm">Optimal</div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+
+              {/* Cell 3: Budget Calculator */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                viewport={{ once: true }}
+              >
+                <Card className="h-80 bg-white/10 backdrop-blur-sm border-white/20 text-center hover:bg-white/15 transition-all duration-300 flex flex-col justify-center">
+                  <div className="p-6">
+                    <div className="flex justify-center mb-6">
+                      <div className="p-4 bg-orange-500/20 rounded-full">
+                        <DollarSign className="h-10 w-10 text-orange-300" />
+                      </div>
+                    </div>
+                    <h3 className="text-white text-2xl mb-4">Budget Range</h3>
+                    <div className="space-y-4">
+                      <div className="text-white text-4xl font-bold">$800</div>
+                      <div className="text-gray-300 text-lg">Per Person</div>
+                      <div className="text-orange-300 text-sm">Starting From</div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
             </div>
+
+            {/* Calculate Button */}
+            <motion.div 
+              className="text-center mt-12"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
+              <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-orange-500/30">
+                Calculate My Trip Cost
+              </button>
+            </motion.div>
           </div>
         </section>
 
@@ -475,11 +496,11 @@ const AboutUs = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <Card className="p-12 bg-white/95 backdrop-blur-lg border-white/20 shadow-2xl">
+              <Card className="p-12 bg-white/10 backdrop-blur-lg border border-white/20 shadow-2xl rounded-2xl">
                 <div className="space-y-8">
                   <div className="space-y-4">
-                    <h3 className="text-gray-800 text-4xl">Ready for Your Sri Lankan Adventure?</h3>
-                    <p className="text-gray-600 text-xl leading-relaxed">
+                    <h3 className="text-white text-4xl font-bold">Ready for Your Sri Lankan Adventure?</h3>
+                    <p className="text-gray-200 text-xl leading-relaxed">
                       Let us paint your dreams with the colors of Sri Lanka. From sunrise at Adam's Peak 
                       to candlelit dinners in Galle Fort, your perfect journey awaits.
                     </p>
@@ -487,23 +508,25 @@ const AboutUs = () => {
                   
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link to="/packages">
-                      <Button className="h-16 px-8 text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                      <Button className="h-16 px-8 text-lg bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 text-orange-200 hover:bg-orange-500/30 hover:border-orange-400/50 transition-all duration-300">
                         <Heart className="mr-3 h-6 w-6" />
                         Start Your Sri Lankan Story
                       </Button>
                     </Link>
                     <Link to="/contact">
-                      <Button variant="outline" className="h-16 px-8 text-lg border-orange-400 text-orange-600 hover:bg-orange-50 transition-all duration-300">
+                      <Button className="h-16 px-8 text-lg bg-white/10 backdrop-blur-sm border border-white/30 text-white hover:bg-white/20 hover:border-white/50 transition-all duration-300">
                         <Phone className="mr-3 h-6 w-6" />
                         Call Our Colombo Office
                       </Button>
                     </Link>
                   </div>
 
-                  <div className="pt-6 border-t border-gray-200">
-                    <p className="text-gray-500">
-                      🏢 Colombo Office • 📞 +94 77 123 4567 • 📧 hello@srilankandreams.com
-                    </p>
+                  <div className="pt-6 border-t border-white/20">
+                    <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                      <p className="text-gray-200">
+                        🏢 Colombo Office • 📞 +94 77 123 4567 • 📧 hello@seekinglanka.com
+                      </p>
+                    </div>
                   </div>
                 </div>
               </Card>

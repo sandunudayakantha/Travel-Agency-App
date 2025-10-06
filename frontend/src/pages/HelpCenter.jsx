@@ -173,6 +173,28 @@ const HelpCenter = () => {
         question: 'I didn\'t receive my booking confirmation email.',
         answer: 'Check your spam folder first. If you still haven\'t received it, contact our support team with your booking details and we\'ll resend the confirmation.'
       }
+    ],
+    emergency: [
+      {
+        id: 'emergency-1',
+        question: 'What should I do if I have a medical emergency during my trip?',
+        answer: 'Contact local emergency services immediately (911 or local equivalent). Then contact our 24/7 emergency hotline at +1-800-HELP-NOW. We\'ll coordinate with local authorities and your insurance provider.'
+      },
+      {
+        id: 'emergency-2',
+        question: 'I lost my passport while traveling. What are the steps?',
+        answer: '1) Report the loss to local police and get a police report. 2) Contact your embassy or consulate immediately. 3) Call our emergency hotline for assistance with documentation and travel arrangements.'
+      },
+      {
+        id: 'emergency-3',
+        question: 'My flight was cancelled and I\'m stranded. How can you help?',
+        answer: 'Contact our emergency hotline immediately. We\'ll help you find alternative flights, arrange accommodation if needed, and coordinate with airlines for compensation and rebooking.'
+      },
+      {
+        id: 'emergency-4',
+        question: 'I need to cancel my trip due to a family emergency. What are my options?',
+        answer: 'We understand family emergencies. Contact us immediately and we\'ll work with you to minimize cancellation fees, process refunds where possible, and help you reschedule when you\'re ready to travel again.'
+      }
     ]
   };
 
@@ -180,7 +202,8 @@ const HelpCenter = () => {
     { id: 'general', name: 'General Questions', icon: '❓', description: 'Basic questions about our services' },
     { id: 'booking', name: 'Booking & Payment', icon: '💳', description: 'Payment and reservation help' },
     { id: 'travel', name: 'Travel & Accommodation', icon: '✈️', description: 'Travel tips and requirements' },
-    { id: 'technical', name: 'Technical Support', icon: '🛠️', description: 'Website and account issues' }
+    { id: 'technical', name: 'Technical Support', icon: '🛠️', description: 'Website and account issues' },
+    { id: 'emergency', name: 'Emergency Support', icon: '🚨', description: '24/7 emergency assistance' }
   ];
 
   const cardVariants = {
@@ -218,56 +241,7 @@ const HelpCenter = () => {
         {/* Main Content */}
         <div className="relative z-20">
           {/* Hero Section */}
-          <section className="min-h-screen flex items-center justify-center text-center text-white px-4">
-            <motion.div 
-              className="max-w-5xl space-y-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              <motion.div 
-                className="flex items-center justify-center gap-2 text-orange-300"
-                initial={{ opacity: 0, x: -20 }}
-                animate={isSectionInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <QuestionMarkCircleIcon className="h-8 w-8" />
-                <span className="text-xl">Get the Support You Need</span>
-              </motion.div>
-              
-              <motion.h1 
-                className="text-6xl lg:text-8xl leading-tight"
-                initial={{ opacity: 0, y: 50 }}
-                animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                transition={{ duration: 1, delay: 0.5 }}
-              >
-                Help
-                <span className="block text-orange-400">Center</span>
-                <span className="block">Support</span>
-              </motion.h1>
-              
-              <motion.p 
-                className="text-2xl text-gray-200 leading-relaxed max-w-4xl mx-auto"
-                initial={{ opacity: 0, y: 30 }}
-                animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-              >
-                Find answers to common questions, get expert support, and learn everything 
-                you need to know about your Sri Lankan travel experience.
-              </motion.p>
-
-              <motion.div 
-                className="flex justify-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.5, delay: 0.9 }}
-              >
-                <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30 px-6 py-3 text-lg">
-                  24/7 Support • Expert Help
-                </Badge>
-              </motion.div>
-            </motion.div>
-          </section>
+          
 
           {/* Category Filter */}
           <section className="px-4 py-32">
@@ -292,7 +266,8 @@ const HelpCenter = () => {
                 </p>
               </motion.div>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {/* 5 Equal Cells Layout */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
                 {categories.map((category, index) => (
                   <motion.div
                     key={category.id}
@@ -301,18 +276,19 @@ const HelpCenter = () => {
                     whileInView="visible"
                     transition={{ delay: index * 0.1 }}
                     viewport={{ once: true }}
+                    className="w-full"
                   >
                     <Button
                       onClick={() => setActiveCategory(category.id)}
                       variant={activeCategory === category.id ? "default" : "outline"}
-                      className={`h-auto p-6 flex flex-col items-center justify-center bg-black/20 backdrop-blur-sm border-white/20 hover:bg-black/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 ${
+                      className={`w-full h-32 p-4 flex flex-col items-center justify-center bg-white/10 backdrop-blur-lg border border-white/20 hover:bg-white/15 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/20 rounded-2xl ${
                         activeCategory === category.id
                           ? 'border-orange-400 bg-orange-500/20 text-orange-300 hover:bg-orange-500/30'
-                          : 'border-white/20 bg-black/20 text-white hover:bg-black/30'
+                          : 'border-white/20 bg-white/10 text-white hover:bg-white/15'
                       }`}
                     >
-                      <div className="text-3xl mb-3">{category.icon}</div>
-                      <div className="font-medium text-lg">{category.name}</div>
+                      <div className="text-4xl mb-2">{category.icon}</div>
+                      <div className="font-medium text-sm text-center leading-tight">{category.name}</div>
                     </Button>
                   </motion.div>
                 ))}
@@ -429,14 +405,14 @@ const HelpCenter = () => {
                   transition: { duration: 0.3, ease: "easeOut" }
                 }}
               >
-                <Card className="p-12 bg-white/95 backdrop-blur-lg border-white/20 shadow-2xl">
+                <Card className="p-12 bg-white/10 backdrop-blur-lg border border-white/20 shadow-2xl rounded-2xl">
                   <div className="space-y-8">
                     <div className="space-y-4">
-                      <div className="w-20 h-20 bg-orange-500/20 rounded-full mx-auto flex items-center justify-center">
-                        <SparklesIcon className="h-10 w-10 text-orange-500" />
+                      <div className="w-20 h-20 bg-orange-500/20 backdrop-blur-sm rounded-full mx-auto flex items-center justify-center border border-orange-300/30">
+                        <SparklesIcon className="h-10 w-10 text-orange-300" />
                       </div>
-                      <h3 className="text-gray-800 text-4xl">Still Need Help?</h3>
-                      <p className="text-gray-600 text-xl leading-relaxed">
+                      <h3 className="text-white text-4xl font-bold">Still Need Help?</h3>
+                      <p className="text-gray-200 text-xl leading-relaxed">
                         Our customer support team is here to help you 24/7. 
                         Get personalized assistance for your Sri Lankan travel needs.
                       </p>
@@ -449,7 +425,7 @@ const HelpCenter = () => {
                       >
                         <Button 
                           onClick={handleWhatsAppClick}
-                          className="h-16 px-8 text-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                          className="h-16 px-8 text-lg bg-green-500/20 backdrop-blur-sm border border-green-400/30 text-green-200 hover:bg-green-500/30 hover:border-green-400/50 transition-all duration-300"
                         >
                           <ChatBubbleLeftRightIcon className="mr-3 h-6 w-6" />
                           Chat on WhatsApp
@@ -461,8 +437,7 @@ const HelpCenter = () => {
                       >
                         <Button 
                           onClick={handleEmailClick}
-                          variant="outline" 
-                          className="h-16 px-8 text-lg border-orange-400 text-orange-600"
+                          className="h-16 px-8 text-lg bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 text-orange-200 hover:bg-orange-500/30 hover:border-orange-400/50 transition-all duration-300"
                         >
                           <EnvelopeIcon className="mr-3 h-6 w-6" />
                           Send Email
@@ -474,8 +449,7 @@ const HelpCenter = () => {
                       >
                         <Button 
                           onClick={handlePhoneClick}
-                          variant="outline" 
-                          className="h-16 px-8 text-lg border-orange-400 text-orange-600"
+                          className="h-16 px-8 text-lg bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 text-orange-200 hover:bg-orange-500/30 hover:border-orange-400/50 transition-all duration-300"
                         >
                           <PhoneIcon className="mr-3 h-6 w-6" />
                           Call Us
@@ -483,10 +457,12 @@ const HelpCenter = () => {
                       </motion.div>
                     </div>
 
-                    <div className="pt-6 border-t border-gray-200">
-                      <p className="text-gray-500">
-                        🏢 Colombo Office • 📞 {settings?.contactInfo?.phone || '+94 77 123 4567'} • 📧 {settings?.contactInfo?.email || 'hello@srilankandreams.com'}
-                      </p>
+                    <div className="pt-6 border-t border-white/20">
+                      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                        <p className="text-gray-200">
+                          🏢 Colombo Office • 📞 {settings?.contactInfo?.phone || '+94 77 123 4567'} • 📧 {settings?.contactInfo?.email || 'hello@seekinglanka.com'}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </Card>

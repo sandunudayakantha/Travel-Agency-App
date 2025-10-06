@@ -93,9 +93,9 @@ const Footer = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  {settings?.companyInfo?.name || 'Wanderlust'}
+                  {'SeekingLanka'}
                 </h2>
-                <p className="text-sm text-gray-400">Travel Agency</p>
+                <p className="text-sm text-gray-400">SeekingLanka</p>
               </div>
             </div>
             
@@ -237,7 +237,7 @@ const Footer = () => {
         >
           <div className="flex flex-col lg:flex-row justify-between items-center space-y-6 lg:space-y-0">
             <p className="text-gray-400 text-center lg:text-left">
-              {settings?.footer?.copyright || `&copy; ${currentYear} Wanderlust Travel Agency. All rights reserved.`}
+              {settings?.footer?.copyright || `&copy; ${currentYear} SeekingLanka. All rights reserved.`}
             </p>
             <div className="flex space-x-4">
               {navigation.social.map((item, index) => (

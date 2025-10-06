@@ -128,58 +128,6 @@ const Packages = () => {
       <div className="relative z-20">
         
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center text-center text-white px-4">
-          <motion.div 
-            className="max-w-5xl space-y-8"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <motion.div 
-              className="flex items-center justify-center gap-2 text-orange-300"
-              initial={{ opacity: 0, x: -20 }}
-              animate={isSectionInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <GlobeAltIcon className="h-8 w-8" />
-              <span className="text-xl">Discover Sri Lankan Adventures</span>
-            </motion.div>
-            
-            <motion.h1 
-              className="text-6xl lg:text-8xl leading-tight"
-              initial={{ opacity: 0, y: 50 }}
-              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 1, delay: 0.5 }}
-            >
-              Travel
-              <span className="block text-orange-400">Packages</span>
-              <span className="block">That Inspire</span>
-            </motion.h1>
-            
-            <motion.p 
-              className="text-2xl text-gray-200 leading-relaxed max-w-4xl mx-auto"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-            >
-              From ancient temples to pristine beaches, discover carefully crafted journeys 
-              that reveal the true essence of Sri Lanka's beauty and culture.
-            </motion.p>
-
-            {!selectedTourType && (
-              <motion.div 
-                className="flex justify-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={isSectionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.5, delay: 0.9 }}
-              >
-                <Badge variant="secondary" className="bg-orange-500/20 text-orange-300 border-orange-300/30 px-6 py-3 text-lg">
-                  {packages.length} Amazing Packages • Curated Experiences
-                </Badge>
-              </motion.div>
-            )}
-          </motion.div>
-        </section>
 
         {/* Tour Type Categories */}
         <section className="px-4 py-32">

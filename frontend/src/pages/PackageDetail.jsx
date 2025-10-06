@@ -24,6 +24,7 @@ import ReviewSection from '../components/ReviewSection';
 import BookingForm from '../components/BookingForm';
 import TravelLoading from '../components/TravelLoading';
 import { useLoading } from '../hooks/useLoading';
+import Navigation from '../components/layout/Navigation';
 
 const PackageDetail = () => {
   const { id } = useParams();
@@ -74,9 +75,9 @@ const PackageDetail = () => {
     };
 
     return (
-      <div className="bg-white rounded-lg shadow-xl border border-gray-200 max-w-sm">
+      <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 max-w-sm">
         {/* Header with place info */}
-        <div className="p-3 border-b border-gray-100">
+        <div className="p-3 border-b border-white/20">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center">
               <div className={`w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold mr-2 ${
@@ -84,29 +85,29 @@ const PackageDetail = () => {
               }`}>
                 {index + 1}
               </div>
-              <h3 className="font-semibold text-gray-900 text-sm">
+              <h3 className="font-semibold text-white text-sm">
                 {place.name}
               </h3>
             </div>
-            <span className="text-xs text-gray-500 capitalize">
+            <span className="text-xs text-gray-300 capitalize">
               {place.category}
             </span>
           </div>
-          <p className="text-xs text-gray-600">
-            📍 {place.location?.formattedAddress || place.location?.city || 'Location not specified'}
+          <p className="text-xs text-gray-200">
+            {place.location?.formattedAddress || place.location?.city || 'Location not specified'}
           </p>
         </div>
 
         {/* Content Tabs */}
         {(hasImages || hasVideos) && (
-          <div className="flex border-b border-gray-100">
+          <div className="flex border-b border-white/20">
             {hasImages && (
               <button
                 onClick={() => setShowVideos(false)}
                 className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
                   !showVideos 
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-orange-200 border-b-2 border-orange-400 bg-orange-500/20' 
+                    : 'text-gray-300 hover:text-white'
                 }`}
               >
                 <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,8 +121,8 @@ const PackageDetail = () => {
                 onClick={() => setShowVideos(true)}
                 className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
                   showVideos 
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-orange-200 border-b-2 border-orange-400 bg-orange-500/20' 
+                    : 'text-gray-300 hover:text-white'
                 }`}
               >
                 <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -252,32 +253,32 @@ const PackageDetail = () => {
 
         {/* Description */}
         {place.description && (
-          <div className="p-3 border-t border-gray-100">
-            <p className="text-xs text-gray-600 line-clamp-2">{place.description}</p>
+          <div className="p-3 border-t border-white/20">
+            <p className="text-xs text-gray-200 line-clamp-2">{place.description}</p>
           </div>
         )}
 
         {/* Short Description */}
         {place.shortDescription && (
-          <div className="p-3 border-t border-gray-100">
-            <p className="text-xs text-gray-500">{place.shortDescription}</p>
+          <div className="p-3 border-t border-white/20">
+            <p className="text-xs text-gray-300">{place.shortDescription}</p>
           </div>
         )}
 
         {/* Additional Info */}
-        <div className="p-3 border-t border-gray-100">
-          <div className="text-xs text-gray-600 space-y-1">
+        <div className="p-3 border-t border-white/20">
+          <div className="text-xs text-gray-200 space-y-1">
             {place.location?.country && (
-              <p>🌍 Country: {place.location.country}</p>
+              <p>Country: {place.location.country}</p>
             )}
             {place.location?.region && (
-              <p>🏛️ Region: {place.location.region}</p>
+              <p>Region: {place.location.region}</p>
             )}
             {place.location?.city && (
-              <p>🏙️ City: {place.location.city}</p>
+              <p>City: {place.location.city}</p>
             )}
             {place.tags && place.tags.length > 0 && (
-              <p>🏷️ Tags: {place.tags.join(', ')}</p>
+              <p>Tags: {place.tags.join(', ')}</p>
             )}
           </div>
         </div>
@@ -369,7 +370,7 @@ const PackageDetail = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl mb-4">⚠️</div>
+          <div className="text-6xl mb-4">!</div>
           <h3 className="text-xl font-semibold text-red-600 mb-2">
             Package Not Found
           </h3>
@@ -431,21 +432,36 @@ const PackageDetail = () => {
           size="large"
         />
       )}
-      <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link
-            to="/"
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            Back to Packages
-          </Link>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+        {/* Background Image */}
+        <div className="fixed inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcmlsYW5rYSUyMHRyYXZlbCUyMGxhbmRzY2FwZXxlbnwxfHx8fDE3NTYwMzQ4MjV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+            alt="Sri Lankan landscape"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/60 to-orange-900/40"></div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Navigation */}
+        <div className="relative z-50">
+          <Navigation />
+        </div>
+
+        {/* Header */}
+        <div className="relative z-40 bg-white/10 backdrop-blur-lg border-b border-white/20 pt-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <Link
+              to="/packages"
+              className="inline-flex items-center text-white hover:text-orange-300 transition-colors"
+            >
+              <ArrowLeftIcon className="h-5 w-5 mr-2" />
+              Back to Packages
+            </Link>
+          </div>
+        </div>
+
+      <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Package Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -453,7 +469,7 @@ const PackageDetail = () => {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
             <div className="relative h-96">
               <img
                 src={pkg.image?.url || "https://via.placeholder.com/1200x400"}
@@ -461,11 +477,11 @@ const PackageDetail = () => {
                 className="w-full h-full object-cover"
               />
               {pkg.featured && (
-                <div className="absolute top-6 left-6 bg-accent-500 text-white px-4 py-2 rounded-full text-sm font-medium">
+                <div className="absolute top-6 left-6 bg-orange-500/20 backdrop-blur-sm text-orange-200 border border-orange-300/30 px-4 py-2 rounded-full text-sm font-medium">
                   Featured Package
                 </div>
               )}
-              <div className="absolute top-6 right-6 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-lg font-bold text-gray-900">
+              <div className="absolute top-6 right-6 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-lg font-bold text-white">
                 ${pkg.price}
               </div>
             </div>
@@ -473,69 +489,69 @@ const PackageDetail = () => {
             <div className="p-8">
               <div className="flex items-start justify-between mb-6">
                 <div>
-                  <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-4xl font-bold text-white mb-2">
                     {pkg.title}
                   </h1>
-                  <p className="text-xl text-gray-600 mb-4">
+                  <p className="text-xl text-gray-200 mb-4">
                     {pkg.description}
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-primary-600">
+                  <div className="text-3xl font-bold text-orange-400">
                     ${pkg.price}
                   </div>
-                  <div className="text-sm text-gray-500">per person</div>
+                  <div className="text-sm text-gray-300">per person</div>
                 </div>
               </div>
 
               {/* Package Info Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="flex items-center">
-                  <CalendarIcon className="h-6 w-6 text-primary-600 mr-3" />
+                <div className="flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                  <CalendarIcon className="h-6 w-6 text-orange-400 mr-3" />
                   <div>
-                    <div className="font-semibold text-gray-900">{pkg.days} days, {pkg.nights} nights</div>
-                    <div className="text-sm text-gray-500">Duration</div>
+                    <div className="font-semibold text-white">{pkg.days} days, {pkg.nights} nights</div>
+                    <div className="text-sm text-gray-300">Duration</div>
                   </div>
                 </div>
                 
-                <div className="flex items-center">
-                  <GlobeAltIcon className="h-6 w-6 text-primary-600 mr-3" />
+                <div className="flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                  <GlobeAltIcon className="h-6 w-6 text-orange-400 mr-3" />
                   <div>
-                    <div className="font-semibold text-gray-900">{pkg.tourType?.name}</div>
-                    <div className="text-sm text-gray-500">Tour Type</div>
+                    <div className="font-semibold text-white">{pkg.tourType?.name}</div>
+                    <div className="text-sm text-gray-300">Tour Type</div>
                   </div>
                 </div>
 
-                <div className="flex items-center">
-                  <UserIcon className="h-6 w-6 text-primary-600 mr-3" />
+                <div className="flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                  <UserIcon className="h-6 w-6 text-orange-400 mr-3" />
                   <div>
-                    <div className="font-semibold text-gray-900">{pkg.guide?.name}</div>
-                    <div className="text-sm text-gray-500">Tour Guide</div>
+                    <div className="font-semibold text-white">{pkg.guide?.name}</div>
+                    <div className="text-sm text-gray-300">Tour Guide</div>
                   </div>
                 </div>
 
-                <div className="flex items-center">
-                  <TruckIcon className="h-6 w-6 text-primary-600 mr-3" />
+                <div className="flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                  <TruckIcon className="h-6 w-6 text-orange-400 mr-3" />
                   <div>
-                    <div className="font-semibold text-gray-900">
+                    <div className="font-semibold text-white">
                       {pkg.driver?.name || 'Professional Driver'}
                     </div>
-                    <div className="text-sm text-gray-500">Driver</div>
+                    <div className="text-sm text-gray-300">Driver</div>
                   </div>
                 </div>
               </div>
 
               {/* Rating */}
-              <div className="flex items-center">
+              <div className="flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <StarIcon
                       key={i}
-                      className={`h-5 w-5 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                      className={`h-5 w-5 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-400'}`}
                     />
                   ))}
                 </div>
-                <span className="ml-2 text-gray-600">4.5 (128 reviews)</span>
+                <span className="ml-2 text-white">4.5 (128 reviews)</span>
               </div>
             </div>
           </div>
@@ -548,39 +564,39 @@ const PackageDetail = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white rounded-xl shadow-lg p-6"
+            className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6"
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Itinerary</h2>
+            <h2 className="text-2xl font-bold text-white mb-6">Itinerary</h2>
             
             <div className="space-y-4">
               {pkg.itinerary?.map((day, index) => (
                 <div
                   key={index}
-                  className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                  className={`border rounded-xl p-4 cursor-pointer transition-all duration-200 ${
                     activeDay === index
-                      ? 'border-primary-500 bg-primary-50'
-                      : 'border-gray-200 hover:border-primary-300'
+                      ? 'border-orange-400 bg-orange-500/20'
+                      : 'border-white/20 bg-white/5 hover:border-orange-300/50 hover:bg-white/10'
                   }`}
                   onClick={() => setActiveDay(index)}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-white">
                       Day {day.day}: {day.title}
                     </h3>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-300">
                       {day.places?.length || 0} places
                     </div>
                   </div>
                   
-                  <p className="text-gray-600 mb-3">
+                  <p className="text-gray-200 mb-3">
                     {day.description}
                   </p>
                   
                   {day.places && day.places.length > 0 && (
                     <div className="space-y-2">
                       {day.places.map((place, placeIndex) => (
-                        <div key={placeIndex} className="flex items-center text-sm text-gray-600">
-                          <MapPinIcon className="h-4 w-4 mr-2 text-primary-600" />
+                        <div key={placeIndex} className="flex items-center text-sm text-gray-300">
+                          <MapPinIcon className="h-4 w-4 mr-2 text-orange-400" />
                           {place.name}
                         </div>
                       ))}
@@ -596,34 +612,34 @@ const PackageDetail = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="bg-white rounded-xl shadow-lg p-6"
+            className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6"
           >
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">Route Map</h2>
+                        <h2 className="text-2xl font-bold text-white mb-6">Route Map</h2>
             
             {/* Route Summary */}
             {allPlacesWithFullData.length > 0 && (
-              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-900 mb-2">Route Summary</h3>
+              <div className="mb-4 p-4 bg-orange-500/20 backdrop-blur-sm border border-orange-300/30 rounded-xl">
+                <h3 className="text-lg font-semibold text-orange-200 mb-2">Route Summary</h3>
                 
                 {/* Map Legend */}
-                <div className="mb-3 p-3 bg-white rounded border">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Map Legend:</h4>
+                <div className="mb-3 p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl">
+                  <h4 className="text-sm font-semibold text-white mb-2">Map Legend:</h4>
                   <div className="flex items-center space-x-4 text-xs">
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-green-500 rounded-full mr-1"></div>
-                      <span>Starting Point</span>
+                      <span className="text-gray-200">Starting Point</span>
                     </div>
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-blue-500 rounded-full mr-1"></div>
-                      <span>Destinations</span>
+                      <span className="text-gray-200">Destinations</span>
                     </div>
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-orange-500 rounded-full mr-1"></div>
-                      <span>Current Day</span>
+                      <span className="text-gray-200">Current Day</span>
                     </div>
                     <div className="flex items-center">
                       <div className="w-4 h-4 bg-blue-600 mr-1" style={{height: '2px'}}></div>
-                      <span>Route Path</span>
+                      <span className="text-gray-200">Route Path</span>
                     </div>
                   </div>
                 </div>
@@ -636,11 +652,11 @@ const PackageDetail = () => {
                       }`}>
                         {index + 1}
                       </div>
-                      <span className="text-gray-700">{place.name}</span>
+                      <span className="text-gray-200">{place.name}</span>
                     </div>
                   ))}
                 </div>
-                <div className="mt-2 text-xs text-blue-700">
+                <div className="mt-2 text-xs text-orange-200">
                   Total stops: {allPlacesWithFullData.length} • Route shows the order of visits
                 </div>
               </div>
@@ -648,11 +664,11 @@ const PackageDetail = () => {
             
             {allPlacesWithFullData.length > 0 ? (
               <>
-                <div className="relative rounded-lg overflow-hidden border border-gray-200" style={{ height: '400px' }}>
-                  <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10" id="map-loading">
+                <div className="relative rounded-xl overflow-hidden border border-white/20" style={{ height: '400px' }}>
+                  <div className="absolute inset-0 bg-white/10 backdrop-blur-sm flex items-center justify-center z-10" id="map-loading">
                     <div className="text-center">
-                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mb-2"></div>
-                      <p className="text-sm text-gray-600">Loading map...</p>
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-400 mb-2"></div>
+                      <p className="text-sm text-white">Loading map...</p>
                     </div>
                   </div>
                   <GoogleMap
@@ -796,88 +812,55 @@ const PackageDetail = () => {
                 </GoogleMap>
                 </div>
                 
-                <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-blue-800 text-center">
-                    💡 Click on any marker to view place details, images, and videos
+                <div className="mt-3 p-3 bg-orange-500/20 backdrop-blur-sm border border-orange-300/30 rounded-xl">
+                  <p className="text-sm text-orange-200 text-center">
+                    Click on any marker to view place details, images, and videos
                   </p>
                 </div>
               </>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-gray-300">
                 <p>No places available for this package</p>
               </div>
             )}
             
             {/* Fallback Map Display */}
             {allPlacesWithFullData.length === 0 && (
-              <div className="mt-4 p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <div className="mt-4 p-6 bg-white/10 backdrop-blur-sm border-2 border-dashed border-white/30 rounded-xl">
                 <div className="text-center">
-                  <GlobeAltIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Places Added</h3>
-                  <p className="text-gray-600 mb-4">
+                  <GlobeAltIcon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-white mb-2">No Places Added</h3>
+                  <p className="text-gray-200 mb-4">
                     This package doesn't have any places added to its itinerary yet.
                   </p>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-300">
                     Places will appear here once they are added to the package itinerary.
                   </div>
                 </div>
               </div>
             )}
             
-            {/* Alternative: Static Map Display */}
-            {allPlacesWithFullData.length > 0 && (
-              <div className="mt-4 p-4 bg-green-50 rounded-lg border">
-                <h4 className="text-lg font-semibold text-green-900 mb-3">Alternative Map View:</h4>
-                <div className="relative w-full rounded-lg overflow-hidden border border-gray-200 bg-slate-100" style={{ aspectRatio: '16 / 10' }}>
-                  {/* Background map image */}
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Sri_Lanka_districts_map.png/800px-Sri_Lanka_districts_map.png"
-                    alt="Sri Lanka map"
-                    className="absolute inset-0 h-full w-full object-contain bg-gradient-to-b from-sky-50 to-slate-100"
-                  />
-                  
-                  {/* SVG overlay for places */}
-                  <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-                    {allPlacesWithFullData.map((place, index) => {
-                      // Simple positioning based on index (you can improve this)
-                      const x = 20 + (index * 20);
-                      const y = 30 + (index * 15);
-                      
-                      return (
-                        <g key={index}>
-                          <circle cx={x} cy={y} r={2} fill="#3B82F6" stroke="#FFFFFF" strokeWidth={1} />
-                          <text x={x + 3} y={y} fontSize={3} fill="#1F2937" stroke="#FFFFFF" strokeWidth={0.5}>
-                            {index + 1}. {place.name}
-                          </text>
-                        </g>
-                      );
-                    })}
-                  </svg>
-                </div>
-                <p className="text-xs text-green-700 mt-2">Static map showing {allPlacesWithFullData.length} places</p>
-              </div>
-            )}
             
             {/* Simple Place List Display */}
             {allPlacesWithFullData.length > 0 && (
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                <h4 className="text-lg font-semibold text-blue-900 mb-3">Places in This Package:</h4>
+              <div className="mt-4 p-4 bg-blue-500/20 backdrop-blur-sm border border-blue-300/30 rounded-xl">
+                <h4 className="text-lg font-semibold text-blue-200 mb-3">Places in This Package:</h4>
                 
                 {/* Test Button */}
 
                 
                 <div className="space-y-2">
                   {allPlacesWithFullData.map((place, index) => (
-                    <div key={index} className="flex items-center p-3 bg-white rounded border">
+                    <div key={index} className="flex items-center p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl">
                       <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
                         {index + 1}
                       </div>
                       <div>
-                        <h5 className="font-medium text-gray-900">{place.name}</h5>
-                        <p className="text-sm text-gray-600">
-                          📍 {place.location.formattedAddress}
+                        <h5 className="font-medium text-white">{place.name}</h5>
+                        <p className="text-sm text-gray-200">
+                          {place.location.formattedAddress}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-300">
                           Coordinates: {place.location.coordinates.latitude.toFixed(6)}, {place.location.coordinates.longitude.toFixed(6)}
                         </p>
                       </div>
@@ -895,9 +878,9 @@ const PackageDetail = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="bg-white rounded-xl shadow-lg p-6 mb-8"
+            className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6 mb-8"
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl font-bold text-white mb-6">
               Day {pkg.itinerary[activeDay].day} Video Experience
             </h2>
             
@@ -942,7 +925,7 @@ const PackageDetail = () => {
             </div>
             
             <div className="mt-4 text-center">
-              <p className="text-gray-600">
+              <p className="text-gray-200">
                 Experience the highlights of Day {pkg.itinerary[activeDay].day}: {pkg.itinerary[activeDay].title}
               </p>
             </div>
@@ -958,13 +941,13 @@ const PackageDetail = () => {
         >
           <button 
             onClick={() => setShowBookingForm(true)}
-            className="btn-primary px-8 py-3 text-lg font-semibold"
+            className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-orange-500/30"
           >
             Book This Package
           </button>
           <Link 
             to="/contact" 
-            className="btn-secondary px-8 py-3 text-lg font-semibold inline-flex items-center justify-center"
+            className="bg-white/10 backdrop-blur-sm border border-white/30 text-white hover:bg-white/20 hover:border-white/50 px-8 py-3 text-lg font-semibold inline-flex items-center justify-center rounded-xl transition-all duration-300"
           >
             Contact Us
           </Link>
@@ -986,7 +969,7 @@ const PackageDetail = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.0 }}
-          className="bg-gray-50 py-12"
+          className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl py-12"
         >
           <div className="container mx-auto px-4">
             <ReviewSection packageId={id} />

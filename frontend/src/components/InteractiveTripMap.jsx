@@ -204,28 +204,28 @@ const PreviewContent = ({ place, type, day, timeOfDay }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-xl border border-gray-200 max-w-sm">
+    <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 max-w-lg w-full">
       {/* Header */}
-      <div className="p-3 border-b border-gray-100">
+      <div className="p-4 border-b border-white/20">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-900 text-sm truncate">
+            <h4 className="font-bold text-white text-lg truncate">
               {place.name}
             </h4>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-sm text-gray-200 mt-1">
               {place.location?.formattedAddress || place.location?.city || 'Sri Lanka'}
             </p>
             {type === 'itinerary' && (
-              <div className="mt-1 text-xs text-gray-500">
+              <div className="mt-2 text-sm text-orange-300">
                 <p>Day {day} - {timeOfDay === 'day' ? '🌞 Day Time' : '🌙 Night'}</p>
               </div>
             )}
 
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-300 mt-2">
               {type === 'selected' ? 'Selected Destination' : 'Itinerary Item'}
             </p>
           </div>
-          <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1 ${
+          <div className={`w-4 h-4 rounded-full flex-shrink-0 mt-1 ${
             type === 'selected' ? 'bg-blue-500' : 'bg-red-500'
           }`}></div>
         </div>
@@ -233,30 +233,30 @@ const PreviewContent = ({ place, type, day, timeOfDay }) => {
 
       {/* Content Tabs */}
       {(hasImages || hasVideos) && (
-        <div className="flex border-b border-gray-100">
+        <div className="flex border-b border-white/20">
           {hasImages && (
             <button
               onClick={() => setShowVideos(false)}
-              className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-300 ${
                 !showVideos 
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-orange-300 border-b-2 border-orange-400 bg-orange-500/20' 
+                  : 'text-gray-300 hover:text-white hover:bg-white/10'
               }`}
             >
-              <PhotoIcon className="w-4 h-4 inline mr-1" />
+              <PhotoIcon className="w-5 h-5 inline mr-2" />
               Images ({place.images.length})
             </button>
           )}
           {hasVideos && (
             <button
               onClick={() => setShowVideos(true)}
-              className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-300 ${
                 showVideos 
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-orange-300 border-b-2 border-orange-400 bg-orange-500/20' 
+                  : 'text-gray-300 hover:text-white hover:bg-white/10'
               }`}
             >
-              <PlayIcon className="w-4 h-4 inline mr-1" />
+              <PlayIcon className="w-5 h-5 inline mr-2" />
               Videos ({place.videos.length})
             </button>
           )}
@@ -266,13 +266,13 @@ const PreviewContent = ({ place, type, day, timeOfDay }) => {
       {/* Image Preview */}
       {hasImages && !showVideos && (
         <div className="relative">
-          <div className="aspect-video bg-gray-100 rounded-b-lg overflow-hidden">
+          <div className="aspect-video bg-white/10 backdrop-blur-sm rounded-b-2xl overflow-hidden border border-white/20">
             <img
               src={place.images[currentImageIndex]?.url || primaryImage?.url}
               alt={place.images[currentImageIndex]?.caption || place.name}
               className="w-full h-full object-cover"
               onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/400x225?text=Image+Not+Available';
+                e.target.src = 'https://via.placeholder.com/600x400?text=Image+Not+Available';
               }}
             />
           </div>
@@ -282,17 +282,17 @@ const PreviewContent = ({ place, type, day, timeOfDay }) => {
             <>
               <button
                 onClick={prevImage}
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/30 transition-all duration-300 border border-white/30"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/30 transition-all duration-300 border border-white/30"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
@@ -301,14 +301,14 @@ const PreviewContent = ({ place, type, day, timeOfDay }) => {
           
           {/* Image Caption */}
           {place.images[currentImageIndex]?.caption && (
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2">
+            <div className="absolute bottom-0 left-0 right-0 bg-white/20 backdrop-blur-md text-white text-sm p-3 border-t border-white/20">
               {place.images[currentImageIndex].caption}
             </div>
           )}
           
           {/* Image Counter */}
           {place.images.length > 1 && (
-            <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+            <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-md text-white text-sm px-3 py-1 rounded-full border border-white/30">
               {currentImageIndex + 1} / {place.images.length}
             </div>
           )}
@@ -318,7 +318,7 @@ const PreviewContent = ({ place, type, day, timeOfDay }) => {
       {/* Video Preview */}
       {hasVideos && showVideos && (
         <div className="relative">
-          <div className="aspect-video bg-gray-100 rounded-b-lg overflow-hidden">
+          <div className="aspect-video bg-white/10 backdrop-blur-sm rounded-b-2xl overflow-hidden border border-white/20">
             <video
               src={place.videos[currentVideoIndex]?.url}
               poster={place.videos[currentVideoIndex]?.thumbnail?.url}
@@ -335,17 +335,17 @@ const PreviewContent = ({ place, type, day, timeOfDay }) => {
             <>
               <button
                 onClick={prevVideo}
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/30 transition-all duration-300 border border-white/30"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               <button
                 onClick={nextVideo}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-md text-white rounded-full p-2 hover:bg-white/30 transition-all duration-300 border border-white/30"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
@@ -354,14 +354,14 @@ const PreviewContent = ({ place, type, day, timeOfDay }) => {
           
           {/* Video Title */}
           {place.videos[currentVideoIndex]?.title && (
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2">
+            <div className="absolute bottom-0 left-0 right-0 bg-white/20 backdrop-blur-md text-white text-sm p-3 border-t border-white/20">
               {place.videos[currentVideoIndex].title}
             </div>
           )}
           
           {/* Video Counter */}
           {place.videos.length > 1 && (
-            <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+            <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-md text-white text-sm px-3 py-1 rounded-full border border-white/30">
               {currentVideoIndex + 1} / {place.videos.length}
             </div>
           )}
@@ -370,18 +370,18 @@ const PreviewContent = ({ place, type, day, timeOfDay }) => {
 
       {/* No Media Fallback */}
       {!hasImages && !hasVideos && (
-        <div className="aspect-video bg-gray-100 rounded-b-lg flex items-center justify-center">
-          <div className="text-center text-gray-500">
-            <PhotoIcon className="w-8 h-8 mx-auto mb-2" />
-            <p className="text-xs">No images or videos available</p>
+        <div className="aspect-video bg-white/10 backdrop-blur-sm rounded-b-2xl flex items-center justify-center border border-white/20">
+          <div className="text-center text-gray-300">
+            <PhotoIcon className="w-12 h-12 mx-auto mb-3" />
+            <p className="text-sm">No images or videos available</p>
           </div>
         </div>
       )}
 
       {/* Description */}
       {place.shortDescription && (
-        <div className="p-3 border-t border-gray-100">
-          <p className="text-xs text-gray-600 line-clamp-2">{place.shortDescription}</p>
+        <div className="p-4 border-t border-white/20">
+          <p className="text-sm text-gray-200 line-clamp-3">{place.shortDescription}</p>
         </div>
       )}
     </div>
@@ -529,19 +529,19 @@ const InteractiveTripMap = ({
     return (
       <div className="relative" style={{ height }}>
         {/* Map Status Info */}
-        <div className="absolute top-2 left-2 z-10 bg-white rounded-lg px-3 py-2 shadow-lg text-sm">
-          <div className="flex items-center space-x-2">
+        <div className="absolute top-3 left-3 z-10 bg-white/10 backdrop-blur-lg rounded-xl px-4 py-3 shadow-2xl border border-white/20 text-sm">
+          <div className="flex items-center space-x-3">
             <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span className="text-gray-700">Selected: {selectedDestinations.length}</span>
+            <span className="text-white">Selected: {selectedDestinations.length}</span>
             {itineraryItems.length > 0 && (
               <>
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span className="text-gray-700">Itinerary: {itineraryItems.length}</span>
+                <span className="text-white">Itinerary: {itineraryItems.length}</span>
               </>
             )}
           </div>
           {itineraryItems.length > 0 && (
-            <div className="mt-1 text-xs text-gray-600">
+            <div className="mt-2 text-xs text-gray-200">
               Day order: {itineraryItems
                 .sort((a, b) => a.day - b.day || (a.timeOfDay === 'day' ? 0 : 1) - (b.timeOfDay === 'day' ? 0 : 1))
                 .map(item => `Day${item.day}.${item.place.name}`).join(' → ')}
@@ -550,31 +550,31 @@ const InteractiveTripMap = ({
         </div>
 
         {/* Map Legend */}
-        <div className="absolute top-2 right-2 z-10 bg-white rounded-lg px-3 py-2 shadow-lg text-xs">
-          <div className="space-y-1">
+        <div className="absolute top-3 right-3 z-10 bg-white/10 backdrop-blur-lg rounded-xl px-4 py-3 shadow-2xl border border-white/20 text-xs">
+          <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-              <span className="text-gray-700">Selected Places</span>
+              <span className="text-white">Selected Places</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-xs font-bold">1</span>
               </div>
-              <span className="text-gray-700">Itinerary Places (numbered by day)</span>
+              <span className="text-white">Itinerary Places (numbered by day)</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-orange-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-xs font-bold">?</span>
               </div>
-              <span className="text-gray-700">Estimated Location</span>
+              <span className="text-white">Estimated Location</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-blue-500"></div>
-              <span className="text-gray-700">Selection Route</span>
+              <span className="text-white">Selection Route</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-red-500"></div>
-              <span className="text-gray-700">Itinerary Route</span>
+              <span className="text-white">Itinerary Route</span>
             </div>
           </div>
         </div>
@@ -716,17 +716,19 @@ const InteractiveTripMap = ({
             className="absolute z-20 animate-fade-in"
             style={{
               left: '50%',
-              top: '20px',
-              transform: 'translateX(-50%)'
+              top: '10px',
+              transform: 'translateX(-50%)',
+              width: '100%',
+              maxWidth: '500px'
             }}
           >
             <div className="relative">
               <button
                 onClick={() => setHoverInfo(null)}
-                className="absolute -top-2 -right-2 z-30 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                className="absolute -top-3 -right-3 z-30 bg-red-500/80 backdrop-blur-md text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-all duration-300 border border-white/30 shadow-lg"
                 title="Close"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -742,8 +744,8 @@ const InteractiveTripMap = ({
 
         {/* Instructions */}
         {selectedDestinations.length === 0 && (
-          <div className="absolute bottom-2 left-2 right-2 bg-white rounded-lg px-3 py-2 shadow-lg">
-            <p className="text-sm text-gray-600 text-center">
+          <div className="absolute bottom-3 left-3 right-3 bg-white/10 backdrop-blur-lg rounded-xl px-4 py-3 shadow-2xl border border-white/20">
+            <p className="text-sm text-white text-center">
               Select destinations to see them on the interactive map
             </p>
           </div>
@@ -751,8 +753,8 @@ const InteractiveTripMap = ({
         
         {/* Click Instructions */}
         {selectedDestinations.length > 0 && (
-          <div className="absolute bottom-2 left-2 right-2 bg-white rounded-lg px-3 py-2 shadow-lg">
-            <p className="text-sm text-gray-600 text-center">
+          <div className="absolute bottom-3 left-3 right-3 bg-white/10 backdrop-blur-lg rounded-xl px-4 py-3 shadow-2xl border border-white/20">
+            <p className="text-sm text-white text-center">
               Click on markers to view place details with images and videos
             </p>
           </div>

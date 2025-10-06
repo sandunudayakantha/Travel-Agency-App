@@ -105,7 +105,7 @@ const Navigation = () => {
             <Link to="/" className="flex items-center space-x-2">
               <GlobeAltIcon className={`h-8 w-8 ${scrolled ? 'text-blue-600' : 'text-white'}`} />
               <span className={`text-xl font-bold ${scrolled ? 'text-gray-900' : 'text-white'}`}>
-                Wanderlust
+               SeekingLanka
               </span>
             </Link>
           </div>
