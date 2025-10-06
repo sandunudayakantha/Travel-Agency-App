@@ -389,6 +389,11 @@ router.post('/clerk-sync', async (req, res) => {
   try {
     console.log('Clerk sync request body:', req.body);
     
+    // Add CORS headers for Clerk requests
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    
     const { 
       clerkId, 
       email, 

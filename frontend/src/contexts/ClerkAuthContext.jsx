@@ -53,7 +53,7 @@ export const ClerkAuthProvider = ({ children }) => {
             }
 
             const response = await axios.post('/api/auth/clerk-sync', userData).catch(error => {
-              console.warn('Clerk sync failed, using fallback authentication:', error);
+              console.warn('Clerk sync failed, using fallback authentication:', error.response?.data || error.message);
               return null;
             });
             
