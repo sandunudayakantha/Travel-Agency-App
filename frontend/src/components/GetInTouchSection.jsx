@@ -151,9 +151,9 @@ const GetInTouchSection = () => {
 
   return (
     <section ref={sectionRef} className="relative min-h-screen overflow-hidden">
-      {/* Background with fixed parallax effect */}
+      {/* Background image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-fixed"
+        className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(/src/pages/Images/Pidurangala-Rock-Group-Shot.jpg)`
         }}

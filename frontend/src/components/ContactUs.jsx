@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Card } from './ui/card';
-import { MapPin, Phone, Mail, Send, Palmtree, Camera, Mountain } from 'lucide-react';
+import { MapPin, Phone, Mail, Send, Palmtree, Mountain } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useAuth } from '../contexts/AuthContext';
 import { useClerkAuthContext } from '../contexts/ClerkAuthContext';
@@ -25,7 +25,6 @@ const ContactUs = () => {
     message: ''
   });
 
-  const [currentBg, setCurrentBg] = useState(0);
   const [status, setStatus] = useState('idle');
 
   // Animation refs
@@ -48,11 +47,7 @@ const ContactUs = () => {
     }
   }, [user, clerkUser]);
 
-  const backgrounds = [
-    "https://images.unsplash.com/photo-1668529732834-90b5aeed93df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcmklMjBsYW5rYSUyMGJlYWNoJTIwbGFuZHNjYXBlfGVufDF8fHx8MTc1NjAzMjgwMHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    "https://images.unsplash.com/photo-1559038298-ef4eecdfdbb3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHhzcmklMjBsYW5rYSUyMHRlYSUyMHBsYW50YXRpb24lMjBtb3VudGFpbnN8ZW58MXx8fHwxNzU1OTQ1MjMzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    "https://images.unsplash.com/photo-1586870336143-d652f69d44c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHhzcmklMjBsYW5rYSUyMHRlbXBsZSUyMGFyY2hpdGVjdHVyZXxlbnwxfHx8fDE3NTYwMzI4MDB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-  ];
+  const backgroundImage = "https://images.unsplash.com/photo-1668529732834-90b5aeed93df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcmklMjBsYW5rYSUyMGJlYWNoJTIwbGFuZHNjYXBlfGVufDF8fHx8MTc1NjAzMjgwMHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -99,19 +94,16 @@ const ContactUs = () => {
     window.open(telUrl);
   };
 
-  const nextBackground = () => {
-    setCurrentBg((prev) => (prev + 1) % backgrounds.length);
-  };
 
   return (
     <section ref={sectionRef} className="relative min-h-screen overflow-hidden">
-      {/* Dynamic Background */}
+      {/* Fixed Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0">
           <ImageWithFallback
-            src={backgrounds[currentBg]}
-            alt={`Sri Lankan landscape ${currentBg + 1}`}
-            className="w-full h-full object-cover transition-all duration-1000 ease-in-out"
+            src={backgroundImage}
+            alt="Sri Lankan landscape"
+            className="w-full h-full object-cover"
           />
         </div>
         
@@ -119,24 +111,6 @@ const ContactUs = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-orange-900/30 z-10"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
       </div>
-
-      {/* Background Controls */}
-      <motion.div 
-        className="absolute top-8 right-8 z-50"
-        initial={{ opacity: 0, x: 50 }}
-        animate={isSectionInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <Button
-          onClick={nextBackground}
-          variant="ghost"
-          size="sm"
-          className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30"
-        >
-          <Camera className="h-4 w-4 mr-2" />
-          Switch View
-        </Button>
-      </motion.div>
 
       {/* Main Content */}
       <div className="relative z-20 container mx-auto px-4 py-16 min-h-screen flex items-center">
