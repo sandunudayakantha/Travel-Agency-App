@@ -19,6 +19,8 @@ import GalleFort from '../pages/Images/galle-fort-1050x700-1.jpg';
 import Jaffna from '../pages/Images/Jaffna,_srilanka.jpg';
 import NuwaraEliya from '../pages/Images/nuwara-eliya-highlights-waterfall-tea-and-picturesque-train-ride-4058.webp';
 import TempleKandy from '../pages/Images/temple-sacred-tooth-relic-kandy-sri-lanka.jpg';
+import PidurangalaRock from '../pages/Images/Pidurangala-Rock-Group-Shot.jpg';
+import EllaExperience from '../pages/Images/Experience the magic of Ella, Sri Lanka, where a….jpg';
 
 const PinterestGallery = () => {
 
@@ -26,74 +28,74 @@ const PinterestGallery = () => {
   const galleryImages = [
     {
       id: 1,
-      src: Unknown,
-      alt: "Beautiful Sri Lankan Landscape",
-      title: "Tropical Paradise",
-      description: "Experience the breathtaking beauty of Sri Lanka's diverse landscapes, from lush green hills to pristine beaches.",
+      src: PidurangalaRock,
+      alt: "Pidurangala Rock Group Shot",
+      title: "Pidurangala Rock",
+      description: "Climb Pidurangala Rock for the best view of Sigiriya Rock Fortress and enjoy a spectacular sunrise or sunset experience.",
       height: "h-64"
     },
     {
       id: 2,
-      src: Unknown2,
-      alt: "Scenic Sri Lankan View",
-      title: "Natural Beauty",
-      description: "Discover the stunning natural wonders that make Sri Lanka one of the world's most beautiful destinations.",
+      src: EllaExperience,
+      alt: "Ella Sri Lanka Experience",
+      title: "Ella Magic",
+      description: "Experience the magic of Ella, Sri Lanka, where misty mountains meet lush tea plantations in perfect harmony.",
       height: "h-80"
     },
     {
       id: 3,
       src: Unknown3,
-      alt: "Sri Lankan Heritage",
-      title: "Cultural Heritage",
-      description: "Immerse yourself in Sri Lanka's rich cultural heritage, spanning over 2,500 years of history and tradition.",
+      alt: "Sri Lankan Attraction",
+      title: "Local Attraction",
+      description: "Visit this popular attraction that showcases the charm and beauty of Sri Lanka.",
       height: "h-72"
     },
     {
       id: 4,
       src: Unknown4,
-      alt: "Coastal Sri Lanka",
-      title: "Coastal Charm",
-      description: "Explore Sri Lanka's stunning coastline with pristine beaches, coral reefs, and charming fishing villages.",
+      alt: "Sri Lankan View",
+      title: "Panoramic View",
+      description: "Enjoy breathtaking panoramic views that capture the essence of Sri Lanka's natural beauty.",
       height: "h-56"
     },
     {
       id: 5,
       src: Unknown5,
-      alt: "Mountain Views",
-      title: "Mountain Majesty",
-      description: "Witness the majestic mountain ranges of Sri Lanka, home to misty peaks and breathtaking panoramic views.",
+      alt: "Sri Lankan Landscape",
+      title: "Natural Landscape",
+      description: "Experience the diverse natural landscapes that make Sri Lanka a paradise for nature lovers.",
       height: "h-96"
     },
     {
       id: 6,
       src: Unknown6,
-      alt: "Traditional Architecture",
-      title: "Ancient Architecture",
-      description: "Marvel at Sri Lanka's ancient architectural wonders, showcasing the island's rich historical legacy.",
+      alt: "Sri Lankan Heritage",
+      title: "Cultural Site",
+      description: "Discover Sri Lanka's rich cultural heritage through its historical sites and monuments.",
       height: "h-60"
     },
     {
       id: 7,
       src: Unknown7,
-      alt: "Wildlife in Sri Lanka",
-      title: "Wildlife Wonder",
-      description: "Encounter Sri Lanka's incredible wildlife, including elephants, leopards, and over 400 species of birds.",
+      alt: "Sri Lankan Nature",
+      title: "Natural Wonder",
+      description: "Witness the incredible natural wonders that make Sri Lanka a must-visit destination.",
       height: "h-76"
     },
     {
       id: 8,
       src: Unknown8,
-      alt: "Tea Plantations",
-      title: "Tea Country",
-      description: "Visit the world-famous tea plantations of Sri Lanka, where the finest Ceylon tea is grown in misty highlands.",
+      alt: "Sri Lankan Countryside",
+      title: "Rural Beauty",
+      description: "Explore the peaceful countryside and rural beauty that defines Sri Lanka's charm.",
       height: "h-68"
     },
     {
       id: 9,
       src: Unknown9,
-      alt: "Temple Architecture",
-      title: "Sacred Temples",
-      description: "Explore ancient Buddhist temples and sacred sites that have been centers of spirituality for centuries.",
+      alt: "Sri Lankan Architecture",
+      title: "Traditional Architecture",
+      description: "Admire the traditional architecture and cultural landmarks that tell the story of Sri Lanka.",
       height: "h-52"
     },
     {
@@ -241,7 +243,7 @@ const PinterestGallery = () => {
                   <img
                     src={image.src}
                     alt={image.alt}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                   />
                 </div>
