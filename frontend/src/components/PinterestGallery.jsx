@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { HeartIcon, EyeIcon, ShareIcon } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
+import React from 'react';
+import { motion } from 'framer-motion';
 
 // Import local images
 import Unknown from '../pages/Images/Unknown.jpg';
@@ -23,8 +21,6 @@ import NuwaraEliya from '../pages/Images/nuwara-eliya-highlights-waterfall-tea-a
 import TempleKandy from '../pages/Images/temple-sacred-tooth-relic-kandy-sri-lanka.jpg';
 
 const PinterestGallery = () => {
-  const [likedImages, setLikedImages] = useState(new Set());
-  const [hoveredImage, setHoveredImage] = useState(null);
 
   // Local images with different aspect ratios for Pinterest-style layout
   const galleryImages = [
@@ -166,17 +162,6 @@ const PinterestGallery = () => {
     }
   ];
 
-  const handleLike = (imageId) => {
-    setLikedImages(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(imageId)) {
-        newSet.delete(imageId);
-      } else {
-        newSet.add(imageId);
-      }
-      return newSet;
-    });
-  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -245,83 +230,23 @@ const PinterestGallery = () => {
               key={image.id}
               variants={itemVariants}
               className="break-inside-avoid mb-6 group cursor-pointer"
-              onMouseEnter={() => setHoveredImage(image.id)}
-              onMouseLeave={() => setHoveredImage(null)}
+              whileHover={{ 
+                y: -5,
+                transition: { duration: 0.3, ease: "easeOut" }
+              }}
             >
-              <div className="relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+              <div className="relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-300">
                 {/* Image */}
                 <div className={`relative ${image.height} overflow-hidden`}>
                   <img
                     src={image.src}
                     alt={image.alt}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
                   />
-                  
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
-                  {/* Action buttons */}
-                  <AnimatePresence>
-                    {hoveredImage === image.id && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute top-4 right-4 flex gap-2"
-                      >
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleLike(image.id);
-                          }}
-                          className="p-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30 hover:bg-white/30 transition-colors duration-200"
-                        >
-                          {likedImages.has(image.id) ? (
-                            <HeartSolidIcon className="h-5 w-5 text-red-500" />
-                          ) : (
-                            <HeartIcon className="h-5 w-5 text-white" />
-                          )}
-                        </motion.button>
-                        
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          className="p-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30 hover:bg-white/30 transition-colors duration-200"
-                        >
-                          <ShareIcon className="h-5 w-5 text-white" />
-                        </motion.button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </div>
 
-                {/* Content overlay */}
-                <AnimatePresence>
-                  {hoveredImage === image.id && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 20 }}
-                      transition={{ duration: 0.3 }}
-                      className="absolute bottom-0 left-0 right-0 p-4"
-                    >
-                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20">
-                        <h3 className="text-white font-semibold text-lg mb-2">
-                          {image.title}
-                        </h3>
-                        <p className="text-white/90 text-sm leading-relaxed">
-                          {image.description}
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Default content (always visible) */}
+                {/* Content */}
                 <div className="p-4">
                   <h3 className="text-gray-800 font-semibold text-lg mb-2 group-hover:text-blue-600 transition-colors duration-300">
                     {image.title}
@@ -346,7 +271,7 @@ const PinterestGallery = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 bg-white/20 backdrop-blur-md border-2 border-white/30 text-gray-800 rounded-full hover:bg-white/30 hover:border-white/50 transition-all duration-300 shadow-xl font-semibold"
+            className="px-8 py-4 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all duration-300 shadow-lg font-semibold"
           >
             View All Photos
           </motion.button>
